@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>欧洲之旅 2026</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  /* 布局：单列容器，首页为每日卡片网格，详情页为时间线列表；国家色区分西/法/瑞 */
+  :root {
+    --bg: #eef1f2;
+    --surface: #ffffff;
+    --surface-2: #e8ecee;
+    --text: #1b2226;
+    --muted: #5f6b73;
+    --line: #d9dfe2;
+    --accent: #2e5e52;
+    --on-accent: #ffffff;
+    --danger: #b3412f;
+    --es: #c4533b;
+    --fr: #3a5aa6;
+    --ch: #b4303a;
+    --scrim: rgba(10, 16, 20, .4);
+    --shadow: 0 1px 2px rgba(20,30,40,.05), 0 6px 18px rgba(20,30,40,.06);
+    --radius: 16px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111517; --surface: #1a2023; --surface-2: #232a2e; --text: #e5eaed; --muted: #94a1a9;
+      --line: #2c3539; --accent: #7cbca8; --on-accent: #0d1f1a; --danger: #e5775f;
+      --es: #e2805f; --fr: #86a2e6; --ch: #e7686f; --scrim: rgba(0,0,0,.55);
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111517; --surface: #1a2023; --surface-2: #232a2e; --text: #e5eaed; --muted: #94a1a9;
+    --line: #2c3539; --accent: #7cbca8; --on-accent: #0d1f1a; --danger: #e5775f;
+    --es: #e2805f; --fr: #86a2e6; --ch: #e7686f; --scrim: rgba(0,0,0,.55);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text); font-family: var(--font);
+    font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .wrap {
+    max-width: 920px; margin: 0 auto;
+    padding-block: 24px 96px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* ---------- 顶栏 ---------- */
+  .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  .top > div:first-child { min-width: 0; }
+  .top h1 { font-size: 28px; margin: 0; letter-spacing: .5px; text-wrap: balance; }
+  .top .sub { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .top-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+  .chip {
+    border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+    padding: 6px 12px; font-size: 13px; white-space: nowrap;
+  }
+  .chip:hover:not(:disabled) { background: var(--surface-2); }
+  .chip:disabled { opacity: .4; cursor: default; }
+  .sync { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .sync::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--dot, var(--muted)); }
+  .sync[data-s="ok"] { --dot: #3f9d6e; }
+  .sync[data-s="saving"] { --dot: #d19a2a; }
+  .sync[data-s="offline"], .sync[data-s="error"] { --dot: var(--danger); }
+  .menu { position: relative; }
+  .menu-pop {
+    position: absolute; right: 0; top: calc(100% + 6px); z-index: 20;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--shadow); padding: 6px; min-width: 200px;
+  }
+  .menu-pop button {
+    display: block; width: 100%; text-align: left; background: none; border: 0;
+    padding: 8px 10px; border-radius: 8px; font-size: 14px;
+  }
+  .menu-pop button:hover { background: var(--surface-2); }
+  .menu-pop .danger { color: var(--danger); }
+
+  .banner {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .banner .big { font-size: 26px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .banner .txt { font-size: 14px; color: var(--muted); }
+
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 0 2px 12px; }
+  .legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; background: var(--c); }
+
+  /* ---------- 日卡片 ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .card {
+    position: relative; text-align: left; background: var(--surface); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); min-width: 0;
+    display: flex; flex-direction: column; gap: 6px; min-height: 168px;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--c); }
+  .card .icon {
+    width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 26px;
+    background: color-mix(in srgb, var(--c) 15%, transparent);
+  }
+  .card .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-top: 4px; }
+  .card .dayno { font-weight: 700; font-size: 15px; }
+  .card .date { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .card .place { font-size: 14px; font-weight: 600; }
+  .card .theme { font-size: 13px; color: var(--muted); }
+  .card .count { margin-top: auto; font-size: 12px; color: var(--muted); }
+  .card .bar { height: 4px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-top: 4px; }
+  .card .bar i { display: block; height: 100%; background: var(--c); }
+  .card.today { border-color: var(--c); border-width: 2px; padding: 15px; }
+  .card .today-tag {
+    position: absolute; top: 12px; right: 12px; font-size: 11px; padding: 2px 8px; border-radius: 999px;
+    background: var(--c); color: var(--surface);
+  }
+
+  /* ---------- 详情页 ---------- */
+  .dhead {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 16px;
+  }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+  .nav .arrows { display: flex; gap: 6px; }
+  .dtitle { display: flex; gap: 14px; align-items: center; }
+  .dtitle > div:last-child { min-width: 0; }
+  .dtitle .icon {
+    width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; font-size: 32px; flex-shrink: 0;
+    background: color-mix(in srgb, var(--c) 15%, transparent);
+  }
+  .dtitle h2 { margin: 0; font-size: 20px; text-wrap: balance; }
+  .dtitle .d { color: var(--muted); font-size: 14px; }
+
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .item {
+    display: grid; grid-template-columns: 28px 120px minmax(0, 1fr) auto; gap: 10px; align-items: start;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px;
+  }
+  .item.done .text, .item.done .time { color: var(--muted); text-decoration: line-through; }
+  .item .time { font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; color: var(--c); padding-top: 1px; }
+  .item .text { font-size: 15px; overflow-wrap: anywhere; }
+  .item .text .tag { font-size: 11px; color: var(--accent); border: 1px solid currentColor; border-radius: 6px; padding: 0 5px; margin-left: 6px; vertical-align: 1px; }
+  .check {
+    width: 22px; height: 22px; border-radius: 7px; border: 1.5px solid var(--line); background: var(--surface);
+    display: grid; place-items: center; padding: 0; margin-top: 1px; font-size: 13px;
+  }
+  .item.done .check { background: var(--c); border-color: var(--c); color: var(--surface); }
+  .acts { display: flex; gap: 2px; opacity: .4; transition: opacity .15s; }
+  .item:hover .acts, .item:focus-within .acts { opacity: 1; }
+  .icon-btn { background: none; border: 0; padding: 4px 6px; border-radius: 8px; font-size: 15px; line-height: 1; color: var(--muted); }
+  .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+  .icon-btn.del:hover { color: var(--danger); }
+
+  .add-btn {
+    width: 100%; margin-top: 10px; padding: 12px; border-radius: 12px; border: 1.5px dashed var(--line);
+    background: transparent; color: var(--muted); font-size: 15px;
+  }
+  .add-btn:hover { border-color: var(--c); color: var(--c); }
+  .empty { text-align: center; color: var(--muted); padding: 28px 0; }
+
+  .notes { margin-top: 20px; }
+  .notes h3 { font-size: 15px; margin: 0 0 8px; }
+  textarea, input[type=text] {
+    width: 100%; font: inherit; color: var(--text); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+  }
+  textarea { min-height: 96px; resize: vertical; }
+  .saved { font-size: 12px; color: var(--muted); min-height: 16px; margin-top: 4px; }
+  .reset-day { margin-top: 18px; background: none; border: 0; color: var(--muted); font-size: 13px; text-decoration: underline; padding: 0; }
+  .ro-note { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+
+  /* ---------- 弹窗 ---------- */
+  .modal-bg {
+    position: fixed; inset: 0; background: var(--scrim); z-index: 50;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .modal {
+    background: var(--surface); width: 100%; max-width: 520px; border-radius: 20px 20px 0 0;
+    padding: 20px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    box-shadow: var(--shadow);
+  }
+  @media (min-width: 640px) {
+    .modal-bg { align-items: center; }
+    .modal { border-radius: 20px; padding: 24px; }
+  }
+  .modal h3 { margin: 0 0 14px; font-size: 18px; }
+  .modal p { margin: 0; color: var(--muted); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .quick button { font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); }
+  .modal .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  .btn { border-radius: 10px; padding: 9px 18px; border: 1px solid var(--line); background: var(--surface); font-size: 15px; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn.danger { background: var(--danger); border-color: var(--danger); color: var(--surface); }
+
+  /* ---------- 提示 ---------- */
+  .toast {
+    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%) translateY(20px); opacity: 0; pointer-events: none;
+    background: var(--text); color: var(--bg); border-radius: 12px; padding: 10px 14px; font-size: 14px;
+    display: flex; gap: 14px; align-items: center; transition: opacity .2s, transform .2s; z-index: 60; max-width: calc(100% - 32px);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+  .toast button { background: none; border: 0; color: inherit; font-weight: 700; text-decoration: underline; padding: 0; }
+
+  @media (max-width: 560px) {
+    .top h1 { font-size: 22px; }
+    .top { flex-wrap: wrap; }
+    .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .card { padding: 12px; min-height: 150px; }
+    .card.today { padding: 11px; }
+    .card .icon { width: 40px; height: 40px; font-size: 22px; border-radius: 12px; }
+    .card .meta { flex-direction: column; gap: 0; }
+    .item { grid-template-columns: 24px minmax(0, 1fr) auto; row-gap: 2px; }
+    .item .time { grid-column: 2; grid-row: 1; }
+    .item .text { grid-column: 2; grid-row: 2; }
+    .item .acts { grid-column: 3; grid-row: 1 / span 2; opacity: 1; flex-direction: column; }
+    .item .check { grid-row: 1 / span 2; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card, .toast, .acts { transition: none; }
+  }
+  @media print {
+    .top-actions, .acts, .add-btn, .reset-day, .nav .arrows, .check { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<div class="modal-bg" id="modalBg" hidden>
+  <form class="modal" id="itemForm" autocomplete="off">
+    <h3 id="modalTitle">添加行程</h3>
+    <div class="field">
+      <label for="fTime">时间（可留空，如 14:00–15:30、约 19:00、下午）</label>
+      <input type="text" id="fTime" placeholder="14:00–15:30">
+    </div>
+    <div class="field">
+      <label for="fText">内容</label>
+      <input type="text" id="fText" placeholder="例如：去某某餐厅吃晚饭" required>
+      <div class="quick" id="quick"></div>
+    </div>
+    <div class="row">
+      <button type="button" class="btn" id="cancelBtn">取消</button>
+      <button type="submit" class="btn primary">保存</button>
+    </div>
+  </form>
+</div>
+
+<div class="modal-bg" id="askBg" hidden>
+  <div class="modal" role="alertdialog" aria-labelledby="askTitle">
+    <h3 id="askTitle">确认</h3>
+    <p id="askMsg"></p>
+    <div class="row">
+      <button type="button" class="btn" id="askNo">取消</button>
+      <button type="button" class="btn danger" id="askYes">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastUndo" type="button">撤销</button></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script>
+// 原始行程数据（来自 Roteiro_de_Viagem_Europa_19-31_dez_2026.pdf）
+// 每条：[中文时间, 中文内容, 葡语时间, 葡语内容]
+window.TRIP_DATA = {
+  title: "欧洲之旅 2026",
+  start: "2026-12-19",
+  days: [
+    {
+      date: "2026-12-19", icon: "⛪", country: "es",
+      place: "巴塞罗那", placePt: "Barcelona",
+      theme: "抵达 · 哥特区 · 圣家堂",
+      items: [
+        ["07:40", "抵达巴塞罗那", "07:40", "Chegada a Barcelona"],
+        ["07:40–09:00", "入境检查、提取行李", "07:40–09:00", "Controle de imigração e retirada da bagagem"],
+        ["09:00–10:00", "机场 → 酒店", "09:00–10:00", "Aeroporto → hotel"],
+        ["10:00–10:15", "在酒店寄存行李", "10:00–10:15", "Deixar a bagagem no hotel"],
+        ["10:15–12:30", "漫步哥特区：加泰罗尼亚广场 → 巴塞罗那主教座堂（外观）→ 主教街 / 主教桥", "10:15–12:30", "Passeio pelo Bairro Gótico: Plaça de Catalunya → exterior da Catedral de Barcelona → Carrer del Bisbe / Pont del Bisbe"],
+        ["12:30–13:45", "午餐", "12:30–13:45", "Almoço"],
+        ["13:45–14:30", "返回酒店", "13:45–14:30", "Retorno ao hotel"],
+        ["14:30–15:00", "入住前在酒店附近等候 / 短暂休息", "14:30–15:00", "Tempo de espera / breve descanso próximo ao hotel antes do check-in"],
+        ["15:00–15:30", "办理入住、取回行李、简单整理", "15:00–15:30", "Check-in no hotel, retirada da bagagem e breve organização"],
+        ["15:30–16:00", "酒店 → 圣家堂", "15:30–16:00", "Hotel → Sagrada Família"],
+        ["16:00–17:30", "参观圣家堂：大殿内部、彩色玻璃窗及主要建筑元素", "16:00–17:30", "Visita à Sagrada Família: interior da basílica, vitrais e principais elementos arquitetônicos"],
+        ["17:30–17:50", "圣家堂 → 格拉西亚大道", "17:30–17:50", "Sagrada Família → Passeig de Gràcia"],
+        ["17:50–19:00", "漫步格拉西亚大道，外观巴特罗之家与米拉之家", "17:50–19:00", "Passeio pela Passeig de Gràcia, com vista externa da Casa Batlló e da Casa Milà"],
+        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
+        ["20:30 后", "返回酒店休息", "Após 20:30", "Retorno ao hotel e descanso"]
+      ]
+    },
+    {
+      date: "2026-12-20", icon: "🦎", country: "es",
+      place: "巴塞罗那", placePt: "Barcelona",
+      theme: "桂尔公园 · 巴特罗之家 · 蒙特惠奇",
+      items: [
+        ["08:30–09:00", "起床、整理、准备出发", "08:30–09:00", "Acordar, organizar-se e preparar a saída"],
+        ["09:00–09:30", "酒店 → 桂尔公园", "09:00–09:30", "Hotel → Park Güell"],
+        ["09:30–11:00", "参观桂尔公园：古迹区、马赛克长椅、蜥蜴喷泉与城市观景台", "09:30–11:00", "Visita ao Park Güell: zona monumental, banco de mosaicos, fonte do lagarto e mirantes da cidade"],
+        ["11:00–11:30", "桂尔公园 → 午餐餐厅", "11:00–11:30", "Park Güell → restaurante para almoço"],
+        ["11:30–13:00", "午餐", "11:30–13:00", "Almoço"],
+        ["13:00–13:15", "前往巴特罗之家", "13:00–13:15", "Deslocamento até a Casa Batlló"],
+        ["13:15–14:30", "参观巴特罗之家", "13:15–14:30", "Visita à Casa Batlló"],
+        ["14:30–14:45", "巴特罗之家 → 酒店", "14:30–14:45", "Casa Batlló → hotel"],
+        ["14:45–15:15", "回酒店短暂休息", "14:45–15:15", "Breve descanso no hotel"],
+        ["15:15–15:45", "酒店 → 蒙特惠奇缆车站", "15:15–15:45", "Hotel → área do teleférico de Montjuïc"],
+        ["15:45–16:00", "乘蒙特惠奇缆车上山", "15:45–16:00", "Subida pelo Telefèric de Montjuïc"],
+        ["16:00–17:15", "参观蒙特惠奇城堡及俯瞰巴塞罗那港的观景台", "16:00–17:15", "Visita ao Castell de Montjuïc e aos mirantes com vista para o porto de Barcelona"],
+        ["17:15–17:35", "蒙特惠奇山顶观景台看日落", "17:15–17:35", "Mirante no alto de Montjuïc e pôr do sol"],
+        ["17:35–17:40", "前往缆车站", "17:35–17:40", "Deslocamento até a estação do teleférico"],
+        ["约 17:40", "乘缆车下山", "Por volta de 17:40", "Descida de teleférico"],
+        ["18:00–19:00", "下山后前往餐厅 / 自由活动", "18:00–19:00", "Após a descida, ida ao restaurante / tempo livre"],
+        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
+        ["20:30 后", "返回酒店休息", "Após 20:30", "Retorno ao hotel e descanso"]
+      ]
+    },
+    {
+      date: "2026-12-21", icon: "🌇", country: "es",
+      place: "巴塞罗那", placePt: "Barcelona",
+      theme: "提比达博 · 卡梅尔碉堡日落",
+      items: [
+        ["09:00–09:30", "起床、整理、准备出发", "09:00–09:30", "Acordar, organizar-se e preparar a saída"],
+        ["09:30–10:30", "酒店 → 提比达博；前往 Cuca de Llum 缆车站", "09:30–10:30", "Hotel → Tibidabo; deslocamento até a estação da Cuca de Llum e subida"],
+        ["10:30–11:00", "乘 Cuca de Llum 缆车到提比达博山顶", "10:30–11:00", "Subida pela Cuca de Llum até a área do topo do Tibidabo"],
+        ["11:00–12:15", "参观圣心赎罪殿（Sagrat Cor），包括教堂内部与山顶观景台", "11:00–12:15", "Visita ao Temple Expiatori del Sagrat Cor, incluindo o interior da igreja e os mirantes no topo"],
+        ["12:15–13:30", "游览提比达博全景区及游乐园区域，俯瞰巴塞罗那全景", "12:15–13:30", "Passeio pela Tibidabo Panoramic Area e pela área do parque, com vista panorâmica de Barcelona"],
+        ["13:30–14:45", "午餐", "13:30–14:45", "Almoço"],
+        ["14:45–15:30", "提比达博 → 罗维拉山 / 卡梅尔碉堡", "14:45–15:30", "Tibidabo → Turó de la Rovira / Bunkers del Carmel"],
+        ["15:30–17:25", "游览罗维拉山（Turó de la Rovira），360° 俯瞰巴塞罗那并等待日落", "15:30–17:25", "Visita ao Turó de la Rovira, com vista panorâmica de 360° de Barcelona e espera pelo pôr do sol"],
+        ["约 17:24", "巴塞罗那日落", "Por volta de 17:24", "Pôr do sol em Barcelona"],
+        ["17:25–18:00", "离开罗维拉山，返回市中心", "17:25–18:00", "Saída do Turó de la Rovira e retorno ao centro"],
+        ["18:00–19:00", "回酒店短暂休息", "18:00–19:00", "Retorno ao hotel para breve descanso"],
+        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
+        ["20:30 后", "回酒店休息，整理去巴黎的行李", "Após 20:30", "Retorno ao hotel, descanso e organização da bagagem para Paris"]
+      ]
+    },
+    {
+      date: "2026-12-22", icon: "🗼", country: "fr",
+      place: "巴塞罗那 → 巴黎", placePt: "Barcelona → Paris",
+      theme: "飞往巴黎 · 埃菲尔铁塔",
+      items: [
+        ["06:15–06:45", "起床、整理行李、退房", "06:15–06:45", "Acordar, organizar a bagagem e fazer check-out"],
+        ["06:45–07:15", "酒店 → 巴塞罗那-埃尔普拉特机场", "06:45–07:15", "Hotel → Aeroporto Barcelona-El Prat"],
+        ["07:15–08:50", "安检、前往登机口、候机", "07:15–08:50", "Controle de segurança, deslocamento ao portão e espera para embarque"],
+        ["09:15–11:05", "✈️ 航班：巴塞罗那 → 巴黎奥利机场", "09:15–11:05", "Voo Barcelona → Paris-Orly"],
+        ["11:05–11:40", "下机、提取行李", "11:05–11:40", "Desembarque e retirada da bagagem"],
+        ["11:40–12:30", "奥利机场 → 巴黎市中心 / 酒店", "11:40–12:30", "Aeroporto Paris-Orly → centro de Paris / hotel"],
+        ["12:30–13:00", "酒店寄存行李或办理入住", "12:30–13:00", "Deixar a bagagem no hotel ou fazer check-in"],
+        ["13:00–14:15", "午餐", "13:00–14:15", "Almoço"],
+        ["14:15–15:00", "短暂休息后出发", "14:15–15:00", "Breve descanso e saída"],
+        ["15:00–15:30", "前往特罗卡德罗", "15:00–15:30", "Deslocamento até o Trocadéro"],
+        ["15:30–16:30", "漫步特罗卡德罗，远眺埃菲尔铁塔全景", "15:30–16:30", "Passeio pelo Trocadéro, com vista panorâmica da Torre Eiffel"],
+        ["16:30–17:30", "参观埃菲尔铁塔与战神广场，看日落和铁塔亮灯", "16:30–17:30", "Visita à Torre Eiffel e ao Champ de Mars, com pôr do sol e vista da torre iluminada"],
+        ["17:30–18:30", "塞纳河畔散步", "17:30–18:30", "Caminhada às margens do rio Sena"],
+        ["18:30–19:00", "前往餐厅", "18:30–19:00", "Deslocamento até o restaurante"],
+        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
+        ["20:30 后", "返回酒店休息", "Após 20:30", "Retorno ao hotel e descanso"]
+      ]
+    },
+    {
+      date: "2026-12-23", icon: "🖼️", country: "fr",
+      place: "巴黎", placePt: "Paris",
+      theme: "圣母院 · 卢浮宫 · 凯旋门",
+      items: [
+        ["08:00–08:30", "起床、整理、出发", "08:00–08:30", "Acordar, organizar-se e sair"],
+        ["08:30–09:30", "参观巴黎圣母院", "08:30–09:30", "Visita à Catedral de Notre-Dame de Paris"],
+        ["09:30–10:15", "漫步西岱岛及塞纳河畔", "09:30–10:15", "Passeio pela Île de la Cité e às margens do Sena"],
+        ["10:15–10:30", "前往卢浮宫", "10:15–10:30", "Deslocamento até o Musée du Louvre"],
+        ["10:30–12:30", "参观卢浮宫，包括主要馆藏和玻璃金字塔区域", "10:30–12:30", "Visita ao Museu do Louvre, incluindo as principais coleções e a área da pirâmide de vidro"],
+        ["12:30–13:45", "午餐", "12:30–13:45", "Almoço"],
+        ["13:45–14:30", "漫步杜乐丽花园与协和广场", "13:45–14:30", "Passeio pelo Jardin des Tuileries e pela Place de la Concorde"],
+        ["14:30–15:30", "漫步香榭丽舍大街", "14:30–15:30", "Passeio pela Avenue des Champs-Élysées"],
+        ["15:30–17:15", "参观凯旋门，登顶观景台看巴黎日落", "15:30–17:15", "Visita ao Arc de Triomphe, subida ao mirante e pôr do sol sobre Paris"],
+        ["17:15–18:30", "香榭丽舍圣诞灯饰 & 自由活动", "17:15–18:30", "Iluminação de Natal na Champs-Élysées e tempo livre"],
+        ["18:30–19:00", "前往餐厅", "18:30–19:00", "Deslocamento até o restaurante"],
+        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
+        ["20:30 后", "返回酒店休息", "Após 20:30", "Retorno ao hotel e descanso"]
+      ]
+    },
+    {
+      date: "2026-12-24", icon: "🚄", country: "ch",
+      place: "巴黎 → 格林德瓦", placePt: "Paris → Grindelwald",
+      theme: "火车进阿尔卑斯 · 平安夜",
+      items: [
+        ["06:30–07:00", "起床、整理行李、退房", "06:30–07:00", "Acordar, organizar a bagagem e fazer check-out"],
+        ["07:00–07:20", "前往巴黎里昂站", "07:00–07:20", "Deslocamento até a Gare de Lyon, em Paris"],
+        ["上午", "🚄 TGV Lyria：巴黎 → 巴塞尔 SBB（具体车次以出票为准）", "Manhã", "TGV Lyria: Paris → Basel SBB (trem específico conforme emissão da passagem)"],
+        ["中午", "在巴塞尔 SBB 换乘瑞士国内列车，前往因特拉肯东站", "Meio-dia", "Conexão em Basel SBB para trem doméstico suíço com destino a Interlaken Ost"],
+        ["下午", "因特拉肯东站 → 格林德瓦", "Tarde", "Interlaken Ost → Grindelwald"],
+        ["约 14:00", "抵达格林德瓦，酒店入住", "Por volta de 14:00", "Chegada a Grindelwald e check-in no hotel"],
+        ["14:30–15:30", "午餐", "14:30–15:30", "Almoço"],
+        ["15:30–17:00", "漫步格林德瓦小镇及观景点，欣赏冬日艾格峰与阿尔卑斯山景", "15:30–17:00", "Passeio pela vila de Grindelwald e pelos pontos panorâmicos, com vista do Eiger e dos Alpes no inverno"],
+        ["17:00–18:00", "回酒店休息", "17:00–18:00", "Retorno ao hotel e descanso"],
+        ["18:00–19:30", "🎄 平安夜晚餐（建议提前预订）", "18:00–19:30", "Jantar de véspera de Natal (reserva antecipada recomendada)"],
+        ["19:30 后", "返回酒店休息", "Após 19:30", "Retorno ao hotel e descanso"]
+      ]
+    },
+    {
+      date: "2026-12-25", icon: "🏔️", country: "ch",
+      place: "劳特布伦嫩 → 文根 → 小沙伊德格", placePt: "Lauterbrunnen → Wengen → Kleine Scheidegg",
+      theme: "圣诞节 · 少女峰山谷",
+      items: [
+        ["08:00–08:30", "起床、整理、准备出发", "08:00–08:30", "Acordar, organizar-se e preparar a saída"],
+        ["08:30–09:30", "格林德瓦 → 劳特布伦嫩", "08:30–09:30", "Grindelwald → Lauterbrunnen"],
+        ["09:30–11:00", "漫步冬日劳特布伦嫩山谷与小镇", "09:30–11:00", "Passeio pelo vale de Lauterbrunnen e pela vila no inverno"],
+        ["11:00–11:20", "劳特布伦嫩 → 文根", "11:00–11:20", "Lauterbrunnen → Wengen"],
+        ["11:20–13:00", "漫步文根并午餐", "11:20–13:00", "Passeio por Wengen e almoço"],
+        ["13:00–13:30", "文根 → 小沙伊德格", "13:00–13:30", "Wengen → Kleine Scheidegg"],
+        ["13:30–15:30", "小沙伊德格观景点，眺望艾格峰、僧侣峰与少女峰", "13:30–15:30", "Mirantes em Kleine Scheidegg, com vista do Eiger, Mönch e Jungfrau"],
+        ["15:30–16:30", "返回格林德瓦", "15:30–16:30", "Retorno a Grindelwald"],
+        ["16:30 后", "回酒店休息、晚餐", "Após 16:30", "Retorno ao hotel, descanso e jantar"]
+      ]
+    },
+    {
+      date: "2026-12-26", icon: "🚡", country: "ch",
+      place: "格林德瓦-菲斯特", placePt: "Grindelwald-First",
+      theme: "菲斯特 · 悬崖步道",
+      items: [
+        ["08:00–08:30", "起床、整理，查看天气预报和山顶实时摄像头", "08:00–08:30", "Acordar, organizar-se e verificar a previsão do tempo e as câmeras ao vivo da montanha"],
+        ["08:30–09:00", "前往格林德瓦-菲斯特缆车站", "08:30–09:00", "Deslocamento até a estação do teleférico de Grindelwald-First"],
+        ["约 09:00", "乘缆车上菲斯特", "Por volta de 09:00", "Subida de teleférico até Grindelwald-First"],
+        ["09:30–13:30", "游览菲斯特：观景台、First Cliff Walk 悬崖步道与冬季阿尔卑斯风光", "09:30–13:30", "Visita a Grindelwald-First: mirantes, First Cliff Walk e paisagens alpinas de inverno"],
+        ["13:30–14:30", "午餐", "13:30–14:30", "Almoço"],
+        ["14:30–16:20", "山顶自由时间，欣赏并拍摄雪山与冬日风景", "14:30–16:20", "Tempo livre no topo para contemplação e fotografia das montanhas e da paisagem de inverno"],
+        ["16:20–16:50", "山顶看日落（视天气和当天运营时间而定）", "16:20–16:50", "Pôr do sol no topo, conforme as condições climáticas e o horário de funcionamento do dia"],
+        ["16:50 后", "根据末班缆车时间下山，返回格林德瓦", "Após 16:50", "Descida conforme o horário do último teleférico do dia e retorno a Grindelwald"],
+        ["约 19:00", "晚餐、休息", "Por volta de 19:00", "Jantar e descanso"]
+      ]
+    },
+    {
+      date: "2026-12-27", icon: "❄️", country: "ch",
+      place: "少女峰", placePt: "Jungfraujoch",
+      theme: "欧洲之巅 · 冰宫",
+      items: [
+        ["07:30–08:00", "起床、整理，查看天气和少女峰实时摄像头", "07:30–08:00", "Acordar, organizar-se e verificar o tempo e as câmeras ao vivo de Jungfraujoch"],
+        ["约 08:00", "前往格林德瓦交通枢纽站", "Por volta de 08:00", "Deslocamento até o terminal de transporte de Grindelwald"],
+        ["约 08:30", "乘艾格快线至艾格冰川站，换乘少女峰铁路", "Por volta de 08:30", "Eiger Express até Eigergletscher e conexão com a ferrovia de Jungfrau"],
+        ["09:15–13:30", "游览少女峰：斯芬克斯观景台、冰宫与阿莱奇冰川观景点", "09:15–13:30", "Visita a Jungfraujoch: observatório Sphinx, Palácio de Gelo e mirantes da geleira Aletsch"],
+        ["13:30–14:30", "午餐、休息", "13:30–14:30", "Almoço e descanso"],
+        ["14:30–16:20", "继续游览，拍摄少女峰雪景", "14:30–16:20", "Continuação da visita e fotografia das paisagens de neve em Jungfraujoch"],
+        ["16:20–16:50", "若天气和末班车时间允许，在山顶看日落", "16:20–16:50", "Se o tempo e o horário do último trem permitirem, pôr do sol no topo"],
+        ["16:50 后", "根据末班火车时间下山，返回格林德瓦", "Após 16:50", "Descida conforme o horário do último trem do dia e retorno a Grindelwald"],
+        ["约 19:00", "晚餐、休息", "Por volta de 19:00", "Jantar e descanso"]
+      ]
+    },
+    {
+      date: "2026-12-28", icon: "🏞️", country: "ch",
+      place: "格林德瓦 → 坎德施泰格 → 采尔马特", placePt: "Grindelwald → Kandersteg → Zermatt",
+      theme: "厄希嫩湖",
+      items: [
+        ["07:30–08:00", "起床、整理行李、退房", "07:30–08:00", "Acordar, organizar a bagagem e fazer check-out"],
+        ["约 08:30", "格林德瓦 → 坎德施泰格", "Por volta de 08:30", "Grindelwald → Kandersteg"],
+        ["约 10:30", "抵达坎德施泰格，寄存行李", "Por volta de 10:30", "Chegada a Kandersteg e guarda da bagagem"],
+        ["10:30–11:15", "午餐", "10:30–11:15", "Almoço"],
+        ["约 11:30", "前往厄希嫩湖缆车站并上山", "Por volta de 11:30", "Deslocamento até a estação do teleférico de Oeschinensee e subida"],
+        ["12:00–15:30", "游览厄希嫩湖及开放中的冬季步道", "12:00–15:30", "Visita ao Lago Oeschinen e às trilhas de inverno que estiverem abertas"],
+        ["15:30–16:15", "下山返回坎德施泰格取行李", "15:30–16:15", "Descida e retorno a Kandersteg para retirar a bagagem"],
+        ["约 16:30–19:00", "🚆 坎德施泰格 → 采尔马特（具体车次以出票为准）", "Aprox. 16:30–19:00", "Kandersteg → Zermatt (horários específicos conforme emissão da passagem)"],
+        ["约 19:00", "抵达采尔马特，酒店入住", "Por volta de 19:00", "Chegada a Zermatt e check-in no hotel"],
+        ["约 19:30", "晚餐、休息", "Por volta de 19:30", "Jantar e descanso"]
+      ]
+    },
+    {
+      date: "2026-12-29", icon: "🗻", country: "ch",
+      place: "采尔马特", placePt: "Zermatt",
+      theme: "戈尔内格拉特 · 马特洪峰",
+      items: [
+        ["07:30–08:00", "起床、整理，查看天气和马特洪峰实时摄像头", "07:30–08:00", "Acordar, organizar-se e verificar o tempo e as câmeras ao vivo do Matterhorn"],
+        ["08:00–08:30", "前往戈尔内格拉特铁路站", "08:00–08:30", "Deslocamento até a estação da Gornergrat Bahn"],
+        ["约 08:30", "乘戈尔内格拉特登山铁路上山", "Por volta de 08:30", "Subida pela ferrovia de montanha Gornergrat Bahn"],
+        ["09:15–13:30", "游览戈尔内格拉特观景台，眺望马特洪峰、冰川与雪山", "09:15–13:30", "Visita aos mirantes de Gornergrat, com vista do Matterhorn, geleiras e montanhas nevadas"],
+        ["13:30–14:30", "午餐、休息", "13:30–14:30", "Almoço e descanso"],
+        ["14:30–16:30", "山顶欣赏与拍摄马特洪峰及阿尔卑斯风光", "14:30–16:30", "Tempo no topo para contemplação e fotografia do Matterhorn e das paisagens alpinas"],
+        ["16:30–17:10", "日落与蓝调时刻（视末班火车时间而定）", "16:30–17:10", "Pôr do sol e hora azul, de acordo com o horário do último trem do dia"],
+        ["17:10 后", "乘登山铁路返回采尔马特", "Após 17:10", "Retorno a Zermatt pela ferrovia de montanha"],
+        ["18:00–19:00", "漫步采尔马特小镇；若天气晴朗，拍摄马特洪峰夜景", "18:00–19:00", "Passeio pela vila de Zermatt; se o céu estiver limpo, fotografia noturna do Matterhorn"],
+        ["19:00 后", "晚餐，返回酒店休息", "Após 19:00", "Jantar e retorno ao hotel para descanso"]
+      ]
+    },
+    {
+      date: "2026-12-30", icon: "🌉", country: "ch",
+      place: "采尔马特 → 卢塞恩", placePt: "Zermatt → Lucerna",
+      theme: "卢塞恩老城 · 卡佩尔廊桥",
+      items: [
+        ["08:00–08:30", "起床、整理行李、退房", "08:00–08:30", "Acordar, organizar a bagagem e fazer check-out"],
+        ["约 09:00", "🚆 采尔马特 → 卢塞恩（具体车次以出票为准）", "Por volta de 09:00", "Zermatt → Lucerna (horários específicos conforme emissão da passagem)"],
+        ["约 12:30–13:00", "抵达卢塞恩，酒店寄存行李或入住", "Aprox. 12:30–13:00", "Chegada a Lucerna; deixar a bagagem no hotel ou fazer check-in"],
+        ["13:00–14:00", "午餐", "13:00–14:00", "Almoço"],
+        ["14:00–15:00", "漫步卢塞恩老城", "14:00–15:00", "Passeio pelo centro histórico de Lucerna"],
+        ["15:00–15:40", "参观卡佩尔廊桥（Kapellbrücke）", "15:00–15:40", "Visita à Ponte da Capela (Kapellbrücke)"],
+        ["15:40–16:45", "沿卢塞恩湖畔散步，欣赏冬日黄昏湖景", "15:40–16:45", "Caminhada às margens do Lago de Lucerna, com paisagem de inverno ao entardecer"],
+        ["16:45 后", "返回酒店休息", "Após 16:45", "Retorno ao hotel e descanso"],
+        ["约 19:00", "晚餐、休息", "Por volta de 19:00", "Jantar e descanso"]
+      ]
+    },
+    {
+      date: "2026-12-31", icon: "🛫", country: "ch",
+      place: "卢塞恩 → 苏黎世机场 → 上海", placePt: "Lucerna → Aeroporto de Zurique → Xangai",
+      theme: "回家",
+      items: [
+        ["07:30–08:00", "起床、整理行李", "07:30–08:00", "Acordar e organizar a bagagem"],
+        ["08:00–08:30", "退房，前往卢塞恩火车站", "08:00–08:30", "Check-out e deslocamento até a estação de Lucerna"],
+        ["约 08:30–10:00", "🚆 卢塞恩 → 苏黎世机场（具体车次以出票为准）", "Aprox. 08:30–10:00", "Lucerna → Aeroporto de Zurique (horários específicos conforme emissão da passagem)"],
+        ["10:00–13:00", "办理国际航班值机、托运行李、安检及出境检查", "10:00–13:00", "Check-in do voo internacional, despacho de bagagem, segurança e controle de saída"],
+        ["13:50–次日 07:50", "✈️ 回程航班：苏黎世 → 上海浦东", "13:50–07:50 do dia seguinte", "Voo de retorno: Zurique → Xangai-Pudong"]
+      ]
+    }
+  ]
+};
+
+</script>
+<script>
+(() => {
+  const STORE_KEY = "europa-trip-2026-v1";
+  const LANG_KEY = "europa-trip-2026-lang";
+  const N = TRIP_DATA.days.length;
+  const COUNTRY = { es: "西班牙", fr: "法国", ch: "瑞士" };
+  const WEEK = ["周日","周一","周二","周三","周四","周五","周六"];
+  const WEEK_PT = ["dom","seg","ter","qua","qui","sex","sáb"];
+  const QUICK = ["早餐","午餐","晚餐","休息","拍照","购物","买纪念品","喝咖啡"];
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  const clone = o => JSON.parse(JSON.stringify(o));
+
+  // ---------- 数据 ----------
+  function buildDay(i) {
+    return {
+      notes: "",
+      items: TRIP_DATA.days[i].items.map(([t, x, tp, xp], k) => ({ id: `o${i + 1}-${k + 1}`, time: t, text: x, timePt: tp, textPt: xp, done: false, custom: false }))
+    };
+  }
+  const buildDefault = () => ({ version: 1, days: TRIP_DATA.days.map((_, i) => buildDay(i)) });
+  const validDay = d => d && Array.isArray(d.items) && typeof (d.notes ?? "") === "string";
+
+  function loadLocal() {
+    try {
+      const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+      if (s && Array.isArray(s.days) && s.days.length === N && s.days.every(validDay)) return s;
+    } catch (e) {}
+    return buildDefault();
+  }
+  let state = loadLocal();
+  let lang = "zh";
+  try { lang = localStorage.getItem(LANG_KEY) || "zh"; } catch (e) {}
+
+  // ---------- 存储：云端（db）优先，否则仅本机 ----------
+  const store = { mode: "local", db: null, readOnly: false, writing: {}, next: {}, lastSnap: null, stash: null, sync: "local" };
+
+  function cacheLocal() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function persist(i) {
+    cacheLocal();
+    if (store.mode === "cloud" && !store.readOnly) queue(i, "set");
+  }
+  function queue(i, op) { store.next[i] = op; if (!store.writing[i]) drain(i); }
+  async function drain(i) {
+    store.writing[i] = true; setSync("saving");
+    try {
+      while (store.next[i]) {
+        const op = store.next[i]; store.next[i] = null;
+        const ref = store.db.doc(`days/d${i + 1}`);
+        if (op === "delete") await ref.delete();
+        else await ref.set(clone(state.days[i]));
+      }
+      if (!Object.entries(store.writing).some(([k, v]) => v && +k !== i)) setSync("ok");
+    } catch (e) {
+      store.next[i] = null;
+      onWriteError(e);
+    } finally {
+      store.writing[i] = false;
+    }
+  }
+  function onWriteError(e) {
+    const code = e && e.code;
+    if (code === "invalid_argument" || code === "not_granted") {
+      store.readOnly = true;
+      setSync("readonly");
+      toast("你对这个页面只有查看权限，修改没有保存");
+      if (store.lastSnap) applySnap(store.lastSnap, true);
+      render();
+    } else if (code === "quota_exceeded") {
+      setSync("error"); toast("云端空间已满，修改没有保存");
+    } else {
+      setSync("error"); toast("保存到云端失败，请检查网络后再改一次");
+    }
+  }
+
+  function setSync(s) {
+    store.sync = s;
+    const el = $("#syncChip"); if (!el) return;
+    const label = { local: "仅存本机", ok: "已同步", saving: "保存中…", loading: "同步中…", offline: "暂时连不上云端", error: "同步失败", readonly: "只读" }[s] || "";
+    el.dataset.s = s; el.textContent = label;
+    el.title = s === "local" ? "修改只保存在这个浏览器里" : s === "ok" ? "修改已存到云端，所有设备都能看到" : "";
+  }
+
+  const busy = () => !$("#modalBg").hidden || !$("#askBg").hidden || (document.activeElement && document.activeElement.id === "notes");
+
+  function applySnap(snap, force) {
+    store.lastSnap = snap;
+    if (!force && busy()) { store.stash = snap; return; }
+    store.stash = null;
+    const remote = {};
+    for (const d of snap.docs) {
+      const m = /^d(\d+)$/.exec(d.id); if (!m) continue;
+      const i = +m[1] - 1; const data = d.data();
+      if (i >= 0 && i < N && validDay(data)) remote[i] = data;
+    }
+    let changed = false;
+    for (let i = 0; i < N; i++) {
+      if (!force && (store.writing[i] || store.next[i])) continue; // 本地更新更晚，等写入完成
+      const next = remote[i] ? { notes: remote[i].notes || "", items: clone(remote[i].items) } : buildDay(i);
+      if (JSON.stringify(next) !== JSON.stringify(state.days[i])) { state.days[i] = next; changed = true; }
+    }
+    if (changed) { cacheLocal(); render(); }
+  }
+  function flushStash() { if (store.stash && !busy()) applySnap(store.stash); }
+
+  async function connect() {
+    if (!(window.claude && typeof window.claude.use === "function")) { setSync("local"); return; }
+    let db = null;
+    try { db = await window.claude.use("db"); } catch (e) {}
+    if (!db) { setSync("local"); return; }
+    store.db = db; store.mode = "cloud"; setSync("loading");
+    let firstTimer = setTimeout(() => { if (store.sync === "loading") setSync("offline"); }, 10000);
+    db.collection("days").onSnapshot(snap => {
+      if (!snap.metadata.fromCache) { clearTimeout(firstTimer); if (store.sync === "loading" || store.sync === "offline") setSync("ok"); }
+      applySnap(snap);
+    }, err => {
+      clearTimeout(firstTimer);
+      store.mode = "local"; setSync(err && err.code === "revoked" ? "local" : "error");
+    });
+  }
+
+  // 时间排序：取第一个 HH:MM；上午/中午/下午/晚上给一个大致值；无时间的排最后
+  function sortKey(item) {
+    const t = item.time || "";
+    const m = t.match(/(\d{1,2})[:：](\d{2})/);
+    if (m) return (+m[1]) * 60 + (+m[2]);
+    if (/早|上午|manh/i.test(t)) return 9 * 60;
+    if (/中午|meio/i.test(t)) return 12 * 60;
+    if (/下午|tarde/i.test(t)) return 15 * 60;
+    if (/晚|noite/i.test(t)) return 19 * 60;
+    return 99999;
+  }
+  const sortItems = items => items.map((it, i) => [it, i]).sort((a, b) => (sortKey(a[0]) - sortKey(b[0])) || (a[1] - b[1])).map(x => x[0]);
+
+  const T = it => lang === "pt" && it.timePt != null ? it.timePt : it.time;
+  const X = it => lang === "pt" && it.textPt != null ? it.textPt : it.text;
+
+  function dateInfo(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    const dt = new Date(y, m - 1, d);
+    return { md: `${m}/${d}`, week: lang === "pt" ? WEEK_PT[dt.getDay()] : WEEK[dt.getDay()], dt };
+  }
+  function todayIdx() {
+    const now = new Date();
+    const iso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    return TRIP_DATA.days.findIndex(d => d.date === iso);
+  }
+
+  // ---------- 渲染 ----------
+  const app = $("#app");
+
+  function topBar(sub) {
+    return `
+      <div class="top">
+        <div>
+          <h1>${esc(TRIP_DATA.title)}</h1>
+          <div class="sub">${sub}</div>
+        </div>
+        <div class="top-actions">
+          <span class="sync" id="syncChip"></span>
+          <button class="chip" id="langBtn" title="切换行程语言">${lang === "zh" ? "中文 · PT" : "PT · 中文"}</button>
+          <div class="menu">
+            <button class="chip" id="menuBtn" aria-haspopup="true" aria-label="更多">⋯</button>
+            <div class="menu-pop" id="menuPop" hidden>
+              <button data-act="export">导出备份（JSON）</button>
+              ${store.readOnly ? "" : `<button data-act="import">导入备份</button>`}
+              ${store.readOnly ? "" : `<button data-act="resetAll" class="danger">全部恢复为原始行程</button>`}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderHome() {
+    document.title = TRIP_DATA.title;
+    const ti = todayIdx();
+    const start = dateInfo(TRIP_DATA.days[0].date).dt;
+    const now = new Date(); now.setHours(0, 0, 0, 0);
+    const diff = Math.round((start - now) / 86400000);
+    let banner = "";
+    if (diff > 0) banner = `<div class="banner"><div class="big">${diff}</div><div class="txt">天后出发 · 12 月 19 日 07:40 抵达巴塞罗那</div></div>`;
+    else if (ti >= 0) banner = `<div class="banner"><div class="big">Day ${ti + 1}</div><div class="txt">旅途中 · 今天在 ${esc(TRIP_DATA.days[ti].place)}</div></div>`;
+
+    const cards = TRIP_DATA.days.map((d, i) => {
+      const s = state.days[i];
+      const di = dateInfo(d.date);
+      const total = s.items.length, done = s.items.filter(x => x.done).length;
+      const pct = total ? Math.round(done / total * 100) : 0;
+      return `
+        <button class="card ${i === ti ? "today" : ""}" style="--c: var(--${d.country})" data-day="${i}">
+          ${i === ti ? `<span class="today-tag">今天</span>` : ""}
+          <div class="icon" aria-hidden="true">${d.icon}</div>
+          <div class="meta"><span class="dayno">Day ${i + 1}</span><span class="date">${di.md} ${di.week}</span></div>
+          <div class="place">${esc(lang === "pt" ? d.placePt : d.place)}</div>
+          <div class="theme">${esc(d.theme)}</div>
+          <div class="count">${total} 项${done ? ` · 已完成 ${done}` : ""}${s.notes ? " · 有备注" : ""}</div>
+          <div class="bar"><i style="width:${pct}%"></i></div>
+        </button>`;
+    }).join("");
+
+    app.innerHTML = `
+      ${topBar("12.19 – 12.31 · 巴塞罗那 · 巴黎 · 瑞士阿尔卑斯")}
+      ${banner}
+      <div class="legend">
+        <span style="--c: var(--es)">西班牙</span>
+        <span style="--c: var(--fr)">法国</span>
+        <span style="--c: var(--ch)">瑞士</span>
+      </div>
+      <div class="grid">${cards}</div>`;
+    bindTop();
+    app.querySelectorAll(".card").forEach(c => c.addEventListener("click", () => go(+c.dataset.day)));
+  }
+
+  function renderDay(i) {
+    const d = TRIP_DATA.days[i], s = state.days[i], di = dateInfo(d.date);
+    const ro = store.readOnly;
+    document.title = `Day ${i + 1} · ${d.place}`;
+    app.style.setProperty("--c", `var(--${d.country})`);
+    const items = s.items.map(it => `
+      <div class="item ${it.done ? "done" : ""}" data-id="${esc(it.id)}">
+        <button class="check" data-act="toggle" aria-label="标记完成" ${ro ? "disabled" : ""}>${it.done ? "✓" : ""}</button>
+        <div class="time">${esc(T(it)) || "—"}</div>
+        <div class="text">${esc(X(it))}${it.custom ? `<span class="tag">自添</span>` : ""}</div>
+        <div class="acts">${ro ? "" : `
+          <button class="icon-btn" data-act="edit" title="编辑" aria-label="编辑">✎</button>
+          <button class="icon-btn del" data-act="del" title="删除" aria-label="删除">🗑</button>`}
+        </div>
+      </div>`).join("");
+
+    app.innerHTML = `
+      ${topBar(`${COUNTRY[d.country]} · Day ${i + 1} / ${N}`)}
+      <div class="dhead">
+        <div class="nav">
+          <button class="chip" id="backBtn">← 全部日程</button>
+          <div class="arrows">
+            <button class="chip" id="prevBtn" ${i === 0 ? "disabled" : ""} aria-label="前一天">‹</button>
+            <button class="chip" id="nextBtn" ${i === N - 1 ? "disabled" : ""} aria-label="后一天">›</button>
+          </div>
+        </div>
+        <div class="dtitle">
+          <div class="icon" aria-hidden="true">${d.icon}</div>
+          <div>
+            <div class="d">Day ${i + 1} · ${di.md} ${di.week}</div>
+            <h2>${esc(lang === "pt" ? d.placePt : d.place)}</h2>
+            <div class="d">${esc(d.theme)}</div>
+          </div>
+        </div>
+      </div>
+      ${ro ? `<p class="ro-note">你只有查看权限，看不到编辑按钮。</p>` : ""}
+      <div class="list" id="list">${items || `<div class="empty">这一天还没有安排${ro ? "" : "，点下面添加吧"}</div>`}</div>
+      ${ro ? "" : `<button class="add-btn" id="addBtn">＋ 添加行程</button>`}
+      <div class="notes">
+        <h3>当天备注</h3>
+        <textarea id="notes" placeholder="酒店地址、订票号、餐厅推荐、注意事项……" ${ro ? "readonly" : ""}>${esc(s.notes)}</textarea>
+        <div class="saved" id="savedHint"></div>
+      </div>
+      ${ro ? "" : `<button class="reset-day" id="resetDay">把这一天恢复为原始行程</button>`}`;
+    bindTop();
+    $("#backBtn").onclick = () => go(null);
+    $("#prevBtn").onclick = () => i > 0 && go(i - 1);
+    $("#nextBtn").onclick = () => i < N - 1 && go(i + 1);
+    if (ro) return;
+    $("#addBtn").onclick = () => openForm(i, null);
+    $("#resetDay").onclick = async () => {
+      if (!await ask(`把 Day ${i + 1} 恢复为原始行程？`, "这一天的增删改和备注都会被清除，5 秒内可以撤销。", "恢复")) return;
+      const before = clone(state.days[i]);
+      state.days[i] = buildDay(i);
+      cacheLocal();
+      if (store.mode === "cloud") queue(i, "delete");
+      render();
+      toast(`Day ${i + 1} 已恢复`, () => { state.days[i] = before; persist(i); render(); });
+    };
+    let tmr;
+    const notes = $("#notes");
+    const flushNotes = () => { if (tmr) { clearTimeout(tmr); tmr = null; persist(i); $("#savedHint").textContent = "已保存"; } };
+    notes.addEventListener("input", e => {
+      s.notes = e.target.value;
+      $("#savedHint").textContent = "";
+      clearTimeout(tmr);
+      tmr = setTimeout(flushNotes, 700);
+    });
+    notes.addEventListener("blur", () => { flushNotes(); setTimeout(flushStash, 0); });
+    $("#list").addEventListener("click", e => {
+      const btn = e.target.closest("[data-act]"); if (!btn) return;
+      const id = btn.closest(".item").dataset.id;
+      const idx = s.items.findIndex(x => x.id === id); if (idx < 0) return;
+      const it = s.items[idx];
+      if (btn.dataset.act === "toggle") { it.done = !it.done; persist(i); render(); }
+      if (btn.dataset.act === "edit") openForm(i, it);
+      if (btn.dataset.act === "del") {
+        s.items.splice(idx, 1); persist(i); render();
+        const label = X(it);
+        toast(`已删除「${label.slice(0, 14)}${label.length > 14 ? "…" : ""}」`, () => {
+          const day = state.days[i];
+          day.items.splice(Math.min(idx, day.items.length), 0, it); persist(i); render();
+        });
+      }
+    });
+  }
+
+  function bindTop() {
+    setSync(store.sync);
+    $("#langBtn").onclick = () => {
+      lang = lang === "zh" ? "pt" : "zh";
+      try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
+      render();
+    };
+    const pop = $("#menuPop");
+    $("#menuBtn").onclick = e => { e.stopPropagation(); pop.hidden = !pop.hidden; };
+    pop.onclick = async e => {
+      const b = e.target.closest("button"); if (!b) return;
+      pop.hidden = true;
+      const act = b.dataset.act;
+      if (act === "export") exportJSON();
+      if (act === "import") $("#importFile").click();
+      if (act === "resetAll") {
+        if (!await ask("把全部 13 天恢复为原始行程？", "所有修改和备注都会被清除，5 秒内可以撤销。建议先导出一份备份。", "全部恢复")) return;
+        const before = clone(state);
+        state = buildDefault(); cacheLocal();
+        if (store.mode === "cloud") for (let i = 0; i < N; i++) queue(i, "delete");
+        render();
+        toast("已全部恢复", () => { state = before; for (let i = 0; i < N; i++) persist(i); render(); });
+      }
+    };
+  }
+  document.addEventListener("click", () => { const p = $("#menuPop"); if (p) p.hidden = true; });
+
+  // ---------- 确认框（替代浏览器自带的 confirm） ----------
+  let askResolve = null;
+  function ask(title, msg, okText) {
+    $("#askTitle").textContent = title;
+    $("#askMsg").textContent = msg;
+    $("#askYes").textContent = okText || "确定";
+    $("#askBg").hidden = false;
+    setTimeout(() => $("#askNo").focus(), 30);
+    return new Promise(res => { askResolve = res; });
+  }
+  function closeAsk(v) { $("#askBg").hidden = true; if (askResolve) { askResolve(v); askResolve = null; } setTimeout(flushStash, 0); }
+  $("#askYes").onclick = () => closeAsk(true);
+  $("#askNo").onclick = () => closeAsk(false);
+  $("#askBg").addEventListener("mousedown", e => { if (e.target.id === "askBg") closeAsk(false); });
+
+  // ---------- 添加 / 编辑 ----------
+  let editing = null; // { day, item }
+  const modalBg = $("#modalBg");
+  $("#quick").innerHTML = QUICK.map(q => `<button type="button">${q}</button>`).join("");
+  $("#quick").onclick = e => { const b = e.target.closest("button"); if (b) { $("#fText").value = b.textContent; $("#fText").focus(); } };
+
+  function openForm(day, item) {
+    editing = { day, item };
+    $("#modalTitle").textContent = item ? "编辑行程" : "添加行程";
+    $("#fTime").value = item ? T(item) : "";
+    $("#fText").value = item ? X(item) : "";
+    modalBg.hidden = false;
+    setTimeout(() => (item ? $("#fText") : $("#fTime")).focus(), 30);
+  }
+  function closeForm() { modalBg.hidden = true; editing = null; setTimeout(flushStash, 0); }
+  $("#cancelBtn").onclick = closeForm;
+  modalBg.addEventListener("mousedown", e => { if (e.target === modalBg) closeForm(); });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    if (!$("#askBg").hidden) closeAsk(false);
+    else if (!modalBg.hidden) closeForm();
+  });
+
+  $("#itemForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (!editing) return;
+    const time = $("#fTime").value.trim();
+    const text = $("#fText").value.trim();
+    if (!text) return;
+    const i = editing.day, s = state.days[i];
+    if (editing.item) {
+      const it = s.items.find(x => x.id === editing.item.id);
+      if (it && (time !== T(it) || text !== X(it))) {
+        // 修改后两种语言都显示你写的内容
+        it.time = time; it.text = text; it.timePt = null; it.textPt = null;
+      }
+    } else {
+      s.items.push({ id: uid(), time, text, timePt: null, textPt: null, done: false, custom: true });
+    }
+    s.items = sortItems(s.items);
+    persist(i); closeForm(); render();
+    toast("已保存");
+  });
+
+  // ---------- 导入 / 导出 ----------
+  async function exportJSON() {
+    const json = JSON.stringify({ app: "europa-trip-2026", exportedAt: new Date().toISOString(), state }, null, 2);
+    const filename = `欧洲行程备份_${new Date().toISOString().slice(0, 10)}.json`;
+    let dl = null;
+    if (window.claude && typeof window.claude.use === "function") { try { dl = await window.claude.use("downloads"); } catch (e) {} }
+    if (dl) {
+      try { await dl.save({ filename, data: json }); toast("备份已保存"); }
+      catch (e) { if (e && e.code !== "declined") toast("这里暂时不能保存文件"); }
+      return;
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  $("#importFile").addEventListener("change", async e => {
+    const f = e.target.files[0]; e.target.value = "";
+    if (!f) return;
+    let s;
+    try {
+      const data = JSON.parse(await f.text());
+      s = data.state || data;
+      if (!Array.isArray(s.days) || s.days.length !== N || !s.days.every(validDay)) throw 0;
+    } catch (err) { toast("导入失败：这不是本网站导出的备份文件"); return; }
+    if (!await ask("导入这份备份？", "会覆盖当前所有内容，5 秒内可以撤销。", "导入")) return;
+    const before = clone(state);
+    state = { version: 1, days: s.days.map(d => ({ notes: d.notes || "", items: d.items })) };
+    for (let i = 0; i < N; i++) persist(i);
+    render();
+    toast("导入成功", () => { state = before; for (let i = 0; i < N; i++) persist(i); render(); });
+  });
+
+  // ---------- 提示条 ----------
+  let toastTmr, undoFn = null;
+  function toast(msg, undo) {
+    $("#toastMsg").textContent = msg;
+    undoFn = undo || null;
+    $("#toastUndo").hidden = !undo;
+    $("#toast").classList.add("show");
+    clearTimeout(toastTmr);
+    toastTmr = setTimeout(() => { $("#toast").classList.remove("show"); undoFn = null; }, undo ? 5000 : 1800);
+  }
+  $("#toastUndo").onclick = () => { if (undoFn) { const f = undoFn; undoFn = null; f(); } $("#toast").classList.remove("show"); };
+
+  // ---------- 路由 ----------
+  function current() { const m = location.hash.match(/^#day-(\d+)$/); const n = m ? +m[1] - 1 : null; return n != null && n >= 0 && n < N ? n : null; }
+  function go(i) { location.hash = i == null ? "" : `day-${i + 1}`; }
+  function render() {
+    const i = current();
+    app.style.removeProperty("--c");
+    i == null ? renderHome() : renderDay(i);
+  }
+  window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
+  document.addEventListener("keydown", e => {
+    if (busy() || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+    const i = current(); if (i == null) return;
+    if (e.key === "ArrowLeft" && i > 0) go(i - 1);
+    if (e.key === "ArrowRight" && i < N - 1) go(i + 1);
+  });
+  render();
+  connect();
+})();
+</script>
+</body>
+</html>
