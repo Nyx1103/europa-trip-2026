@@ -6,38 +6,51 @@
 <title>欧洲之旅 2026</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-  /* 布局：单列容器，首页为每日卡片网格，详情页为时间线列表；国家色区分西/法/瑞 */
+  /* 布局：首页=日期卡片网格；每日页=左时间、右卡片的纵向时间线；详情=手机底部弹出 / 电脑右侧抽屉 */
   :root {
     --bg: #eef1f2;
     --surface: #ffffff;
     --surface-2: #e8ecee;
     --text: #1b2226;
     --muted: #5f6b73;
+    --faint: #8a959c;
     --line: #d9dfe2;
     --accent: #2e5e52;
     --on-accent: #ffffff;
     --danger: #b3412f;
+    --ok: #2f8a5c;
+    --warn: #b7791f;
     --es: #c4533b;
     --fr: #3a5aa6;
     --ch: #b4303a;
-    --scrim: rgba(10, 16, 20, .4);
+    --k-sight: #2e6fb0;
+    --k-food: #c0672a;
+    --k-hotel: #7a4fb0;
+    --k-transport: #2a8a86;
+    --k-activity: #5b7a2e;
+    --k-minor: #8a959c;
+    --scrim: rgba(10, 16, 20, .42);
     --shadow: 0 1px 2px rgba(20,30,40,.05), 0 6px 18px rgba(20,30,40,.06);
     --radius: 16px;
     --font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #111517; --surface: #1a2023; --surface-2: #232a2e; --text: #e5eaed; --muted: #94a1a9;
-      --line: #2c3539; --accent: #7cbca8; --on-accent: #0d1f1a; --danger: #e5775f;
-      --es: #e2805f; --fr: #86a2e6; --ch: #e7686f; --scrim: rgba(0,0,0,.55);
+      --bg: #111517; --surface: #1a2023; --surface-2: #232a2e; --text: #e5eaed; --muted: #9aa6ad; --faint: #75828a;
+      --line: #2c3539; --accent: #7cbca8; --on-accent: #0d1f1a; --danger: #e5775f; --ok: #5cc28c; --warn: #e0a84a;
+      --es: #e2805f; --fr: #86a2e6; --ch: #e7686f;
+      --k-sight: #7fb0e6; --k-food: #e8995e; --k-hotel: #b493e6; --k-transport: #5cc4bf; --k-activity: #a3c46a; --k-minor: #75828a;
+      --scrim: rgba(0,0,0,.6);
       --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
       color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #111517; --surface: #1a2023; --surface-2: #232a2e; --text: #e5eaed; --muted: #94a1a9;
-    --line: #2c3539; --accent: #7cbca8; --on-accent: #0d1f1a; --danger: #e5775f;
-    --es: #e2805f; --fr: #86a2e6; --ch: #e7686f; --scrim: rgba(0,0,0,.55);
+    --bg: #111517; --surface: #1a2023; --surface-2: #232a2e; --text: #e5eaed; --muted: #9aa6ad; --faint: #75828a;
+    --line: #2c3539; --accent: #7cbca8; --on-accent: #0d1f1a; --danger: #e5775f; --ok: #5cc28c; --warn: #e0a84a;
+    --es: #e2805f; --fr: #86a2e6; --ch: #e7686f;
+    --k-sight: #7fb0e6; --k-food: #e8995e; --k-hotel: #b493e6; --k-transport: #5cc4bf; --k-activity: #a3c46a; --k-minor: #75828a;
+    --scrim: rgba(0,0,0,.6);
     --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
     color-scheme: dark;
   }
@@ -47,66 +60,72 @@
     margin: 0; background: var(--bg); color: var(--text); font-family: var(--font);
     font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased;
   }
-  button { font: inherit; color: inherit; cursor: pointer; }
-  button:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button, select, input, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .wrap {
     max-width: 920px; margin: 0 auto;
-    padding-block: 24px 96px;
+    padding-block: 20px 96px;
     padding-left: max(16px, env(safe-area-inset-left, 0px));
     padding-right: max(16px, env(safe-area-inset-right, 0px));
   }
 
   /* ---------- 顶栏 ---------- */
-  .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
   .top > div:first-child { min-width: 0; }
-  .top h1 { font-size: 28px; margin: 0; letter-spacing: .5px; text-wrap: balance; }
+  .top h1 { font-size: 26px; margin: 0; letter-spacing: .3px; text-wrap: balance; }
   .top .sub { color: var(--muted); font-size: 14px; margin-top: 2px; }
-  .top-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+  .top-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; margin-left: auto; }
   .chip {
     border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
-    padding: 6px 12px; font-size: 13px; white-space: nowrap;
+    padding: 7px 13px; font-size: 13px; white-space: nowrap; min-height: 36px;
   }
   .chip:hover:not(:disabled) { background: var(--surface-2); }
   .chip:disabled { opacity: .4; cursor: default; }
+  .chip.on { background: var(--text); color: var(--bg); border-color: var(--text); }
   .sync { font-size: 12px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .sync::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--dot, var(--muted)); }
-  .sync[data-s="ok"] { --dot: #3f9d6e; }
-  .sync[data-s="saving"] { --dot: #d19a2a; }
+  .sync[data-s="ok"] { --dot: var(--ok); }
+  .sync[data-s="saving"] { --dot: var(--warn); }
   .sync[data-s="offline"], .sync[data-s="error"] { --dot: var(--danger); }
   .menu { position: relative; }
   .menu-pop {
     position: absolute; right: 0; top: calc(100% + 6px); z-index: 20;
     background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
-    box-shadow: var(--shadow); padding: 6px; min-width: 200px;
+    box-shadow: var(--shadow); padding: 6px; min-width: 220px;
   }
   .menu-pop button {
     display: block; width: 100%; text-align: left; background: none; border: 0;
-    padding: 8px 10px; border-radius: 8px; font-size: 14px;
+    padding: 10px 12px; border-radius: 8px; font-size: 14px;
   }
   .menu-pop button:hover { background: var(--surface-2); }
+  .menu-pop hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
   .menu-pop .danger { color: var(--danger); }
 
   .banner {
     background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 14px 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+    padding: 14px 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
   }
   .banner .big { font-size: 26px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
   .banner .txt { font-size: 14px; color: var(--muted); }
+  .shortcuts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .shortcuts .chip { font-size: 14px; }
+  .shortcuts .count { color: var(--warn); font-weight: 600; margin-left: 4px; }
 
   .legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 0 2px 12px; }
   .legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; background: var(--c); }
 
-  /* ---------- 日卡片 ---------- */
+  /* ---------- 首页日期卡片 ---------- */
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
   .card {
     position: relative; text-align: left; background: var(--surface); border: 1px solid var(--line);
     border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); min-width: 0;
-    display: flex; flex-direction: column; gap: 6px; min-height: 168px;
-    transition: transform .15s ease, border-color .15s ease;
+    display: flex; flex-direction: column; gap: 5px; min-height: 176px;
   }
-  .card:hover { transform: translateY(-2px); border-color: var(--c); }
+  .card:hover { border-color: var(--c); }
   .card .icon {
-    width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 26px;
+    width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 25px;
     background: color-mix(in srgb, var(--c) 15%, transparent);
   }
   .card .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-top: 4px; }
@@ -114,7 +133,7 @@
   .card .date { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
   .card .place { font-size: 14px; font-weight: 600; }
   .card .theme { font-size: 13px; color: var(--muted); }
-  .card .count { margin-top: auto; font-size: 12px; color: var(--muted); }
+  .card .count { margin-top: auto; font-size: 12px; color: var(--faint); }
   .card .bar { height: 4px; border-radius: 4px; background: var(--surface-2); overflow: hidden; margin-top: 4px; }
   .card .bar i { display: block; height: 100%; background: var(--c); }
   .card.today { border-color: var(--c); border-width: 2px; padding: 15px; }
@@ -123,396 +142,519 @@
     background: var(--c); color: var(--surface);
   }
 
-  /* ---------- 详情页 ---------- */
+  /* ---------- 每日页头 ---------- */
   .dhead {
     background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 16px; margin-bottom: 16px;
+    padding: 14px 16px; margin-bottom: 14px;
   }
-  .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
   .nav .arrows { display: flex; gap: 6px; }
+  .nav .arrows .chip { min-width: 40px; }
   .dtitle { display: flex; gap: 14px; align-items: center; }
   .dtitle > div:last-child { min-width: 0; }
   .dtitle .icon {
-    width: 60px; height: 60px; border-radius: 18px; display: grid; place-items: center; font-size: 32px; flex-shrink: 0;
+    width: 56px; height: 56px; border-radius: 17px; display: grid; place-items: center; font-size: 30px; flex-shrink: 0;
     background: color-mix(in srgb, var(--c) 15%, transparent);
   }
   .dtitle h2 { margin: 0; font-size: 20px; text-wrap: balance; }
   .dtitle .d { color: var(--muted); font-size: 14px; }
+  .tlegend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  .tlegend b { font-weight: 600; }
 
-  .list { display: flex; flex-direction: column; gap: 8px; }
-  .item {
-    display: grid; grid-template-columns: 28px 120px minmax(0, 1fr) auto; gap: 10px; align-items: start;
-    background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px;
+  /* ---------- 时间线 ---------- */
+  .tl { position: relative; display: flex; flex-direction: column; gap: 6px; }
+  .tl-row { display: grid; grid-template-columns: 96px 18px minmax(0, 1fr); align-items: start; position: relative; }
+  .tl-row::before { /* 竖线 */
+    content: ""; position: absolute; left: 104px; top: -6px; bottom: -6px; width: 2px; background: var(--line);
   }
-  .item.done .text, .item.done .time { color: var(--muted); text-decoration: line-through; }
-  .item .time { font-variant-numeric: tabular-nums; font-size: 13px; font-weight: 600; color: var(--c); padding-top: 1px; }
-  .item .text { font-size: 15px; overflow-wrap: anywhere; }
-  .item .text .tag { font-size: 11px; color: var(--accent); border: 1px solid currentColor; border-radius: 6px; padding: 0 5px; margin-left: 6px; vertical-align: 1px; }
-  .check {
-    width: 22px; height: 22px; border-radius: 7px; border: 1.5px solid var(--line); background: var(--surface);
-    display: grid; place-items: center; padding: 0; margin-top: 1px; font-size: 13px;
+  .tl-row:first-child::before { top: 14px; }
+  .tl-row:last-child::before { bottom: auto; height: 20px; }
+  .tl-time { text-align: right; padding: 12px 10px 0 0; font-variant-numeric: tabular-nums; line-height: 1.25; }
+  .tl-time .t1 { display: block; font-size: 15px; font-weight: 700; }
+  .tl-time .t2 { display: block; font-size: 12px; color: var(--muted); }
+  .tl-time.fixed .t1 { color: var(--accent); }
+  .tl-time .tag-fixed {
+    display: inline-block; margin-top: 3px; font-size: 10px; font-weight: 700; letter-spacing: .5px;
+    color: var(--on-accent); background: var(--accent); border-radius: 4px; padding: 0 5px;
   }
-  .item.done .check { background: var(--c); border-color: var(--c); color: var(--surface); }
-  .acts { display: flex; gap: 2px; opacity: .4; transition: opacity .15s; }
-  .item:hover .acts, .item:focus-within .acts { opacity: 1; }
-  .icon-btn { background: none; border: 0; padding: 4px 6px; border-radius: 8px; font-size: 15px; line-height: 1; color: var(--muted); }
-  .icon-btn:hover { background: var(--surface-2); color: var(--text); }
-  .icon-btn.del:hover { color: var(--danger); }
+  .tl-time.vague .t1 { font-weight: 500; font-style: italic; color: var(--muted); }
+  .tl-dot { position: relative; z-index: 1; width: 12px; height: 12px; border-radius: 50%; margin: 16px 0 0 3px;
+    background: var(--surface); border: 3px solid var(--kc, var(--k-minor)); }
+  .tl-row.fixed .tl-dot { background: var(--kc); }
+  .tl-card {
+    position: relative; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--kc);
+    border-radius: 12px; padding: 11px 52px 11px 13px; cursor: pointer; min-height: 56px; text-align: left; width: 100%;
+  }
+  .tl-card:hover { background: color-mix(in srgb, var(--kc) 5%, var(--surface)); }
+  .tl-kind { font-size: 12px; color: var(--kc); font-weight: 600; letter-spacing: .3px; }
+  .tl-title { font-size: 17px; font-weight: 700; line-height: 1.3; margin-top: 1px; overflow-wrap: anywhere; }
+  .tl-place { font-size: 14px; color: var(--text); opacity: .85; margin-top: 2px; overflow-wrap: anywhere; }
+  .tl-place::before { content: "◉ "; color: var(--kc); font-size: 10px; vertical-align: 2px; }
+  .tl-desc { font-size: 13px; color: var(--muted); margin-top: 3px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .tl-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+  .tl-meta:empty { display: none; }
+  .pill { font-size: 11px; border-radius: 999px; padding: 1px 8px; border: 1px solid currentColor; white-space: nowrap; }
+  .pill.todo { color: var(--warn); }
+  .pill.booked { color: var(--ok); }
+  .pill.none, .pill.unset { color: var(--faint); }
+  .pill.pending { color: var(--k-food); border-style: dashed; }
+  .maplink { font-size: 12px; text-decoration: none; border-radius: 999px; padding: 1px 8px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+  .tl-check {
+    position: absolute; right: 6px; top: 6px; width: 40px; height: 40px; border-radius: 50%;
+    border: 0; background: transparent; display: grid; place-items: center; padding: 0;
+  }
+  .tl-check i { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; font-style: normal; font-size: 13px; color: transparent; }
+  .tl-row.done .tl-check i { background: var(--kc); border-color: var(--kc); color: var(--surface); }
+  .tl-row.done .tl-title, .tl-row.done .tl-place { text-decoration: line-through; opacity: .55; }
+  .tl-row.done .tl-desc { opacity: .55; }
+
+  .tl-row.small .tl-time { padding-top: 3px; }
+  .tl-row.small .tl-time .t1 { font-size: 12px; font-weight: 500; color: var(--muted); }
+  .tl-row.small .tl-time .t2 { font-size: 11px; }
+  .tl-row.small .tl-dot { width: 8px; height: 8px; border-width: 2px; margin: 7px 0 0 5px; }
+  .tl-small {
+    background: none; border: 0; text-align: left; font-size: 13px; color: var(--muted); padding: 2px 6px 2px 4px;
+    border-radius: 8px; min-height: 30px; width: 100%; cursor: pointer; overflow-wrap: anywhere;
+  }
+  .tl-small:hover { background: var(--surface-2); }
+  .tl-small .mv { color: var(--faint); margin-right: 4px; }
+  .tl-row.small.done .tl-small { text-decoration: line-through; opacity: .6; }
+  .tl-row.small .custom-tag, .tl-kind .custom-tag { font-size: 10px; border: 1px solid var(--accent); color: var(--accent); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
 
   .add-btn {
-    width: 100%; margin-top: 10px; padding: 12px; border-radius: 12px; border: 1.5px dashed var(--line);
+    width: 100%; margin-top: 14px; padding: 13px; border-radius: 12px; border: 1.5px dashed var(--line);
     background: transparent; color: var(--muted); font-size: 15px;
   }
-  .add-btn:hover { border-color: var(--c); color: var(--c); }
+  .add-btn:hover { border-color: var(--accent); color: var(--accent); }
   .empty { text-align: center; color: var(--muted); padding: 28px 0; }
 
-  .notes { margin-top: 20px; }
-  .notes h3 { font-size: 15px; margin: 0 0 8px; }
-  textarea, input[type=text] {
-    width: 100%; font: inherit; color: var(--text); background: var(--surface);
-    border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+  .notes { margin-top: 22px; }
+  .notes h3, .section h3 { font-size: 15px; margin: 0 0 8px; }
+  textarea, input[type=text], input[type=url], input[type=date], input[type=number], select {
+    width: 100%; color: var(--text); background: var(--surface);
+    border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; min-height: 42px;
   }
-  textarea { min-height: 96px; resize: vertical; }
+  textarea { min-height: 84px; resize: vertical; }
   .saved { font-size: 12px; color: var(--muted); min-height: 16px; margin-top: 4px; }
-  .reset-day { margin-top: 18px; background: none; border: 0; color: var(--muted); font-size: 13px; text-decoration: underline; padding: 0; }
+  .linkbtn { margin-top: 16px; background: none; border: 0; color: var(--muted); font-size: 13px; text-decoration: underline; padding: 6px 0; }
   .ro-note { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
 
-  /* ---------- 弹窗 ---------- */
-  .modal-bg {
-    position: fixed; inset: 0; background: var(--scrim); z-index: 50;
-    display: flex; align-items: flex-end; justify-content: center;
+  /* ---------- 详情面板（底部弹出 / 右侧抽屉） ---------- */
+  .sheet-bg { position: fixed; inset: 0; background: var(--scrim); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet {
+    background: var(--surface); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; overscroll-behavior: contain;
+    border-radius: 20px 20px 0 0; box-shadow: var(--shadow);
+    padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
   }
-  .modal {
-    background: var(--surface); width: 100%; max-width: 520px; border-radius: 20px 20px 0 0;
-    padding: 20px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
-    box-shadow: var(--shadow);
+  @media (min-width: 900px) {
+    .sheet-bg { justify-content: flex-end; align-items: stretch; }
+    .sheet { max-width: 460px; max-height: none; height: 100%; border-radius: 0; padding: 0 24px 32px; }
   }
-  @media (min-width: 640px) {
-    .modal-bg { align-items: center; }
-    .modal { border-radius: 20px; padding: 24px; }
+  .sheet-head {
+    position: sticky; top: 0; background: var(--surface); z-index: 2; padding: 10px 0 8px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line);
   }
-  .modal h3 { margin: 0 0 14px; font-size: 18px; }
-  .modal p { margin: 0; color: var(--muted); }
-  .field { margin-bottom: 12px; }
-  .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
-  .quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-  .quick button { font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); }
-  .modal .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
-  .btn { border-radius: 10px; padding: 9px 18px; border: 1px solid var(--line); background: var(--surface); font-size: 15px; }
+  .grab { position: absolute; left: 50%; top: 4px; width: 36px; height: 4px; border-radius: 4px; background: var(--line); transform: translateX(-50%); }
+  @media (min-width: 900px) { .grab { display: none; } }
+  .close-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font-size: 20px; line-height: 1; flex-shrink: 0; }
+  .close-btn:hover { background: var(--surface-2); }
+  .sh-kind { font-size: 13px; font-weight: 600; color: var(--kc); }
+  .sh-title { font-size: 22px; font-weight: 700; margin: 14px 0 2px; line-height: 1.25; overflow-wrap: anywhere; }
+  .sh-local { color: var(--muted); font-size: 15px; overflow-wrap: anywhere; }
+  .sh-time { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+  .tt-badge { font-size: 11px; font-weight: 600; border-radius: 4px; padding: 1px 6px; }
+  .tt-badge.fixed { background: var(--accent); color: var(--on-accent); }
+  .tt-badge.approx { background: var(--surface-2); color: var(--muted); }
+  .tt-badge.vague { border: 1px dashed var(--faint); color: var(--muted); }
+  .sh-desc { margin: 10px 0 0; color: var(--text); }
+  .sh-actions { display: flex; gap: 8px; margin: 14px 0 4px; flex-wrap: wrap; }
+  .btn { border-radius: 10px; padding: 10px 16px; border: 1px solid var(--line); background: var(--surface); font-size: 15px; min-height: 44px; }
+  .btn:hover { background: var(--surface-2); }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .btn.danger { background: var(--danger); border-color: var(--danger); color: var(--surface); }
+  .btn.ghost-danger { color: var(--danger); }
+  .btn.done-on { background: color-mix(in srgb, var(--ok) 14%, var(--surface)); border-color: var(--ok); color: var(--ok); }
+  .map-row { display: flex; margin: 14px 0 6px; }
+  .map-btn {
+    display: flex; align-items: center; gap: 8px; width: 100%; justify-content: center; text-decoration: none; font-weight: 600;
+    padding: 12px 14px; border-radius: 12px; background: var(--accent); color: var(--on-accent); min-height: 48px;
+  }
+  .map-missing { width: 100%; text-align: center; padding: 12px 14px; border-radius: 12px; border: 1.5px dashed var(--line); color: var(--muted); }
+  .section { margin-top: 18px; }
+  dl.fields { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 8px 12px; margin: 0; font-size: 14px; }
+  dl.fields dt { color: var(--muted); }
+  dl.fields dd { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+  dl.fields dd.missing { color: var(--faint); }
+  .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--surface-2); border-radius: 12px; padding: 4px; }
+  .seg button { border: 0; background: transparent; border-radius: 9px; padding: 9px 4px; font-size: 13px; min-height: 40px; }
+  .seg button.on { background: var(--surface); box-shadow: var(--shadow); font-weight: 600; }
+  .seg button.on[data-st="todo"] { color: var(--warn); }
+  .seg button.on[data-st="booked"] { color: var(--ok); }
+  .hint { font-size: 12px; color: var(--faint); margin-top: 6px; }
 
-  /* ---------- 提示 ---------- */
+  /* 表单 */
+  .form { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+  .form .field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .form .row2 { display: grid; grid-template-columns: minmax(0, 1fr) 110px; gap: 8px; }
+  .form .row-half { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .form fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px 12px; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .form legend { font-size: 13px; font-weight: 600; padding: 0 4px; }
+  .quick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .quick button { font-size: 13px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface-2); min-height: 34px; }
+  .form-actions { display: flex; gap: 8px; justify-content: flex-end; position: sticky; bottom: 0; background: var(--surface); padding: 10px 0 2px; }
+
+  /* ---------- 预订清单 ---------- */
+  .page-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .page-head h2 { margin: 0; font-size: 20px; }
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .stats { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 6px 0 14px; }
+  .stats b { color: var(--text); }
+  .bk-day { margin-top: 16px; }
+  .bk-day h3 { font-size: 13px; color: var(--muted); margin: 0 0 6px; font-weight: 600; }
+  .bk-row {
+    display: grid; grid-template-columns: minmax(0, 1fr) 132px; gap: 10px; align-items: center;
+    background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--kc); border-radius: 12px; padding: 8px 10px 8px 12px; margin-bottom: 6px;
+  }
+  .bk-main { background: none; border: 0; text-align: left; padding: 4px 0; min-height: 40px; cursor: pointer; min-width: 0; }
+  .bk-main .k { font-size: 11px; color: var(--kc); font-weight: 600; }
+  .bk-main .n { font-weight: 600; overflow-wrap: anywhere; }
+  .bk-main .s { font-size: 12px; color: var(--muted); }
+  .bk-row select { min-height: 40px; font-size: 13px; padding: 6px 8px; }
+  .bk-row select[data-st="todo"] { color: var(--warn); border-color: var(--warn); }
+  .bk-row select[data-st="booked"] { color: var(--ok); border-color: var(--ok); }
+
+  /* ---------- 预算 ---------- */
+  .bud-cat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
+  .bud-cat h3 { margin: 0 0 10px; font-size: 16px; }
+  .bud-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .bud-col h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
+  .bud-line { display: grid; grid-template-columns: minmax(0, 1fr) 76px 36px; gap: 6px; margin-bottom: 6px; }
+  .bud-line .note { grid-column: 1 / 3; }
+  .bud-line input { min-height: 38px; padding: 6px 8px; }
+  .bud-line .x { border: 0; background: none; color: var(--faint); font-size: 18px; border-radius: 8px; }
+  .bud-line .x:hover { color: var(--danger); background: var(--surface-2); }
+  .bud-add { border: 1px dashed var(--line); background: transparent; border-radius: 10px; padding: 8px; width: 100%; color: var(--muted); font-size: 13px; min-height: 38px; }
+  .bud-sub { font-size: 12px; color: var(--muted); margin-top: 8px; font-variant-numeric: tabular-nums; }
+  .bud-total { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; margin-bottom: 14px; overflow-x: auto; }
+  .bud-total table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
+  .bud-total th, .bud-total td { text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .bud-total th:first-child, .bud-total td:first-child { text-align: left; }
+  .bud-total th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  .neg { color: var(--danger); }
+  .pos { color: var(--ok); }
+
+  /* ---------- 确认框、提示 ---------- */
+  .modal-bg { position: fixed; inset: 0; background: var(--scrim); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal { background: var(--surface); width: 100%; max-width: 420px; border-radius: 18px; padding: 22px; box-shadow: var(--shadow); }
+  .modal h3 { margin: 0 0 8px; font-size: 18px; }
+  .modal p { margin: 0; color: var(--muted); }
+  .modal .row { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
   .toast {
     position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-    transform: translateX(-50%) translateY(20px); opacity: 0; pointer-events: none;
+    transform: translateX(-50%); opacity: 0; pointer-events: none;
     background: var(--text); color: var(--bg); border-radius: 12px; padding: 10px 14px; font-size: 14px;
-    display: flex; gap: 14px; align-items: center; transition: opacity .2s, transform .2s; z-index: 60; max-width: calc(100% - 32px);
+    display: flex; gap: 14px; align-items: center; z-index: 80; max-width: calc(100% - 32px);
   }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
-  .toast button { background: none; border: 0; color: inherit; font-weight: 700; text-decoration: underline; padding: 0; }
+  .toast.show { opacity: 1; pointer-events: auto; }
+  .toast button { background: none; border: 0; color: inherit; font-weight: 700; text-decoration: underline; padding: 4px 0; }
 
-  @media (max-width: 560px) {
+  @media (max-width: 600px) {
     .top h1 { font-size: 22px; }
-    .top { flex-wrap: wrap; }
     .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-    .card { padding: 12px; min-height: 150px; }
+    .card { padding: 12px; min-height: 160px; }
     .card.today { padding: 11px; }
     .card .icon { width: 40px; height: 40px; font-size: 22px; border-radius: 12px; }
     .card .meta { flex-direction: column; gap: 0; }
-    .item { grid-template-columns: 24px minmax(0, 1fr) auto; row-gap: 2px; }
-    .item .time { grid-column: 2; grid-row: 1; }
-    .item .text { grid-column: 2; grid-row: 2; }
-    .item .acts { grid-column: 3; grid-row: 1 / span 2; opacity: 1; flex-direction: column; }
-    .item .check { grid-row: 1 / span 2; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .card, .toast, .acts { transition: none; }
+    .tl-row { grid-template-columns: 62px 16px minmax(0, 1fr); }
+    .tl-row::before { left: 70px; }
+    .tl-time { padding-right: 6px; }
+    .tl-time .t1 { font-size: 13px; }
+    .tl-title { font-size: 16px; }
+    .bud-cols { grid-template-columns: 1fr; }
+    .bk-row { grid-template-columns: minmax(0, 1fr); }
+    dl.fields { grid-template-columns: 96px minmax(0, 1fr); }
   }
   @media print {
-    .top-actions, .acts, .add-btn, .reset-day, .nav .arrows, .check { display: none !important; }
+    .top-actions, .tl-check, .add-btn, .linkbtn, .nav .arrows, .shortcuts { display: none !important; }
   }
 </style>
 </head>
 <body>
 <div class="wrap" id="app"></div>
 
-<div class="modal-bg" id="modalBg" hidden>
-  <form class="modal" id="itemForm" autocomplete="off">
-    <h3 id="modalTitle">添加行程</h3>
-    <div class="field">
-      <label for="fTime">时间（可留空，如 14:00–15:30、约 19:00、下午）</label>
-      <input type="text" id="fTime" placeholder="14:00–15:30">
-    </div>
-    <div class="field">
-      <label for="fText">内容</label>
-      <input type="text" id="fText" placeholder="例如：去某某餐厅吃晚饭" required>
-      <div class="quick" id="quick"></div>
-    </div>
-    <div class="row">
-      <button type="button" class="btn" id="cancelBtn">取消</button>
-      <button type="submit" class="btn primary">保存</button>
-    </div>
-  </form>
+<div class="sheet-bg" id="sheetBg" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="详情"></div>
 </div>
 
 <div class="modal-bg" id="askBg" hidden>
   <div class="modal" role="alertdialog" aria-labelledby="askTitle">
-    <h3 id="askTitle">确认</h3>
+    <h3 id="askTitle"></h3>
     <p id="askMsg"></p>
     <div class="row">
-      <button type="button" class="btn" id="askNo">取消</button>
-      <button type="button" class="btn danger" id="askYes">确定</button>
+      <button type="button" class="btn" id="askNo"></button>
+      <button type="button" class="btn danger" id="askYes"></button>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastUndo" type="button">撤销</button></div>
+<div class="toast" id="toast" role="status"><span id="toastMsg"></span><button id="toastUndo" type="button"></button></div>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
+<datalist id="curList"><option value="EUR"><option value="CHF"><option value="BRL"><option value="CNY"><option value="USD"></datalist>
 
 <script>
-// 原始行程数据（来自 Roteiro_de_Viagem_Europa_19-31_dez_2026.pdf）
-// 每条：[中文时间, 中文内容, 葡语时间, 葡语内容]
+// 原始行程数据（来自 Roteiro_de_Viagem_Europa_19-31_dez_2026.pdf）—— 第二版结构
+// 每条行程的字段：
+//   s   原 PDF 中当天第几条（用于和旧版数据对应，迁移时用；拆分出的条目带 sx 后缀）
+//   k   类型：sight 景点 / food 餐厅 / hotel 酒店 / transport 长途交通 / activity 活动 / move 短途移动 / minor 琐事
+//   t   时间（原文时间，中文写法）；tt: "f" 表示固定时间（航班等），其余自动判断为"预计"或"模糊"
+//   n / np   名称（中文 / 葡语）
+//   l   当地名称（景点等）
+//   d / dp   简短说明（中文 / 葡语）
+//   x   详情预填（只填原行程里有依据的内容）
+// 不在这里编造营业时间、票价、地址或餐厅。
 window.TRIP_DATA = {
   title: "欧洲之旅 2026",
+  titlePt: "Viagem à Europa 2026",
   start: "2026-12-19",
   days: [
     {
       date: "2026-12-19", icon: "⛪", country: "es",
       place: "巴塞罗那", placePt: "Barcelona",
-      theme: "抵达 · 哥特区 · 圣家堂",
+      theme: "抵达 · 哥特区 · 圣家堂", themePt: "Chegada · Bairro Gótico · Sagrada Família",
       items: [
-        ["07:40", "抵达巴塞罗那", "07:40", "Chegada a Barcelona"],
-        ["07:40–09:00", "入境检查、提取行李", "07:40–09:00", "Controle de imigração e retirada da bagagem"],
-        ["09:00–10:00", "机场 → 酒店", "09:00–10:00", "Aeroporto → hotel"],
-        ["10:00–10:15", "在酒店寄存行李", "10:00–10:15", "Deixar a bagagem no hotel"],
-        ["10:15–12:30", "漫步哥特区：加泰罗尼亚广场 → 巴塞罗那主教座堂（外观）→ 主教街 / 主教桥", "10:15–12:30", "Passeio pelo Bairro Gótico: Plaça de Catalunya → exterior da Catedral de Barcelona → Carrer del Bisbe / Pont del Bisbe"],
-        ["12:30–13:45", "午餐", "12:30–13:45", "Almoço"],
-        ["13:45–14:30", "返回酒店", "13:45–14:30", "Retorno ao hotel"],
-        ["14:30–15:00", "入住前在酒店附近等候 / 短暂休息", "14:30–15:00", "Tempo de espera / breve descanso próximo ao hotel antes do check-in"],
-        ["15:00–15:30", "办理入住、取回行李、简单整理", "15:00–15:30", "Check-in no hotel, retirada da bagagem e breve organização"],
-        ["15:30–16:00", "酒店 → 圣家堂", "15:30–16:00", "Hotel → Sagrada Família"],
-        ["16:00–17:30", "参观圣家堂：大殿内部、彩色玻璃窗及主要建筑元素", "16:00–17:30", "Visita à Sagrada Família: interior da basílica, vitrais e principais elementos arquitetônicos"],
-        ["17:30–17:50", "圣家堂 → 格拉西亚大道", "17:30–17:50", "Sagrada Família → Passeig de Gràcia"],
-        ["17:50–19:00", "漫步格拉西亚大道，外观巴特罗之家与米拉之家", "17:50–19:00", "Passeio pela Passeig de Gràcia, com vista externa da Casa Batlló e da Casa Milà"],
-        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
-        ["20:30 后", "返回酒店休息", "Após 20:30", "Retorno ao hotel e descanso"]
+        { s: 1, k: "transport", t: "07:40", tt: "f", n: "抵达巴塞罗那", np: "Chegada a Barcelona", d: "航班抵达", dp: "Chegada do voo", x: { to: "Barcelona" } },
+        { s: 2, k: "minor", t: "07:40–09:00", n: "入境检查、提取行李", np: "Controle de imigração e retirada da bagagem" },
+        { s: 3, k: "move", t: "09:00–10:00", n: "机场 → 酒店", np: "Aeroporto → hotel" },
+        { s: 4, k: "minor", t: "10:00–10:15", n: "在酒店寄存行李", np: "Deixar a bagagem no hotel" },
+        { s: 5, k: "sight", t: "10:15–12:30", n: "漫步哥特区", np: "Passeio pelo Bairro Gótico", l: "Barri Gòtic", d: "加泰罗尼亚广场 → 主教座堂（外观）→ 主教街 / 主教桥", dp: "Plaça de Catalunya → exterior da Catedral → Carrer del Bisbe / Pont del Bisbe" },
+        { s: 6, k: "food", t: "12:30–13:45", n: "午餐", np: "Almoço" },
+        { s: 7, k: "move", t: "13:45–14:30", n: "返回酒店", np: "Retorno ao hotel" },
+        { s: 8, k: "minor", t: "14:30–15:00", n: "入住前在酒店附近等候 / 短暂休息", np: "Espera / breve descanso próximo ao hotel antes do check-in" },
+        { s: 9, k: "hotel", t: "15:00–15:30", n: "入住巴塞罗那酒店", np: "Check-in no hotel em Barcelona", d: "取回寄存的行李、简单整理", dp: "Retirada da bagagem e breve organização" },
+        { s: 10, k: "move", t: "15:30–16:00", n: "酒店 → 圣家堂", np: "Hotel → Sagrada Família" },
+        { s: 11, k: "sight", t: "16:00–17:30", n: "圣家堂", np: "Sagrada Família", l: "Basílica de la Sagrada Família", d: "参观大殿内部、彩色玻璃窗及主要建筑元素", dp: "Interior da basílica, vitrais e principais elementos arquitetônicos" },
+        { s: 12, k: "move", t: "17:30–17:50", n: "圣家堂 → 格拉西亚大道", np: "Sagrada Família → Passeig de Gràcia" },
+        { s: 13, k: "sight", t: "17:50–19:00", n: "格拉西亚大道", np: "Passeig de Gràcia", l: "Passeig de Gràcia", d: "外观巴特罗之家与米拉之家", dp: "Vista externa da Casa Batlló e da Casa Milà" },
+        { s: 14, k: "food", t: "19:00–20:30", n: "晚餐", np: "Jantar" },
+        { s: 15, k: "minor", t: "20:30 后", n: "返回酒店休息", np: "Retorno ao hotel e descanso" }
       ]
     },
     {
       date: "2026-12-20", icon: "🦎", country: "es",
       place: "巴塞罗那", placePt: "Barcelona",
-      theme: "桂尔公园 · 巴特罗之家 · 蒙特惠奇",
+      theme: "桂尔公园 · 巴特罗之家 · 蒙特惠奇", themePt: "Park Güell · Casa Batlló · Montjuïc",
       items: [
-        ["08:30–09:00", "起床、整理、准备出发", "08:30–09:00", "Acordar, organizar-se e preparar a saída"],
-        ["09:00–09:30", "酒店 → 桂尔公园", "09:00–09:30", "Hotel → Park Güell"],
-        ["09:30–11:00", "参观桂尔公园：古迹区、马赛克长椅、蜥蜴喷泉与城市观景台", "09:30–11:00", "Visita ao Park Güell: zona monumental, banco de mosaicos, fonte do lagarto e mirantes da cidade"],
-        ["11:00–11:30", "桂尔公园 → 午餐餐厅", "11:00–11:30", "Park Güell → restaurante para almoço"],
-        ["11:30–13:00", "午餐", "11:30–13:00", "Almoço"],
-        ["13:00–13:15", "前往巴特罗之家", "13:00–13:15", "Deslocamento até a Casa Batlló"],
-        ["13:15–14:30", "参观巴特罗之家", "13:15–14:30", "Visita à Casa Batlló"],
-        ["14:30–14:45", "巴特罗之家 → 酒店", "14:30–14:45", "Casa Batlló → hotel"],
-        ["14:45–15:15", "回酒店短暂休息", "14:45–15:15", "Breve descanso no hotel"],
-        ["15:15–15:45", "酒店 → 蒙特惠奇缆车站", "15:15–15:45", "Hotel → área do teleférico de Montjuïc"],
-        ["15:45–16:00", "乘蒙特惠奇缆车上山", "15:45–16:00", "Subida pelo Telefèric de Montjuïc"],
-        ["16:00–17:15", "参观蒙特惠奇城堡及俯瞰巴塞罗那港的观景台", "16:00–17:15", "Visita ao Castell de Montjuïc e aos mirantes com vista para o porto de Barcelona"],
-        ["17:15–17:35", "蒙特惠奇山顶观景台看日落", "17:15–17:35", "Mirante no alto de Montjuïc e pôr do sol"],
-        ["17:35–17:40", "前往缆车站", "17:35–17:40", "Deslocamento até a estação do teleférico"],
-        ["约 17:40", "乘缆车下山", "Por volta de 17:40", "Descida de teleférico"],
-        ["18:00–19:00", "下山后前往餐厅 / 自由活动", "18:00–19:00", "Após a descida, ida ao restaurante / tempo livre"],
-        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
-        ["20:30 后", "返回酒店休息", "Após 20:30", "Retorno ao hotel e descanso"]
+        { s: 1, k: "minor", t: "08:30–09:00", n: "起床、整理、准备出发", np: "Acordar, organizar-se e preparar a saída" },
+        { s: 2, k: "move", t: "09:00–09:30", n: "酒店 → 桂尔公园", np: "Hotel → Park Güell" },
+        { s: 3, k: "sight", t: "09:30–11:00", n: "桂尔公园", np: "Park Güell", l: "Park Güell", d: "古迹区、马赛克长椅、蜥蜴喷泉与城市观景台", dp: "Zona monumental, banco de mosaicos, fonte do lagarto e mirantes" },
+        { s: 4, k: "move", t: "11:00–11:30", n: "桂尔公园 → 午餐餐厅", np: "Park Güell → restaurante" },
+        { s: 5, k: "food", t: "11:30–13:00", n: "午餐", np: "Almoço" },
+        { s: 6, k: "move", t: "13:00–13:15", n: "前往巴特罗之家", np: "Deslocamento até a Casa Batlló" },
+        { s: 7, k: "sight", t: "13:15–14:30", n: "巴特罗之家", np: "Casa Batlló", l: "Casa Batlló", d: "入内参观", dp: "Visita ao interior" },
+        { s: 8, k: "move", t: "14:30–14:45", n: "巴特罗之家 → 酒店", np: "Casa Batlló → hotel" },
+        { s: 9, k: "minor", t: "14:45–15:15", n: "回酒店短暂休息", np: "Breve descanso no hotel" },
+        { s: 10, k: "move", t: "15:15–15:45", n: "酒店 → 蒙特惠奇缆车站", np: "Hotel → teleférico de Montjuïc" },
+        { s: 11, k: "move", t: "15:45–16:00", n: "乘蒙特惠奇缆车上山", np: "Subida pelo Telefèric de Montjuïc" },
+        { s: 12, k: "sight", t: "16:00–17:15", n: "蒙特惠奇城堡", np: "Castelo de Montjuïc", l: "Castell de Montjuïc", d: "城堡及俯瞰巴塞罗那港的观景台", dp: "Castelo e mirantes com vista para o porto" },
+        { s: 13, k: "sight", t: "17:15–17:35", n: "山顶观景台看日落", np: "Pôr do sol no alto de Montjuïc", l: "Montjuïc", d: "蒙特惠奇山顶观景台", dp: "Mirante no alto de Montjuïc" },
+        { s: 14, k: "move", t: "17:35–17:40", n: "前往缆车站", np: "Deslocamento até o teleférico" },
+        { s: 15, k: "move", t: "约 17:40", n: "乘缆车下山", np: "Descida de teleférico" },
+        { s: 16, k: "minor", t: "18:00–19:00", n: "前往餐厅 / 自由活动", np: "Ida ao restaurante / tempo livre" },
+        { s: 17, k: "food", t: "19:00–20:30", n: "晚餐", np: "Jantar" },
+        { s: 18, k: "minor", t: "20:30 后", n: "返回酒店休息", np: "Retorno ao hotel e descanso" }
       ]
     },
     {
       date: "2026-12-21", icon: "🌇", country: "es",
       place: "巴塞罗那", placePt: "Barcelona",
-      theme: "提比达博 · 卡梅尔碉堡日落",
+      theme: "提比达博 · 卡梅尔碉堡日落", themePt: "Tibidabo · pôr do sol nos Bunkers",
       items: [
-        ["09:00–09:30", "起床、整理、准备出发", "09:00–09:30", "Acordar, organizar-se e preparar a saída"],
-        ["09:30–10:30", "酒店 → 提比达博；前往 Cuca de Llum 缆车站", "09:30–10:30", "Hotel → Tibidabo; deslocamento até a estação da Cuca de Llum e subida"],
-        ["10:30–11:00", "乘 Cuca de Llum 缆车到提比达博山顶", "10:30–11:00", "Subida pela Cuca de Llum até a área do topo do Tibidabo"],
-        ["11:00–12:15", "参观圣心赎罪殿（Sagrat Cor），包括教堂内部与山顶观景台", "11:00–12:15", "Visita ao Temple Expiatori del Sagrat Cor, incluindo o interior da igreja e os mirantes no topo"],
-        ["12:15–13:30", "游览提比达博全景区及游乐园区域，俯瞰巴塞罗那全景", "12:15–13:30", "Passeio pela Tibidabo Panoramic Area e pela área do parque, com vista panorâmica de Barcelona"],
-        ["13:30–14:45", "午餐", "13:30–14:45", "Almoço"],
-        ["14:45–15:30", "提比达博 → 罗维拉山 / 卡梅尔碉堡", "14:45–15:30", "Tibidabo → Turó de la Rovira / Bunkers del Carmel"],
-        ["15:30–17:25", "游览罗维拉山（Turó de la Rovira），360° 俯瞰巴塞罗那并等待日落", "15:30–17:25", "Visita ao Turó de la Rovira, com vista panorâmica de 360° de Barcelona e espera pelo pôr do sol"],
-        ["约 17:24", "巴塞罗那日落", "Por volta de 17:24", "Pôr do sol em Barcelona"],
-        ["17:25–18:00", "离开罗维拉山，返回市中心", "17:25–18:00", "Saída do Turó de la Rovira e retorno ao centro"],
-        ["18:00–19:00", "回酒店短暂休息", "18:00–19:00", "Retorno ao hotel para breve descanso"],
-        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
-        ["20:30 后", "回酒店休息，整理去巴黎的行李", "Após 20:30", "Retorno ao hotel, descanso e organização da bagagem para Paris"]
+        { s: 1, k: "minor", t: "09:00–09:30", n: "起床、整理、准备出发", np: "Acordar, organizar-se e preparar a saída" },
+        { s: 2, k: "move", t: "09:30–10:30", n: "酒店 → 提比达博（Cuca de Llum 缆车站）", np: "Hotel → Tibidabo (estação da Cuca de Llum)" },
+        { s: 3, k: "move", t: "10:30–11:00", n: "乘 Cuca de Llum 缆车上山", np: "Subida pela Cuca de Llum" },
+        { s: 4, k: "sight", t: "11:00–12:15", n: "圣心赎罪殿", np: "Templo do Sagrado Coração", l: "Temple Expiatori del Sagrat Cor", d: "教堂内部与山顶观景台", dp: "Interior da igreja e mirantes no topo" },
+        { s: 5, k: "sight", t: "12:15–13:30", n: "提比达博全景区", np: "Área panorâmica do Tibidabo", l: "Tibidabo", d: "全景区及游乐园区域，俯瞰巴塞罗那", dp: "Área panorâmica e do parque, vista de Barcelona" },
+        { s: 6, k: "food", t: "13:30–14:45", n: "午餐", np: "Almoço" },
+        { s: 7, k: "move", t: "14:45–15:30", n: "提比达博 → 罗维拉山", np: "Tibidabo → Turó de la Rovira" },
+        { s: 8, k: "sight", t: "15:30–17:25", n: "罗维拉山 · 卡梅尔碉堡", np: "Turó de la Rovira · Bunkers del Carmel", l: "Turó de la Rovira (Bunkers del Carmel)", d: "360° 俯瞰巴塞罗那，等待日落", dp: "Vista de 360° de Barcelona e espera pelo pôr do sol" },
+        { s: 9, k: "minor", t: "约 17:24", n: "巴塞罗那日落", np: "Pôr do sol em Barcelona" },
+        { s: 10, k: "move", t: "17:25–18:00", n: "离开罗维拉山，返回市中心", np: "Retorno ao centro" },
+        { s: 11, k: "minor", t: "18:00–19:00", n: "回酒店短暂休息", np: "Breve descanso no hotel" },
+        { s: 12, k: "food", t: "19:00–20:30", n: "晚餐", np: "Jantar" },
+        { s: 13, k: "minor", t: "20:30 后", n: "回酒店休息，整理去巴黎的行李", np: "Descanso e organização da bagagem para Paris" }
       ]
     },
     {
       date: "2026-12-22", icon: "🗼", country: "fr",
       place: "巴塞罗那 → 巴黎", placePt: "Barcelona → Paris",
-      theme: "飞往巴黎 · 埃菲尔铁塔",
+      theme: "飞往巴黎 · 埃菲尔铁塔", themePt: "Voo para Paris · Torre Eiffel",
       items: [
-        ["06:15–06:45", "起床、整理行李、退房", "06:15–06:45", "Acordar, organizar a bagagem e fazer check-out"],
-        ["06:45–07:15", "酒店 → 巴塞罗那-埃尔普拉特机场", "06:45–07:15", "Hotel → Aeroporto Barcelona-El Prat"],
-        ["07:15–08:50", "安检、前往登机口、候机", "07:15–08:50", "Controle de segurança, deslocamento ao portão e espera para embarque"],
-        ["09:15–11:05", "✈️ 航班：巴塞罗那 → 巴黎奥利机场", "09:15–11:05", "Voo Barcelona → Paris-Orly"],
-        ["11:05–11:40", "下机、提取行李", "11:05–11:40", "Desembarque e retirada da bagagem"],
-        ["11:40–12:30", "奥利机场 → 巴黎市中心 / 酒店", "11:40–12:30", "Aeroporto Paris-Orly → centro de Paris / hotel"],
-        ["12:30–13:00", "酒店寄存行李或办理入住", "12:30–13:00", "Deixar a bagagem no hotel ou fazer check-in"],
-        ["13:00–14:15", "午餐", "13:00–14:15", "Almoço"],
-        ["14:15–15:00", "短暂休息后出发", "14:15–15:00", "Breve descanso e saída"],
-        ["15:00–15:30", "前往特罗卡德罗", "15:00–15:30", "Deslocamento até o Trocadéro"],
-        ["15:30–16:30", "漫步特罗卡德罗，远眺埃菲尔铁塔全景", "15:30–16:30", "Passeio pelo Trocadéro, com vista panorâmica da Torre Eiffel"],
-        ["16:30–17:30", "参观埃菲尔铁塔与战神广场，看日落和铁塔亮灯", "16:30–17:30", "Visita à Torre Eiffel e ao Champ de Mars, com pôr do sol e vista da torre iluminada"],
-        ["17:30–18:30", "塞纳河畔散步", "17:30–18:30", "Caminhada às margens do rio Sena"],
-        ["18:30–19:00", "前往餐厅", "18:30–19:00", "Deslocamento até o restaurante"],
-        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
-        ["20:30 后", "返回酒店休息", "Após 20:30", "Retorno ao hotel e descanso"]
+        { s: 1, k: "minor", t: "06:15–06:45", n: "起床、整理行李、退房", np: "Acordar, organizar a bagagem e check-out" },
+        { s: 2, k: "move", t: "06:45–07:15", n: "酒店 → 巴塞罗那-埃尔普拉特机场", np: "Hotel → Aeroporto Barcelona-El Prat" },
+        { s: 3, k: "minor", t: "07:15–08:50", n: "安检、前往登机口、候机", np: "Segurança, portão e espera para embarque" },
+        { s: 4, k: "transport", t: "09:15–11:05", tt: "f", n: "航班 巴塞罗那 → 巴黎奥利", np: "Voo Barcelona → Paris-Orly", x: { from: "Aeroporto Barcelona-El Prat", to: "Paris-Orly" } },
+        { s: 5, k: "minor", t: "11:05–11:40", n: "下机、提取行李", np: "Desembarque e retirada da bagagem" },
+        { s: 6, k: "move", t: "11:40–12:30", n: "奥利机场 → 巴黎市中心 / 酒店", np: "Paris-Orly → centro / hotel" },
+        { s: 7, k: "hotel", t: "12:30–13:00", n: "巴黎酒店 · 寄存行李或入住", np: "Hotel em Paris · bagagem ou check-in" },
+        { s: 8, k: "food", t: "13:00–14:15", n: "午餐", np: "Almoço" },
+        { s: 9, k: "minor", t: "14:15–15:00", n: "短暂休息后出发", np: "Breve descanso e saída" },
+        { s: 10, k: "move", t: "15:00–15:30", n: "前往特罗卡德罗", np: "Deslocamento até o Trocadéro" },
+        { s: 11, k: "sight", t: "15:30–16:30", n: "特罗卡德罗", np: "Trocadéro", l: "Trocadéro", d: "远眺埃菲尔铁塔全景", dp: "Vista panorâmica da Torre Eiffel" },
+        { s: 12, k: "sight", t: "16:30–17:30", n: "埃菲尔铁塔与战神广场", np: "Torre Eiffel e Champ de Mars", l: "Tour Eiffel · Champ de Mars", d: "看日落和铁塔亮灯", dp: "Pôr do sol e torre iluminada" },
+        { s: 13, k: "sight", t: "17:30–18:30", n: "塞纳河畔散步", np: "Caminhada às margens do Sena", l: "Seine", d: "", dp: "" },
+        { s: 14, k: "move", t: "18:30–19:00", n: "前往餐厅", np: "Deslocamento até o restaurante" },
+        { s: 15, k: "food", t: "19:00–20:30", n: "晚餐", np: "Jantar" },
+        { s: 16, k: "minor", t: "20:30 后", n: "返回酒店休息", np: "Retorno ao hotel e descanso" }
       ]
     },
     {
       date: "2026-12-23", icon: "🖼️", country: "fr",
       place: "巴黎", placePt: "Paris",
-      theme: "圣母院 · 卢浮宫 · 凯旋门",
+      theme: "圣母院 · 卢浮宫 · 凯旋门", themePt: "Notre-Dame · Louvre · Arco do Triunfo",
       items: [
-        ["08:00–08:30", "起床、整理、出发", "08:00–08:30", "Acordar, organizar-se e sair"],
-        ["08:30–09:30", "参观巴黎圣母院", "08:30–09:30", "Visita à Catedral de Notre-Dame de Paris"],
-        ["09:30–10:15", "漫步西岱岛及塞纳河畔", "09:30–10:15", "Passeio pela Île de la Cité e às margens do Sena"],
-        ["10:15–10:30", "前往卢浮宫", "10:15–10:30", "Deslocamento até o Musée du Louvre"],
-        ["10:30–12:30", "参观卢浮宫，包括主要馆藏和玻璃金字塔区域", "10:30–12:30", "Visita ao Museu do Louvre, incluindo as principais coleções e a área da pirâmide de vidro"],
-        ["12:30–13:45", "午餐", "12:30–13:45", "Almoço"],
-        ["13:45–14:30", "漫步杜乐丽花园与协和广场", "13:45–14:30", "Passeio pelo Jardin des Tuileries e pela Place de la Concorde"],
-        ["14:30–15:30", "漫步香榭丽舍大街", "14:30–15:30", "Passeio pela Avenue des Champs-Élysées"],
-        ["15:30–17:15", "参观凯旋门，登顶观景台看巴黎日落", "15:30–17:15", "Visita ao Arc de Triomphe, subida ao mirante e pôr do sol sobre Paris"],
-        ["17:15–18:30", "香榭丽舍圣诞灯饰 & 自由活动", "17:15–18:30", "Iluminação de Natal na Champs-Élysées e tempo livre"],
-        ["18:30–19:00", "前往餐厅", "18:30–19:00", "Deslocamento até o restaurante"],
-        ["19:00–20:30", "晚餐", "19:00–20:30", "Jantar"],
-        ["20:30 后", "返回酒店休息", "Após 20:30", "Retorno ao hotel e descanso"]
+        { s: 1, k: "minor", t: "08:00–08:30", n: "起床、整理、出发", np: "Acordar, organizar-se e sair" },
+        { s: 2, k: "sight", t: "08:30–09:30", n: "巴黎圣母院", np: "Catedral de Notre-Dame", l: "Cathédrale Notre-Dame de Paris", d: "", dp: "" },
+        { s: 3, k: "sight", t: "09:30–10:15", n: "西岱岛与塞纳河畔", np: "Île de la Cité e margens do Sena", l: "Île de la Cité", d: "", dp: "" },
+        { s: 4, k: "move", t: "10:15–10:30", n: "前往卢浮宫", np: "Deslocamento até o Louvre" },
+        { s: 5, k: "sight", t: "10:30–12:30", n: "卢浮宫", np: "Museu do Louvre", l: "Musée du Louvre", d: "主要馆藏和玻璃金字塔区域", dp: "Principais coleções e a pirâmide de vidro" },
+        { s: 6, k: "food", t: "12:30–13:45", n: "午餐", np: "Almoço" },
+        { s: 7, k: "sight", t: "13:45–14:30", n: "杜乐丽花园与协和广场", np: "Jardin des Tuileries e Place de la Concorde", l: "Jardin des Tuileries · Place de la Concorde", d: "", dp: "" },
+        { s: 8, k: "sight", t: "14:30–15:30", n: "香榭丽舍大街", np: "Champs-Élysées", l: "Avenue des Champs-Élysées", d: "", dp: "" },
+        { s: 9, k: "sight", t: "15:30–17:15", n: "凯旋门", np: "Arco do Triunfo", l: "Arc de Triomphe", d: "登顶观景台看巴黎日落", dp: "Subida ao mirante e pôr do sol sobre Paris" },
+        { s: 10, k: "sight", t: "17:15–18:30", n: "香榭丽舍圣诞灯饰", np: "Iluminação de Natal", l: "Avenue des Champs-Élysées", d: "看灯饰、自由活动", dp: "Iluminação de Natal e tempo livre" },
+        { s: 11, k: "move", t: "18:30–19:00", n: "前往餐厅", np: "Deslocamento até o restaurante" },
+        { s: 12, k: "food", t: "19:00–20:30", n: "晚餐", np: "Jantar" },
+        { s: 13, k: "minor", t: "20:30 后", n: "返回酒店休息", np: "Retorno ao hotel e descanso" }
       ]
     },
     {
       date: "2026-12-24", icon: "🚄", country: "ch",
       place: "巴黎 → 格林德瓦", placePt: "Paris → Grindelwald",
-      theme: "火车进阿尔卑斯 · 平安夜",
+      theme: "火车进阿尔卑斯 · 平安夜", themePt: "Trem para os Alpes · Véspera de Natal",
       items: [
-        ["06:30–07:00", "起床、整理行李、退房", "06:30–07:00", "Acordar, organizar a bagagem e fazer check-out"],
-        ["07:00–07:20", "前往巴黎里昂站", "07:00–07:20", "Deslocamento até a Gare de Lyon, em Paris"],
-        ["上午", "🚄 TGV Lyria：巴黎 → 巴塞尔 SBB（具体车次以出票为准）", "Manhã", "TGV Lyria: Paris → Basel SBB (trem específico conforme emissão da passagem)"],
-        ["中午", "在巴塞尔 SBB 换乘瑞士国内列车，前往因特拉肯东站", "Meio-dia", "Conexão em Basel SBB para trem doméstico suíço com destino a Interlaken Ost"],
-        ["下午", "因特拉肯东站 → 格林德瓦", "Tarde", "Interlaken Ost → Grindelwald"],
-        ["约 14:00", "抵达格林德瓦，酒店入住", "Por volta de 14:00", "Chegada a Grindelwald e check-in no hotel"],
-        ["14:30–15:30", "午餐", "14:30–15:30", "Almoço"],
-        ["15:30–17:00", "漫步格林德瓦小镇及观景点，欣赏冬日艾格峰与阿尔卑斯山景", "15:30–17:00", "Passeio pela vila de Grindelwald e pelos pontos panorâmicos, com vista do Eiger e dos Alpes no inverno"],
-        ["17:00–18:00", "回酒店休息", "17:00–18:00", "Retorno ao hotel e descanso"],
-        ["18:00–19:30", "🎄 平安夜晚餐（建议提前预订）", "18:00–19:30", "Jantar de véspera de Natal (reserva antecipada recomendada)"],
-        ["19:30 后", "返回酒店休息", "Após 19:30", "Retorno ao hotel e descanso"]
+        { s: 1, k: "minor", t: "06:30–07:00", n: "起床、整理行李、退房", np: "Acordar, organizar a bagagem e check-out" },
+        { s: 2, k: "move", t: "07:00–07:20", n: "前往巴黎里昂站", np: "Deslocamento até a Gare de Lyon" },
+        { s: 3, k: "transport", t: "上午", n: "TGV Lyria 巴黎 → 巴塞尔", np: "TGV Lyria Paris → Basel SBB", d: "具体车次以出票为准", dp: "Trem específico conforme emissão da passagem", x: { from: "Paris Gare de Lyon", to: "Basel SBB", operator: "TGV Lyria" } },
+        { s: 4, k: "transport", t: "中午", n: "巴塞尔 → 因特拉肯东站", np: "Basel SBB → Interlaken Ost", d: "在巴塞尔换乘瑞士国内列车", dp: "Conexão para trem doméstico suíço", x: { from: "Basel SBB", to: "Interlaken Ost" } },
+        { s: 5, k: "transport", t: "下午", n: "因特拉肯东站 → 格林德瓦", np: "Interlaken Ost → Grindelwald", x: { from: "Interlaken Ost", to: "Grindelwald" } },
+        { s: 6, k: "hotel", t: "约 14:00", n: "抵达格林德瓦 · 酒店入住", np: "Chegada a Grindelwald · check-in" },
+        { s: 7, k: "food", t: "14:30–15:30", n: "午餐", np: "Almoço" },
+        { s: 8, k: "sight", t: "15:30–17:00", n: "格林德瓦小镇", np: "Vila de Grindelwald", l: "Grindelwald", d: "小镇与观景点，欣赏冬日艾格峰与阿尔卑斯山景", dp: "Vila e pontos panorâmicos, vista do Eiger e dos Alpes" },
+        { s: 9, k: "minor", t: "17:00–18:00", n: "回酒店休息", np: "Retorno ao hotel e descanso" },
+        { s: 10, k: "food", t: "18:00–19:30", n: "平安夜晚餐", np: "Jantar de véspera de Natal", d: "原行程建议提前预订", dp: "Reserva antecipada recomendada", x: { reserve: "建议提前预订" } },
+        { s: 11, k: "minor", t: "19:30 后", n: "返回酒店休息", np: "Retorno ao hotel e descanso" }
       ]
     },
     {
       date: "2026-12-25", icon: "🏔️", country: "ch",
       place: "劳特布伦嫩 → 文根 → 小沙伊德格", placePt: "Lauterbrunnen → Wengen → Kleine Scheidegg",
-      theme: "圣诞节 · 少女峰山谷",
+      theme: "圣诞节 · 少女峰山谷", themePt: "Natal · vale da Jungfrau",
       items: [
-        ["08:00–08:30", "起床、整理、准备出发", "08:00–08:30", "Acordar, organizar-se e preparar a saída"],
-        ["08:30–09:30", "格林德瓦 → 劳特布伦嫩", "08:30–09:30", "Grindelwald → Lauterbrunnen"],
-        ["09:30–11:00", "漫步冬日劳特布伦嫩山谷与小镇", "09:30–11:00", "Passeio pelo vale de Lauterbrunnen e pela vila no inverno"],
-        ["11:00–11:20", "劳特布伦嫩 → 文根", "11:00–11:20", "Lauterbrunnen → Wengen"],
-        ["11:20–13:00", "漫步文根并午餐", "11:20–13:00", "Passeio por Wengen e almoço"],
-        ["13:00–13:30", "文根 → 小沙伊德格", "13:00–13:30", "Wengen → Kleine Scheidegg"],
-        ["13:30–15:30", "小沙伊德格观景点，眺望艾格峰、僧侣峰与少女峰", "13:30–15:30", "Mirantes em Kleine Scheidegg, com vista do Eiger, Mönch e Jungfrau"],
-        ["15:30–16:30", "返回格林德瓦", "15:30–16:30", "Retorno a Grindelwald"],
-        ["16:30 后", "回酒店休息、晚餐", "Após 16:30", "Retorno ao hotel, descanso e jantar"]
+        { s: 1, k: "minor", t: "08:00–08:30", n: "起床、整理、准备出发", np: "Acordar, organizar-se e preparar a saída" },
+        { s: 2, k: "move", t: "08:30–09:30", n: "格林德瓦 → 劳特布伦嫩", np: "Grindelwald → Lauterbrunnen" },
+        { s: 3, k: "sight", t: "09:30–11:00", n: "劳特布伦嫩山谷", np: "Vale de Lauterbrunnen", l: "Lauterbrunnen", d: "漫步冬日山谷与小镇", dp: "Passeio pelo vale e pela vila no inverno" },
+        { s: 4, k: "move", t: "11:00–11:20", n: "劳特布伦嫩 → 文根", np: "Lauterbrunnen → Wengen" },
+        { s: 5, k: "sight", t: "11:20–13:00", n: "文根", np: "Wengen", l: "Wengen", d: "漫步小镇（午餐也在这段时间）", dp: "Passeio pela vila (almoço no mesmo período)" },
+        { s: 5, sx: "a", k: "food", t: "11:20–13:00", n: "午餐", np: "Almoço", d: "在文根，与漫步文根同一时段", dp: "Em Wengen, no mesmo período do passeio" },
+        { s: 6, k: "move", t: "13:00–13:30", n: "文根 → 小沙伊德格", np: "Wengen → Kleine Scheidegg" },
+        { s: 7, k: "sight", t: "13:30–15:30", n: "小沙伊德格观景点", np: "Mirantes de Kleine Scheidegg", l: "Kleine Scheidegg", d: "眺望艾格峰、僧侣峰与少女峰", dp: "Vista do Eiger, Mönch e Jungfrau" },
+        { s: 8, k: "move", t: "15:30–16:30", n: "返回格林德瓦", np: "Retorno a Grindelwald" },
+        { s: 9, k: "minor", t: "16:30 后", n: "回酒店休息", np: "Retorno ao hotel e descanso" },
+        { s: 9, sx: "a", k: "food", t: "16:30 后", n: "晚餐", np: "Jantar" }
       ]
     },
     {
       date: "2026-12-26", icon: "🚡", country: "ch",
       place: "格林德瓦-菲斯特", placePt: "Grindelwald-First",
-      theme: "菲斯特 · 悬崖步道",
+      theme: "菲斯特 · 悬崖步道", themePt: "First · Cliff Walk",
       items: [
-        ["08:00–08:30", "起床、整理，查看天气预报和山顶实时摄像头", "08:00–08:30", "Acordar, organizar-se e verificar a previsão do tempo e as câmeras ao vivo da montanha"],
-        ["08:30–09:00", "前往格林德瓦-菲斯特缆车站", "08:30–09:00", "Deslocamento até a estação do teleférico de Grindelwald-First"],
-        ["约 09:00", "乘缆车上菲斯特", "Por volta de 09:00", "Subida de teleférico até Grindelwald-First"],
-        ["09:30–13:30", "游览菲斯特：观景台、First Cliff Walk 悬崖步道与冬季阿尔卑斯风光", "09:30–13:30", "Visita a Grindelwald-First: mirantes, First Cliff Walk e paisagens alpinas de inverno"],
-        ["13:30–14:30", "午餐", "13:30–14:30", "Almoço"],
-        ["14:30–16:20", "山顶自由时间，欣赏并拍摄雪山与冬日风景", "14:30–16:20", "Tempo livre no topo para contemplação e fotografia das montanhas e da paisagem de inverno"],
-        ["16:20–16:50", "山顶看日落（视天气和当天运营时间而定）", "16:20–16:50", "Pôr do sol no topo, conforme as condições climáticas e o horário de funcionamento do dia"],
-        ["16:50 后", "根据末班缆车时间下山，返回格林德瓦", "Após 16:50", "Descida conforme o horário do último teleférico do dia e retorno a Grindelwald"],
-        ["约 19:00", "晚餐、休息", "Por volta de 19:00", "Jantar e descanso"]
+        { s: 1, k: "minor", t: "08:00–08:30", n: "起床，查看天气预报和山顶实时摄像头", np: "Verificar a previsão do tempo e as câmeras ao vivo" },
+        { s: 2, k: "move", t: "08:30–09:00", n: "前往格林德瓦-菲斯特缆车站", np: "Deslocamento até o teleférico de Grindelwald-First" },
+        { s: 3, k: "move", t: "约 09:00", n: "乘缆车上菲斯特", np: "Subida de teleférico até First" },
+        { s: 4, k: "sight", t: "09:30–13:30", n: "菲斯特", np: "Grindelwald-First", l: "Grindelwald-First · First Cliff Walk", d: "观景台、悬崖步道与冬季阿尔卑斯风光", dp: "Mirantes, First Cliff Walk e paisagens alpinas de inverno" },
+        { s: 5, k: "food", t: "13:30–14:30", n: "午餐", np: "Almoço" },
+        { s: 6, k: "activity", t: "14:30–16:20", n: "山顶自由时间", np: "Tempo livre no topo", d: "欣赏并拍摄雪山与冬日风景", dp: "Contemplação e fotografia das montanhas" },
+        { s: 7, k: "activity", t: "16:20–16:50", n: "山顶看日落", np: "Pôr do sol no topo", d: "视天气和当天运营时间而定", dp: "Conforme o clima e o horário de funcionamento" },
+        { s: 8, k: "move", t: "16:50 后", n: "按末班缆车时间下山，返回格林德瓦", np: "Descida conforme o último teleférico" },
+        { s: 9, k: "food", t: "约 19:00", n: "晚餐", np: "Jantar" }
       ]
     },
     {
       date: "2026-12-27", icon: "❄️", country: "ch",
       place: "少女峰", placePt: "Jungfraujoch",
-      theme: "欧洲之巅 · 冰宫",
+      theme: "欧洲之巅 · 冰宫", themePt: "Topo da Europa · Palácio de Gelo",
       items: [
-        ["07:30–08:00", "起床、整理，查看天气和少女峰实时摄像头", "07:30–08:00", "Acordar, organizar-se e verificar o tempo e as câmeras ao vivo de Jungfraujoch"],
-        ["约 08:00", "前往格林德瓦交通枢纽站", "Por volta de 08:00", "Deslocamento até o terminal de transporte de Grindelwald"],
-        ["约 08:30", "乘艾格快线至艾格冰川站，换乘少女峰铁路", "Por volta de 08:30", "Eiger Express até Eigergletscher e conexão com a ferrovia de Jungfrau"],
-        ["09:15–13:30", "游览少女峰：斯芬克斯观景台、冰宫与阿莱奇冰川观景点", "09:15–13:30", "Visita a Jungfraujoch: observatório Sphinx, Palácio de Gelo e mirantes da geleira Aletsch"],
-        ["13:30–14:30", "午餐、休息", "13:30–14:30", "Almoço e descanso"],
-        ["14:30–16:20", "继续游览，拍摄少女峰雪景", "14:30–16:20", "Continuação da visita e fotografia das paisagens de neve em Jungfraujoch"],
-        ["16:20–16:50", "若天气和末班车时间允许，在山顶看日落", "16:20–16:50", "Se o tempo e o horário do último trem permitirem, pôr do sol no topo"],
-        ["16:50 后", "根据末班火车时间下山，返回格林德瓦", "Após 16:50", "Descida conforme o horário do último trem do dia e retorno a Grindelwald"],
-        ["约 19:00", "晚餐、休息", "Por volta de 19:00", "Jantar e descanso"]
+        { s: 1, k: "minor", t: "07:30–08:00", n: "起床，查看天气和少女峰实时摄像头", np: "Verificar o tempo e as câmeras ao vivo de Jungfraujoch" },
+        { s: 2, k: "move", t: "约 08:00", n: "前往格林德瓦交通枢纽站", np: "Deslocamento até o terminal de Grindelwald" },
+        { s: 3, k: "move", t: "约 08:30", n: "艾格快线至艾格冰川站，换乘少女峰铁路", np: "Eiger Express até Eigergletscher e ferrovia da Jungfrau" },
+        { s: 4, k: "sight", t: "09:15–13:30", n: "少女峰", np: "Jungfraujoch", l: "Jungfraujoch", d: "斯芬克斯观景台、冰宫与阿莱奇冰川观景点", dp: "Observatório Sphinx, Palácio de Gelo e geleira Aletsch" },
+        { s: 5, k: "food", t: "13:30–14:30", n: "午餐", np: "Almoço" },
+        { s: 6, k: "activity", t: "14:30–16:20", n: "继续游览，拍摄雪景", np: "Continuação da visita e fotografia" },
+        { s: 7, k: "activity", t: "16:20–16:50", n: "山顶看日落", np: "Pôr do sol no topo", d: "若天气和末班车时间允许", dp: "Se o tempo e o último trem permitirem" },
+        { s: 8, k: "move", t: "16:50 后", n: "按末班火车时间下山，返回格林德瓦", np: "Descida conforme o último trem" },
+        { s: 9, k: "food", t: "约 19:00", n: "晚餐", np: "Jantar" }
       ]
     },
     {
       date: "2026-12-28", icon: "🏞️", country: "ch",
       place: "格林德瓦 → 坎德施泰格 → 采尔马特", placePt: "Grindelwald → Kandersteg → Zermatt",
-      theme: "厄希嫩湖",
+      theme: "厄希嫩湖 · 前往采尔马特", themePt: "Lago Oeschinen · rumo a Zermatt",
       items: [
-        ["07:30–08:00", "起床、整理行李、退房", "07:30–08:00", "Acordar, organizar a bagagem e fazer check-out"],
-        ["约 08:30", "格林德瓦 → 坎德施泰格", "Por volta de 08:30", "Grindelwald → Kandersteg"],
-        ["约 10:30", "抵达坎德施泰格，寄存行李", "Por volta de 10:30", "Chegada a Kandersteg e guarda da bagagem"],
-        ["10:30–11:15", "午餐", "10:30–11:15", "Almoço"],
-        ["约 11:30", "前往厄希嫩湖缆车站并上山", "Por volta de 11:30", "Deslocamento até a estação do teleférico de Oeschinensee e subida"],
-        ["12:00–15:30", "游览厄希嫩湖及开放中的冬季步道", "12:00–15:30", "Visita ao Lago Oeschinen e às trilhas de inverno que estiverem abertas"],
-        ["15:30–16:15", "下山返回坎德施泰格取行李", "15:30–16:15", "Descida e retorno a Kandersteg para retirar a bagagem"],
-        ["约 16:30–19:00", "🚆 坎德施泰格 → 采尔马特（具体车次以出票为准）", "Aprox. 16:30–19:00", "Kandersteg → Zermatt (horários específicos conforme emissão da passagem)"],
-        ["约 19:00", "抵达采尔马特，酒店入住", "Por volta de 19:00", "Chegada a Zermatt e check-in no hotel"],
-        ["约 19:30", "晚餐、休息", "Por volta de 19:30", "Jantar e descanso"]
+        { s: 1, k: "minor", t: "07:30–08:00", n: "起床、整理行李、退房", np: "Acordar, organizar a bagagem e check-out" },
+        { s: 2, k: "transport", t: "约 08:30", n: "格林德瓦 → 坎德施泰格", np: "Grindelwald → Kandersteg", x: { from: "Grindelwald", to: "Kandersteg" } },
+        { s: 3, k: "minor", t: "约 10:30", n: "抵达坎德施泰格，寄存行李", np: "Chegada a Kandersteg e guarda da bagagem" },
+        { s: 4, k: "food", t: "10:30–11:15", n: "午餐", np: "Almoço" },
+        { s: 5, k: "move", t: "约 11:30", n: "前往厄希嫩湖缆车站并上山", np: "Teleférico de Oeschinensee e subida" },
+        { s: 6, k: "sight", t: "12:00–15:30", n: "厄希嫩湖", np: "Lago Oeschinen", l: "Oeschinensee", d: "湖区及开放中的冬季步道", dp: "Lago e trilhas de inverno que estiverem abertas" },
+        { s: 7, k: "move", t: "15:30–16:15", n: "下山返回坎德施泰格取行李", np: "Descida e retirada da bagagem em Kandersteg" },
+        { s: 8, k: "transport", t: "约 16:30–19:00", n: "坎德施泰格 → 采尔马特", np: "Kandersteg → Zermatt", d: "具体车次以出票为准", dp: "Horários conforme emissão da passagem", x: { from: "Kandersteg", to: "Zermatt" } },
+        { s: 9, k: "hotel", t: "约 19:00", n: "抵达采尔马特 · 酒店入住", np: "Chegada a Zermatt · check-in" },
+        { s: 10, k: "food", t: "约 19:30", n: "晚餐", np: "Jantar" }
       ]
     },
     {
       date: "2026-12-29", icon: "🗻", country: "ch",
       place: "采尔马特", placePt: "Zermatt",
-      theme: "戈尔内格拉特 · 马特洪峰",
+      theme: "戈尔内格拉特 · 马特洪峰", themePt: "Gornergrat · Matterhorn",
       items: [
-        ["07:30–08:00", "起床、整理，查看天气和马特洪峰实时摄像头", "07:30–08:00", "Acordar, organizar-se e verificar o tempo e as câmeras ao vivo do Matterhorn"],
-        ["08:00–08:30", "前往戈尔内格拉特铁路站", "08:00–08:30", "Deslocamento até a estação da Gornergrat Bahn"],
-        ["约 08:30", "乘戈尔内格拉特登山铁路上山", "Por volta de 08:30", "Subida pela ferrovia de montanha Gornergrat Bahn"],
-        ["09:15–13:30", "游览戈尔内格拉特观景台，眺望马特洪峰、冰川与雪山", "09:15–13:30", "Visita aos mirantes de Gornergrat, com vista do Matterhorn, geleiras e montanhas nevadas"],
-        ["13:30–14:30", "午餐、休息", "13:30–14:30", "Almoço e descanso"],
-        ["14:30–16:30", "山顶欣赏与拍摄马特洪峰及阿尔卑斯风光", "14:30–16:30", "Tempo no topo para contemplação e fotografia do Matterhorn e das paisagens alpinas"],
-        ["16:30–17:10", "日落与蓝调时刻（视末班火车时间而定）", "16:30–17:10", "Pôr do sol e hora azul, de acordo com o horário do último trem do dia"],
-        ["17:10 后", "乘登山铁路返回采尔马特", "Após 17:10", "Retorno a Zermatt pela ferrovia de montanha"],
-        ["18:00–19:00", "漫步采尔马特小镇；若天气晴朗，拍摄马特洪峰夜景", "18:00–19:00", "Passeio pela vila de Zermatt; se o céu estiver limpo, fotografia noturna do Matterhorn"],
-        ["19:00 后", "晚餐，返回酒店休息", "Após 19:00", "Jantar e retorno ao hotel para descanso"]
+        { s: 1, k: "minor", t: "07:30–08:00", n: "起床，查看天气和马特洪峰实时摄像头", np: "Verificar o tempo e as câmeras ao vivo do Matterhorn" },
+        { s: 2, k: "move", t: "08:00–08:30", n: "前往戈尔内格拉特铁路站", np: "Deslocamento até a estação da Gornergrat Bahn" },
+        { s: 3, k: "move", t: "约 08:30", n: "乘戈尔内格拉特登山铁路上山", np: "Subida pela Gornergrat Bahn" },
+        { s: 4, k: "sight", t: "09:15–13:30", n: "戈尔内格拉特观景台", np: "Mirantes de Gornergrat", l: "Gornergrat", d: "眺望马特洪峰、冰川与雪山", dp: "Vista do Matterhorn, geleiras e montanhas nevadas" },
+        { s: 5, k: "food", t: "13:30–14:30", n: "午餐", np: "Almoço" },
+        { s: 6, k: "activity", t: "14:30–16:30", n: "山顶拍摄马特洪峰", np: "Fotografia do Matterhorn no topo" },
+        { s: 7, k: "activity", t: "16:30–17:10", n: "日落与蓝调时刻", np: "Pôr do sol e hora azul", d: "视末班火车时间而定", dp: "De acordo com o último trem do dia" },
+        { s: 8, k: "move", t: "17:10 后", n: "乘登山铁路返回采尔马特", np: "Retorno a Zermatt pela ferrovia" },
+        { s: 9, k: "sight", t: "18:00–19:00", n: "采尔马特小镇", np: "Vila de Zermatt", l: "Zermatt", d: "若天气晴朗，拍摄马特洪峰夜景", dp: "Se o céu estiver limpo, foto noturna do Matterhorn" },
+        { s: 10, k: "food", t: "19:00 后", n: "晚餐", np: "Jantar" }
       ]
     },
     {
       date: "2026-12-30", icon: "🌉", country: "ch",
       place: "采尔马特 → 卢塞恩", placePt: "Zermatt → Lucerna",
-      theme: "卢塞恩老城 · 卡佩尔廊桥",
+      theme: "卢塞恩老城 · 卡佩尔廊桥", themePt: "Centro histórico · Kapellbrücke",
       items: [
-        ["08:00–08:30", "起床、整理行李、退房", "08:00–08:30", "Acordar, organizar a bagagem e fazer check-out"],
-        ["约 09:00", "🚆 采尔马特 → 卢塞恩（具体车次以出票为准）", "Por volta de 09:00", "Zermatt → Lucerna (horários específicos conforme emissão da passagem)"],
-        ["约 12:30–13:00", "抵达卢塞恩，酒店寄存行李或入住", "Aprox. 12:30–13:00", "Chegada a Lucerna; deixar a bagagem no hotel ou fazer check-in"],
-        ["13:00–14:00", "午餐", "13:00–14:00", "Almoço"],
-        ["14:00–15:00", "漫步卢塞恩老城", "14:00–15:00", "Passeio pelo centro histórico de Lucerna"],
-        ["15:00–15:40", "参观卡佩尔廊桥（Kapellbrücke）", "15:00–15:40", "Visita à Ponte da Capela (Kapellbrücke)"],
-        ["15:40–16:45", "沿卢塞恩湖畔散步，欣赏冬日黄昏湖景", "15:40–16:45", "Caminhada às margens do Lago de Lucerna, com paisagem de inverno ao entardecer"],
-        ["16:45 后", "返回酒店休息", "Após 16:45", "Retorno ao hotel e descanso"],
-        ["约 19:00", "晚餐、休息", "Por volta de 19:00", "Jantar e descanso"]
+        { s: 1, k: "minor", t: "08:00–08:30", n: "起床、整理行李、退房", np: "Acordar, organizar a bagagem e check-out" },
+        { s: 2, k: "transport", t: "约 09:00", n: "采尔马特 → 卢塞恩", np: "Zermatt → Lucerna", d: "具体车次以出票为准", dp: "Horários conforme emissão da passagem", x: { from: "Zermatt", to: "Luzern" } },
+        { s: 3, k: "hotel", t: "约 12:30–13:00", n: "抵达卢塞恩 · 寄存行李或入住", np: "Chegada a Lucerna · bagagem ou check-in" },
+        { s: 4, k: "food", t: "13:00–14:00", n: "午餐", np: "Almoço" },
+        { s: 5, k: "sight", t: "14:00–15:00", n: "卢塞恩老城", np: "Centro histórico de Lucerna", l: "Altstadt Luzern", d: "", dp: "" },
+        { s: 6, k: "sight", t: "15:00–15:40", n: "卡佩尔廊桥", np: "Ponte da Capela", l: "Kapellbrücke", d: "", dp: "" },
+        { s: 7, k: "sight", t: "15:40–16:45", n: "卢塞恩湖畔散步", np: "Margens do Lago de Lucerna", l: "Vierwaldstättersee", d: "冬日黄昏湖景", dp: "Paisagem de inverno ao entardecer" },
+        { s: 8, k: "minor", t: "16:45 后", n: "返回酒店休息", np: "Retorno ao hotel e descanso" },
+        { s: 9, k: "food", t: "约 19:00", n: "晚餐", np: "Jantar" }
       ]
     },
     {
       date: "2026-12-31", icon: "🛫", country: "ch",
-      place: "卢塞恩 → 苏黎世机场 → 上海", placePt: "Lucerna → Aeroporto de Zurique → Xangai",
-      theme: "回家",
+      place: "卢塞恩 → 苏黎世机场 → 上海", placePt: "Lucerna → Zurique → Xangai",
+      theme: "回家", themePt: "Volta para casa",
       items: [
-        ["07:30–08:00", "起床、整理行李", "07:30–08:00", "Acordar e organizar a bagagem"],
-        ["08:00–08:30", "退房，前往卢塞恩火车站", "08:00–08:30", "Check-out e deslocamento até a estação de Lucerna"],
-        ["约 08:30–10:00", "🚆 卢塞恩 → 苏黎世机场（具体车次以出票为准）", "Aprox. 08:30–10:00", "Lucerna → Aeroporto de Zurique (horários específicos conforme emissão da passagem)"],
-        ["10:00–13:00", "办理国际航班值机、托运行李、安检及出境检查", "10:00–13:00", "Check-in do voo internacional, despacho de bagagem, segurança e controle de saída"],
-        ["13:50–次日 07:50", "✈️ 回程航班：苏黎世 → 上海浦东", "13:50–07:50 do dia seguinte", "Voo de retorno: Zurique → Xangai-Pudong"]
+        { s: 1, k: "minor", t: "07:30–08:00", n: "起床、整理行李", np: "Acordar e organizar a bagagem" },
+        { s: 2, k: "minor", t: "08:00–08:30", n: "退房，前往卢塞恩火车站", np: "Check-out e ida à estação de Lucerna" },
+        { s: 3, k: "transport", t: "约 08:30–10:00", n: "卢塞恩 → 苏黎世机场", np: "Lucerna → Aeroporto de Zurique", d: "具体车次以出票为准", dp: "Horários conforme emissão da passagem", x: { from: "Luzern", to: "Zürich Flughafen" } },
+        { s: 4, k: "minor", t: "10:00–13:00", n: "值机、托运行李、安检及出境", np: "Check-in, bagagem, segurança e controle de saída" },
+        { s: 5, k: "transport", t: "13:50–次日 07:50", tt: "f", n: "航班 苏黎世 → 上海浦东", np: "Voo Zurique → Xangai-Pudong", x: { from: "Zürich Flughafen", to: "上海浦东国际机场" } }
       ]
     }
   ]
@@ -521,129 +663,150 @@ window.TRIP_DATA = {
 </script>
 <script>
 (() => {
-  const STORE_KEY = "europa-trip-2026-v1";
+  "use strict";
+  const KEY_V2 = "europa-trip-2026-v2";
+  const KEY_V1 = "europa-trip-2026-v1";
+  const KEY_BACKUP_V1 = "europa-trip-2026-backup-v1";
+  const KEY_BACKUP_IMPORT = "europa-trip-2026-backup-before-import";
   const LANG_KEY = "europa-trip-2026-lang";
-  const N = TRIP_DATA.days.length;
-  const COUNTRY = { es: "西班牙", fr: "法国", ch: "瑞士" };
-  const WEEK = ["周日","周一","周二","周三","周四","周五","周六"];
-  const WEEK_PT = ["dom","seg","ter","qua","qui","sex","sáb"];
-  const QUICK = ["早餐","午餐","晚餐","休息","拍照","购物","买纪念品","喝咖啡"];
+  const D = TRIP_DATA.days;
+  const N = D.length;
+  const BOOKABLE = ["sight", "hotel", "transport", "food"];
+  const MAIN_KINDS = ["sight", "food", "hotel", "transport", "activity"];
+  const KINDS = ["sight", "food", "hotel", "transport", "activity", "move", "minor"];
+  const BUD_CATS = ["lodging", "food", "transport", "tickets", "other"];
+
+  // ---------- 界面文字（中 / 葡） ----------
+  const I18N = {
+    zh: {
+      sub: "12.19 – 12.31 · 巴塞罗那 · 巴黎 · 瑞士阿尔卑斯",
+      daysLeft: "天后出发 · 12 月 19 日 07:40 抵达巴塞罗那", onTrip: "旅途中 · 今天在 {p}",
+      es: "西班牙", fr: "法国", ch: "瑞士", today: "今天",
+      ovSights: "{n} 个景点", ovFood: "{n} 餐待定", ovTrans: "{n} 段长途交通", ovDone: "已完成 {d}/{t}", ovNotes: "有备注",
+      bookings: "预订清单", budget: "预算与开销", toBook: "{n} 项待预订",
+      export: "导出备份（JSON）", import: "导入备份", resetAll: "全部恢复为原始行程",
+      back: "← 全部日程", backHome: "← 返回",
+      prev: "前一天", next: "后一天", more: "更多",
+      k_sight: "景点", k_food: "餐厅", k_hotel: "酒店", k_transport: "交通", k_activity: "活动", k_move: "移动", k_minor: "琐事",
+      tt_fixed: "固定", tt_approx: "预计", tt_vague: "模糊",
+      tlegend: "<b>固定</b> 已预约或必须遵守 · <b>预计</b> 计划时间可调整 · <i>模糊</i> 上午 / 下午等",
+      toChoose: "待选择", custom: "自添",
+      add: "＋ 添加行程", notesTitle: "当天备注", notesPh: "酒店地址、订票号、注意事项……", saved: "已保存",
+      resetDay: "把这一天恢复为原始行程",
+      missing: "待填写", tbc: "待确认",
+      mapOpen: "点击此处打开谷歌地图", mapMissing: "导航链接待添加",
+      openSite: "打开官网", openTicket: "打开购票页面", openLink: "打开链接", badLink: "（链接格式不对）",
+      plannedArrive: "计划到达时间", plannedTime: "计划时间", timeType: "时间类型",
+      f_local_sight: "当地名称", f_local: "地点", f_duration: "预计游览时长", f_address: "地址", f_hours: "营业时间",
+      f_price_sight: "门票价格", f_price_food: "人均消费", f_reservation: "预约要求", f_website: "官方网站", f_ticketUrl: "购票链接",
+      f_mapUrl: "Google Maps 链接", f_notes: "补充说明", f_name_food: "餐厅名称", f_name_hotel: "酒店名称", f_address_food: "具体位置",
+      f_dishes: "推荐菜", f_reserve: "预约方式", f_alternatives: "备选餐厅", f_checkin: "入住时间", f_checkout: "退房时间",
+      f_from: "出发站", f_to: "抵达站", f_operator: "运营商", f_ticketInfo: "车票信息", f_currency: "货币",
+      bookingTitle: "预订", st_: "待确认", st_todo: "待预订", st_booked: "已预订", st_none: "无需预订",
+      b_date: "预订日期", b_cost: "费用", b_link: "预订链接", b_note: "预订备注",
+      bookingHint: "预订状态和行程的“完成”勾选互不影响。",
+      markDone: "标记完成", isDone: "已完成", edit: "编辑", del: "删除", save: "保存", cancel: "取消", close: "关闭",
+      f_kind: "类型", f_time: "时间", f_title: "名称", f_desc: "简短说明（一两句）",
+      f_timePh: "如 14:00–15:30、约 19:00、下午；可留空",
+      titleRequired: "请填写名称",
+      newItem: "添加行程", editItem: "编辑",
+      quickLunch: "午餐", quickDinner: "晚餐",
+      deleted: "已删除「{x}」", undo: "撤销", restored: "已恢复", imported: "导入成功", importFail: "导入失败：这不是本网站导出的备份文件",
+      exportSaved: "备份已保存", exportFail: "这里暂时不能保存文件",
+      askResetDay: "把 Day {n} 恢复为原始行程？", askResetDayMsg: "这一天的增删改、详情、预订信息和备注都会被清除，5 秒内可以撤销。",
+      askResetAll: "把全部 13 天恢复为原始行程？", askResetAllMsg: "所有行程修改、详情、预订信息和备注都会被清除（预算不受影响），5 秒内可以撤销。建议先导出备份。",
+      askImport: "导入这份备份？", askImportMsg: "会覆盖当前内容，导入前的数据会自动备份在本机，5 秒内也可以撤销。",
+      askDel: "删除这一项？", ok: "确定", resetBtn: "恢复", importBtn: "导入",
+      bk_all: "全部", bk_cat_all: "全部类型", bkHint: "点名称看详情；右侧可直接改预订状态。餐厅在“预约方式”里填写后，或设置了预订状态后，会出现在这里。",
+      bkEmpty: "没有符合条件的项目", bkCosts: "已登记的预订费用：", bkNoCost: "还没有登记费用",
+      bud_lodging: "住宿", bud_food: "餐饮", bud_transport: "交通", bud_tickets: "景点门票", bud_other: "其他",
+      plan: "预计预算", actual: "实际开销", addAmount: "＋ 添加一笔", amount: "金额", note: "备注",
+      totals: "合计（每种货币分开统计，不做汇率换算）", cur: "货币", diff: "差额（预算 − 实际）",
+      noAmounts: "还没有填写金额", noCur: "未填货币", invalid: "（有 {n} 笔金额无法识别）",
+      budHint: "金额和货币都由你填写；EUR、CHF、BRL 等分别统计。",
+      sync_local: "仅存本机", sync_ok: "已同步", sync_saving: "保存中…", sync_loading: "同步中…", sync_offline: "暂时连不上云端", sync_error: "同步失败", sync_readonly: "只读",
+      roNote: "你只有查看权限，修改不会保存。", roToast: "你对这个页面只有查看权限，修改没有保存",
+      saveFail: "保存到云端失败，请检查网络后再改一次", quota: "云端空间已满，修改没有保存", storageFail: "保存失败：浏览器禁止了本地存储",
+      langBtn: "中文 · PT"
+    },
+    pt: {
+      sub: "19–31 dez · Barcelona · Paris · Alpes suíços",
+      daysLeft: "dias para a partida · chegada a Barcelona em 19/12 às 07:40", onTrip: "Em viagem · hoje em {p}",
+      es: "Espanha", fr: "França", ch: "Suíça", today: "Hoje",
+      ovSights: "{n} atrações", ovFood: "{n} refeições a definir", ovTrans: "{n} trajetos longos", ovDone: "{d}/{t} feitos", ovNotes: "com notas",
+      bookings: "Reservas", budget: "Orçamento e gastos", toBook: "{n} a reservar",
+      export: "Exportar backup (JSON)", import: "Importar backup", resetAll: "Restaurar roteiro original",
+      back: "← Todos os dias", backHome: "← Voltar",
+      prev: "Dia anterior", next: "Próximo dia", more: "Mais",
+      k_sight: "Atração", k_food: "Restaurante", k_hotel: "Hotel", k_transport: "Transporte", k_activity: "Atividade", k_move: "Deslocamento", k_minor: "Rotina",
+      tt_fixed: "Fixo", tt_approx: "Previsto", tt_vague: "Vago",
+      tlegend: "<b>Fixo</b> reservado ou obrigatório · <b>Previsto</b> ajustável · <i>Vago</i> manhã / tarde etc.",
+      toChoose: "a definir", custom: "meu",
+      add: "＋ Adicionar item", notesTitle: "Notas do dia", notesPh: "Endereço do hotel, códigos de reserva, avisos…", saved: "Salvo",
+      resetDay: "Restaurar este dia ao original",
+      missing: "A preencher", tbc: "A confirmar",
+      mapOpen: "Clique aqui para abrir no Google Maps", mapMissing: "Link de navegação a adicionar",
+      openSite: "Abrir site oficial", openTicket: "Abrir página de ingressos", openLink: "Abrir link", badLink: "(link inválido)",
+      plannedArrive: "Chegada prevista", plannedTime: "Horário", timeType: "Tipo de horário",
+      f_local_sight: "Nome local", f_local: "Local", f_duration: "Duração prevista", f_address: "Endereço", f_hours: "Horário de funcionamento",
+      f_price_sight: "Ingresso", f_price_food: "Preço médio por pessoa", f_reservation: "Reserva necessária", f_website: "Site oficial", f_ticketUrl: "Link de ingressos",
+      f_mapUrl: "Link do Google Maps", f_notes: "Observações", f_name_food: "Restaurante", f_name_hotel: "Nome do hotel", f_address_food: "Localização",
+      f_dishes: "Pratos recomendados", f_reserve: "Reserva", f_alternatives: "Alternativas", f_checkin: "Check-in", f_checkout: "Check-out",
+      f_from: "Partida", f_to: "Chegada", f_operator: "Operadora", f_ticketInfo: "Bilhete", f_currency: "Moeda",
+      bookingTitle: "Reserva", st_: "A confirmar", st_todo: "A reservar", st_booked: "Reservado", st_none: "Sem reserva",
+      b_date: "Data da reserva", b_cost: "Valor", b_link: "Link da reserva", b_note: "Notas da reserva",
+      bookingHint: "O status da reserva é independente do “feito” do roteiro.",
+      markDone: "Marcar como feito", isDone: "Feito", edit: "Editar", del: "Excluir", save: "Salvar", cancel: "Cancelar", close: "Fechar",
+      f_kind: "Tipo", f_time: "Horário", f_title: "Nome", f_desc: "Descrição curta",
+      f_timePh: "Ex.: 14:00–15:30, ~19:00, tarde; opcional",
+      titleRequired: "Preencha o nome",
+      newItem: "Adicionar item", editItem: "Editar",
+      quickLunch: "Almoço", quickDinner: "Jantar",
+      deleted: "Excluído: {x}", undo: "Desfazer", restored: "Restaurado", imported: "Importado", importFail: "Falha: este arquivo não é um backup deste site",
+      exportSaved: "Backup salvo", exportFail: "Não é possível salvar arquivos aqui",
+      askResetDay: "Restaurar o Dia {n}?", askResetDayMsg: "Alterações, detalhes, reservas e notas deste dia serão apagados. Dá para desfazer por 5 s.",
+      askResetAll: "Restaurar os 13 dias?", askResetAllMsg: "Todas as alterações, detalhes, reservas e notas serão apagados (o orçamento fica). Dá para desfazer por 5 s.",
+      askImport: "Importar este backup?", askImportMsg: "Substitui o conteúdo atual. Os dados anteriores ficam salvos neste navegador e dá para desfazer por 5 s.",
+      askDel: "Excluir este item?", ok: "OK", resetBtn: "Restaurar", importBtn: "Importar",
+      bk_all: "Todos", bk_cat_all: "Todos os tipos", bkHint: "Toque no nome para ver detalhes; mude o status à direita. Restaurantes aparecem aqui quando a reserva é preenchida.",
+      bkEmpty: "Nenhum item", bkCosts: "Valores registrados:", bkNoCost: "Nenhum valor registrado",
+      bud_lodging: "Hospedagem", bud_food: "Alimentação", bud_transport: "Transporte", bud_tickets: "Ingressos", bud_other: "Outros",
+      plan: "Orçamento previsto", actual: "Gasto real", addAmount: "＋ Adicionar valor", amount: "Valor", note: "Nota",
+      totals: "Totais (cada moeda separada, sem conversão)", cur: "Moeda", diff: "Diferença (previsto − real)",
+      noAmounts: "Nenhum valor ainda", noCur: "Sem moeda", invalid: "({n} valores não reconhecidos)",
+      budHint: "Você preenche valores e moedas; EUR, CHF, BRL etc. são somados separadamente.",
+      sync_local: "Só neste aparelho", sync_ok: "Sincronizado", sync_saving: "Salvando…", sync_loading: "Sincronizando…", sync_offline: "Sem conexão com a nuvem", sync_error: "Falha ao sincronizar", sync_readonly: "Somente leitura",
+      roNote: "Você só pode visualizar; alterações não serão salvas.", roToast: "Somente leitura: a alteração não foi salva",
+      saveFail: "Falha ao salvar na nuvem; verifique a conexão", quota: "Espaço na nuvem cheio", storageFail: "Falha ao salvar: o navegador bloqueou o armazenamento",
+      langBtn: "PT · 中文"
+    }
+  };
+  let lang = "zh";
+  try { lang = localStorage.getItem(LANG_KEY) === "pt" ? "pt" : "zh"; } catch (e) {}
+  const tr = (k, v) => { let s = (I18N[lang][k] ?? I18N.zh[k] ?? k); if (v) for (const [a, b] of Object.entries(v)) s = s.split(`{${a}}`).join(b); return s; };
 
   const $ = (s, r = document) => r.querySelector(s);
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+  const uid = () => Math.random().toString(36).slice(2, 9) + Date.now().toString(36).slice(-4);
   const clone = o => JSON.parse(JSON.stringify(o));
+  const L = (zh, pt) => (lang === "pt" && pt != null && pt !== "") ? pt : (zh ?? "");
 
-  // ---------- 数据 ----------
-  function buildDay(i) {
-    return {
-      notes: "",
-      items: TRIP_DATA.days[i].items.map(([t, x, tp, xp], k) => ({ id: `o${i + 1}-${k + 1}`, time: t, text: x, timePt: tp, textPt: xp, done: false, custom: false }))
-    };
+  // ---------- 时间 ----------
+  function autoType(t) {
+    t = (t || "").trim();
+    if (!t) return "approx";
+    if (!/\d/.test(t)) return "vague";
+    return "approx";
   }
-  const buildDefault = () => ({ version: 1, days: TRIP_DATA.days.map((_, i) => buildDay(i)) });
-  const validDay = d => d && Array.isArray(d.items) && typeof (d.notes ?? "") === "string";
-
-  function loadLocal() {
-    try {
-      const s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
-      if (s && Array.isArray(s.days) && s.days.length === N && s.days.every(validDay)) return s;
-    } catch (e) {}
-    return buildDefault();
+  function ptTime(t) {
+    let s = t || "";
+    const nextDay = s.includes("次日");
+    s = s.replace("次日 ", "").replace("次日", "");
+    if (/^约 ?/.test(s)) s = "Por volta de " + s.replace(/^约 ?/, "");
+    if (/ ?后$/.test(s)) s = "Após " + s.replace(/ ?后$/, "");
+    s = s.replace("上午", "Manhã").replace("中午", "Meio-dia").replace("下午", "Tarde").replace("晚上", "Noite");
+    return nextDay ? s + " do dia seguinte" : s;
   }
-  let state = loadLocal();
-  let lang = "zh";
-  try { lang = localStorage.getItem(LANG_KEY) || "zh"; } catch (e) {}
-
-  // ---------- 存储：云端（db）优先，否则仅本机 ----------
-  const store = { mode: "local", db: null, readOnly: false, writing: {}, next: {}, lastSnap: null, stash: null, sync: "local" };
-
-  function cacheLocal() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
-
-  function persist(i) {
-    cacheLocal();
-    if (store.mode === "cloud" && !store.readOnly) queue(i, "set");
-  }
-  function queue(i, op) { store.next[i] = op; if (!store.writing[i]) drain(i); }
-  async function drain(i) {
-    store.writing[i] = true; setSync("saving");
-    try {
-      while (store.next[i]) {
-        const op = store.next[i]; store.next[i] = null;
-        const ref = store.db.doc(`days/d${i + 1}`);
-        if (op === "delete") await ref.delete();
-        else await ref.set(clone(state.days[i]));
-      }
-      if (!Object.entries(store.writing).some(([k, v]) => v && +k !== i)) setSync("ok");
-    } catch (e) {
-      store.next[i] = null;
-      onWriteError(e);
-    } finally {
-      store.writing[i] = false;
-    }
-  }
-  function onWriteError(e) {
-    const code = e && e.code;
-    if (code === "invalid_argument" || code === "not_granted") {
-      store.readOnly = true;
-      setSync("readonly");
-      toast("你对这个页面只有查看权限，修改没有保存");
-      if (store.lastSnap) applySnap(store.lastSnap, true);
-      render();
-    } else if (code === "quota_exceeded") {
-      setSync("error"); toast("云端空间已满，修改没有保存");
-    } else {
-      setSync("error"); toast("保存到云端失败，请检查网络后再改一次");
-    }
-  }
-
-  function setSync(s) {
-    store.sync = s;
-    const el = $("#syncChip"); if (!el) return;
-    const label = { local: "仅存本机", ok: "已同步", saving: "保存中…", loading: "同步中…", offline: "暂时连不上云端", error: "同步失败", readonly: "只读" }[s] || "";
-    el.dataset.s = s; el.textContent = label;
-    el.title = s === "local" ? "修改只保存在这个浏览器里" : s === "ok" ? "修改已存到云端，所有设备都能看到" : "";
-  }
-
-  const busy = () => !$("#modalBg").hidden || !$("#askBg").hidden || (document.activeElement && document.activeElement.id === "notes");
-
-  function applySnap(snap, force) {
-    store.lastSnap = snap;
-    if (!force && busy()) { store.stash = snap; return; }
-    store.stash = null;
-    const remote = {};
-    for (const d of snap.docs) {
-      const m = /^d(\d+)$/.exec(d.id); if (!m) continue;
-      const i = +m[1] - 1; const data = d.data();
-      if (i >= 0 && i < N && validDay(data)) remote[i] = data;
-    }
-    let changed = false;
-    for (let i = 0; i < N; i++) {
-      if (!force && (store.writing[i] || store.next[i])) continue; // 本地更新更晚，等写入完成
-      const next = remote[i] ? { notes: remote[i].notes || "", items: clone(remote[i].items) } : buildDay(i);
-      if (JSON.stringify(next) !== JSON.stringify(state.days[i])) { state.days[i] = next; changed = true; }
-    }
-    if (changed) { cacheLocal(); render(); }
-  }
-  function flushStash() { if (store.stash && !busy()) applySnap(store.stash); }
-
-  async function connect() {
-    if (!(window.claude && typeof window.claude.use === "function")) { setSync("local"); return; }
-    let db = null;
-    try { db = await window.claude.use("db"); } catch (e) {}
-    if (!db) { setSync("local"); return; }
-    store.db = db; store.mode = "cloud"; setSync("loading");
-    let firstTimer = setTimeout(() => { if (store.sync === "loading") setSync("offline"); }, 10000);
-    db.collection("days").onSnapshot(snap => {
-      if (!snap.metadata.fromCache) { clearTimeout(firstTimer); if (store.sync === "loading" || store.sync === "offline") setSync("ok"); }
-      applySnap(snap);
-    }, err => {
-      clearTimeout(firstTimer);
-      store.mode = "local"; setSync(err && err.code === "revoked" ? "local" : "error");
-    });
-  }
-
-  // 时间排序：取第一个 HH:MM；上午/中午/下午/晚上给一个大致值；无时间的排最后
   function sortKey(item) {
     const t = item.time || "";
     const m = t.match(/(\d{1,2})[:：](\d{2})/);
@@ -656,39 +819,264 @@ window.TRIP_DATA = {
   }
   const sortItems = items => items.map((it, i) => [it, i]).sort((a, b) => (sortKey(a[0]) - sortKey(b[0])) || (a[1] - b[1])).map(x => x[0]);
 
-  const T = it => lang === "pt" && it.timePt != null ? it.timePt : it.time;
-  const X = it => lang === "pt" && it.textPt != null ? it.textPt : it.text;
+  // ---------- 数据模型 ----------
+  const emptyBooking = () => ({ status: "", date: "", cost: "", currency: "", link: "", note: "" });
+  const emptyBudget = () => Object.fromEntries(BUD_CATS.map(c => [c, { plan: [], actual: [] }]));
 
+  function buildItem(d, r) {
+    return {
+      id: `o${d + 1}-${r.s}${r.sx || ""}`, src: r.s, kind: r.k,
+      time: r.t, timePt: ptTime(r.t), timeType: r.tt === "f" ? "fixed" : autoType(r.t),
+      title: r.n, titlePt: r.np ?? null, local: r.l || "",
+      desc: r.d || "", descPt: r.dp ?? null,
+      done: false, custom: false,
+      details: Object.assign({}, r.x || {}), booking: emptyBooking()
+    };
+  }
+  const buildDay = d => ({ notes: "", items: D[d].items.map(r => buildItem(d, r)) });
+  const buildDefault = () => ({ version: 2, days: D.map((_, d) => buildDay(d)), budget: emptyBudget() });
+
+  function normItem(x) {
+    const it = Object.assign({
+      id: uid(), src: null, kind: "activity", time: "", timePt: null, timeType: "approx",
+      title: "", titlePt: null, local: "", desc: "", descPt: null, done: false, custom: true
+    }, x || {});
+    if (!KINDS.includes(it.kind)) it.kind = "activity";
+    if (!["fixed", "approx", "vague"].includes(it.timeType)) it.timeType = autoType(it.time);
+    it.details = Object.assign({}, it.details && typeof it.details === "object" ? it.details : {});
+    it.booking = Object.assign(emptyBooking(), it.booking && typeof it.booking === "object" ? it.booking : {});
+    it.id = String(it.id).replace(/[^A-Za-z0-9-]/g, "") || uid();
+    it.done = !!it.done;
+    return it;
+  }
+  const isV2Day = d => d && Array.isArray(d.items) && d.items.every(x => x && typeof x === "object" && "kind" in x);
+  const isV1Day = d => d && Array.isArray(d.items) && d.items.every(x => x && typeof x === "object" && "text" in x);
+  function normDay(d) { return { notes: typeof d.notes === "string" ? d.notes : "", items: d.items.map(normItem) }; }
+
+  // 旧版（v1：每条只有 time/text）→ 新版。按原始条目编号 o{天}-{序号} 对应，保留完成状态、你改过的文字、删除和自添的条目。
+  function migrateV1Day(d, old) {
+    const fresh = buildDay(d);
+    const oldItems = old.items || [];
+    const hasIds = oldItems.some(x => /^o\d+-\d+$/.test(x.id || ""));
+    const used = new Set();
+    let items = [];
+    if (hasIds) {
+      const byId = new Map(oldItems.map(x => [x.id, x]));
+      for (const it of fresh.items) {
+        const o = byId.get(`o${d + 1}-${it.src}`);
+        if (!o) continue;                       // 旧版里删掉了 → 新版也不出现
+        used.add(o.id);
+        it.done = !!o.done;
+        const edited = o.timePt === null && o.textPt === null && !o.custom;
+        if (edited) {
+          it.time = o.time || ""; it.timePt = null; it.timeType = autoType(it.time);
+          if (!it.id.endsWith("a")) { it.title = o.text || it.title; it.titlePt = null; }
+        }
+        items.push(it);
+      }
+    } else {
+      items = fresh.items;
+    }
+    for (const o of oldItems) {
+      if (used.has(o.id)) continue;
+      if (hasIds && /^o\d+-\d+$/.test(o.id || "")) continue;
+      if (!hasIds && !o.custom) continue;
+      items.push(normItem({ id: uid(), kind: "activity", time: o.time || "", timeType: autoType(o.time), title: o.text || "", done: !!o.done, custom: true }));
+    }
+    return { notes: typeof old.notes === "string" ? old.notes : "", items: sortItems(items) };
+  }
+  function normBudget(b) {
+    const out = emptyBudget();
+    if (b && typeof b === "object") for (const c of BUD_CATS) for (const side of ["plan", "actual"]) {
+      const rows = b[c] && Array.isArray(b[c][side]) ? b[c][side] : [];
+      out[c][side] = rows.filter(r => r && typeof r === "object").map(r => ({ id: String(r.id || uid()), amount: String(r.amount ?? ""), currency: String(r.currency ?? ""), note: String(r.note ?? "") }));
+    }
+    return out;
+  }
+  // 接受 v1 / v2 的完整状态，返回 v2；格式不对返回 null
+  function toV2(s, keepBudget) {
+    if (!s || !Array.isArray(s.days) || s.days.length !== N) return null;
+    const days = [];
+    for (let d = 0; d < N; d++) {
+      const x = s.days[d];
+      if (isV2Day(x)) days.push(normDay(x));
+      else if (isV1Day(x)) days.push(migrateV1Day(d, x));
+      else return null;
+    }
+    return { version: 2, days, budget: s.budget ? normBudget(s.budget) : (keepBudget || emptyBudget()) };
+  }
+
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+
+  function loadLocal() {
+    try { const s = toV2(JSON.parse(lsGet(KEY_V2) || "null")); if (s) return s; } catch (e) {}
+    const rawV1 = lsGet(KEY_V1);
+    if (rawV1) {
+      try {
+        const s = toV2(JSON.parse(rawV1));
+        if (s) { lsSet(KEY_BACKUP_V1, rawV1); lsSet(KEY_V2, JSON.stringify(s)); return s; }  // 旧数据原样留在 v1 和备份键里
+      } catch (e) {}
+    }
+    return buildDefault();
+  }
+  let state = loadLocal();
+
+  // ---------- 存储：云端（Claude 页面里的 db）优先，否则仅本机 ----------
+  const store = { mode: "local", db: null, readOnly: false, writing: {}, next: {}, snaps: {}, stash: false, sync: "local" };
+  function cacheLocal() { if (!lsSet(KEY_V2, JSON.stringify(state))) toast(tr("storageFail")); }
+  const dayKey = d => `d${d}`;
+  function persistDay(d) { cacheLocal(); if (store.mode === "cloud" && !store.readOnly) queue(dayKey(d), "set"); }
+  function persistBudget() { cacheLocal(); if (store.mode === "cloud" && !store.readOnly) queue("budget", "set"); }
+  function persistAll() { cacheLocal(); if (store.mode === "cloud" && !store.readOnly) { for (let d = 0; d < N; d++) queue(dayKey(d), "set"); queue("budget", "set"); } }
+  function refOf(key) { return key === "budget" ? store.db.doc("extra/budget") : store.db.doc(`days/d${+key.slice(1) + 1}`); }
+  function payloadOf(key) { return key === "budget" ? { v: 2, budget: clone(state.budget) } : Object.assign({ v: 2 }, clone(state.days[+key.slice(1)])); }
+  function queue(key, op) { store.next[key] = op; if (!store.writing[key]) drain(key); }
+  async function drain(key) {
+    store.writing[key] = true; setSync("saving");
+    try {
+      while (store.next[key]) {
+        const op = store.next[key]; store.next[key] = null;
+        if (op === "delete") await refOf(key).delete(); else await refOf(key).set(payloadOf(key));
+      }
+      if (!Object.entries(store.writing).some(([k, v]) => v && k !== key)) setSync("ok");
+    } catch (e) { store.next[key] = null; onWriteError(e); }
+    finally { store.writing[key] = false; }
+  }
+  function onWriteError(e) {
+    const code = e && e.code;
+    if (code === "invalid_argument" || code === "not_granted") { store.readOnly = true; setSync("readonly"); toast(tr("roToast")); applyRemote(true); renderView(true); }
+    else if (code === "quota_exceeded") { setSync("error"); toast(tr("quota")); }
+    else { setSync("error"); toast(tr("saveFail")); }
+  }
+  function setSync(s) {
+    store.sync = s;
+    const el = $("#syncChip"); if (!el) return;
+    el.hidden = s === "local" && store.mode !== "cloud";
+    el.dataset.s = s; el.textContent = tr("sync_" + s);
+  }
+  const busy = () => !$("#sheetBg").hidden || !$("#askBg").hidden || (document.activeElement && /^(notes|bud-)/.test(document.activeElement.id || document.activeElement.dataset.bud || ""));
+
+  function applyRemote(force) {
+    if (!force && busy()) { store.stash = true; return; }
+    store.stash = false;
+    let changed = false;
+    if (store.snaps.days) {
+      const remote = {};
+      for (const doc of store.snaps.days.docs) {
+        const m = /^d(\d+)$/.exec(doc.id); if (!m) continue;
+        const d = +m[1] - 1, data = doc.data();
+        if (d < 0 || d >= N || !data) continue;
+        if (isV2Day(data)) remote[d] = normDay(data); else if (isV1Day(data)) remote[d] = migrateV1Day(d, data);
+      }
+      for (let d = 0; d < N; d++) {
+        const k = dayKey(d);
+        if (!force && (store.writing[k] || store.next[k])) continue;
+        const next = remote[d] || buildDay(d);
+        if (JSON.stringify(next) !== JSON.stringify(state.days[d])) { state.days[d] = next; changed = true; }
+      }
+    }
+    if (store.snaps.extra && (force || !(store.writing.budget || store.next.budget))) {
+      const doc = store.snaps.extra.docs.find(x => x.id === "budget");
+      const next = doc && doc.data() ? normBudget(doc.data().budget) : emptyBudget();
+      if (JSON.stringify(next) !== JSON.stringify(state.budget)) { state.budget = next; changed = true; }
+    }
+    if (changed) { lsSet(KEY_V2, JSON.stringify(state)); renderView(true); }
+  }
+  function flushStash() { if (store.stash && !busy()) applyRemote(); }
+
+  async function connect() {
+    if (!(window.claude && typeof window.claude.use === "function")) { setSync("local"); return; }
+    let db = null;
+    try { db = await window.claude.use("db"); } catch (e) {}
+    if (!db) { setSync("local"); return; }
+    store.db = db; store.mode = "cloud"; setSync("loading");
+    const timer = setTimeout(() => { if (store.sync === "loading") setSync("offline"); }, 10000);
+    const onErr = err => { clearTimeout(timer); store.mode = "local"; setSync(err && err.code === "revoked" ? "local" : "error"); };
+    db.collection("days").onSnapshot(snap => {
+      if (!snap.metadata.fromCache) { clearTimeout(timer); if (store.sync === "loading" || store.sync === "offline") setSync("ok"); }
+      store.snaps.days = snap; applyRemote();
+    }, onErr);
+    db.collection("extra").onSnapshot(snap => { store.snaps.extra = snap; applyRemote(); }, onErr);
+  }
+
+  // ---------- 显示辅助 ----------
   function dateInfo(iso) {
     const [y, m, d] = iso.split("-").map(Number);
     const dt = new Date(y, m - 1, d);
-    return { md: `${m}/${d}`, week: lang === "pt" ? WEEK_PT[dt.getDay()] : WEEK[dt.getDay()], dt };
+    const wk = lang === "pt" ? ["dom","seg","ter","qua","qui","sex","sáb"] : ["周日","周一","周二","周三","周四","周五","周六"];
+    return { md: lang === "pt" ? `${d}/${m}` : `${m}/${d}`, week: wk[dt.getDay()], dt };
   }
   function todayIdx() {
     const now = new Date();
     const iso = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-    return TRIP_DATA.days.findIndex(d => d.date === iso);
+    return D.findIndex(d => d.date === iso);
   }
+  const isMain = it => MAIN_KINDS.includes(it.kind);
+  const timeText = it => L(it.time, it.timePt);
+  function itemTitle(it) {
+    const base = L(it.title, it.titlePt);
+    if (it.kind === "food") return `${base} · ${it.details.name ? it.details.name : tr("toChoose")}`;
+    return base;
+  }
+  function itemPlace(it) {
+    const x = it.details;
+    if (it.kind === "food") return x.address || "";
+    if (it.kind === "hotel") return x.name || "";
+    if (it.kind === "transport") return [x.from, x.to].filter(Boolean).join(" → ");
+    return it.local || "";
+  }
+  const safeUrl = u => { u = (u || "").trim(); return /^https?:\/\/[^\s]+$/i.test(u) ? u : ""; };
+  function fmtTimeCol(it) {
+    let s = timeText(it);
+    if (!s) return `<span class="t1">—</span>`;
+    s = s.replace(/^Por volta de /, "~").replace(/^Aprox\. /, "~").replace(/ do dia seguinte$/, " (+1)").replace(/^Após /, "após ");
+    const m = s.match(/^(.*?\d{1,2}:\d{2})\s*[–-]\s*(.+)$/);
+    const main = m ? `<span class="t1">${esc(m[1])}</span><span class="t2">– ${esc(m[2])}</span>` : `<span class="t1">${esc(s)}</span>`;
+    return main + (it.timeType === "fixed" ? `<span class="tag-fixed">${esc(tr("tt_fixed"))}</span>` : "");
+  }
+  const kcVar = k => `var(--k-${k === "move" ? "minor" : k})`;
+  function inBookings(it) {
+    if (["sight", "hotel", "transport"].includes(it.kind)) return true;
+    if (it.kind === "food") return !!it.booking.status || !!(it.details.reserve && !/^(不需要|无需|não|nao|sem)/i.test(it.details.reserve.trim()));
+    return !!it.booking.status;
+  }
+  function findItem(d, id) { const day = state.days[d]; if (!day) return null; return day.items.find(x => x.id === id) || null; }
 
-  // ---------- 渲染 ----------
+  // ---------- 视图 ----------
   const app = $("#app");
+  let renderedView = null;
+
+  function parseHash() {
+    const h = decodeURIComponent(location.hash.replace(/^#/, ""));
+    const m = /^(day-\d+|bookings|budget)?(?:-?item-(\d+)-([A-Za-z0-9-]+))?$/.exec(h);
+    if (!m) return { view: "home", item: null };
+    let view = m[1] || "home";
+    if (view.startsWith("day-")) { const n = +view.slice(4); if (!(n >= 1 && n <= N)) view = "home"; }
+    const item = m[2] ? { d: +m[2] - 1, id: m[3] } : null;
+    return { view, item };
+  }
+  const viewHash = v => v === "home" ? "" : v;
 
   function topBar(sub) {
     return `
       <div class="top">
         <div>
-          <h1>${esc(TRIP_DATA.title)}</h1>
+          <h1>${esc(L(TRIP_DATA.title, TRIP_DATA.titlePt))}</h1>
           <div class="sub">${sub}</div>
         </div>
         <div class="top-actions">
-          <span class="sync" id="syncChip"></span>
-          <button class="chip" id="langBtn" title="切换行程语言">${lang === "zh" ? "中文 · PT" : "PT · 中文"}</button>
+          <span class="sync" id="syncChip" hidden></span>
+          <button class="chip" id="langBtn">${esc(tr("langBtn"))}</button>
           <div class="menu">
-            <button class="chip" id="menuBtn" aria-haspopup="true" aria-label="更多">⋯</button>
+            <button class="chip" id="menuBtn" aria-haspopup="true" aria-label="${esc(tr("more"))}">⋯</button>
             <div class="menu-pop" id="menuPop" hidden>
-              <button data-act="export">导出备份（JSON）</button>
-              ${store.readOnly ? "" : `<button data-act="import">导入备份</button>`}
-              ${store.readOnly ? "" : `<button data-act="resetAll" class="danger">全部恢复为原始行程</button>`}
+              <button data-act="bookings">${esc(tr("bookings"))}</button>
+              <button data-act="budget">${esc(tr("budget"))}</button>
+              <hr>
+              <button data-act="export">${esc(tr("export"))}</button>
+              ${store.readOnly ? "" : `<button data-act="import">${esc(tr("import"))}</button>`}
+              ${store.readOnly ? "" : `<button data-act="resetAll" class="danger">${esc(tr("resetAll"))}</button>`}
             </div>
           </div>
         </div>
@@ -696,138 +1084,329 @@ window.TRIP_DATA = {
   }
 
   function renderHome() {
-    document.title = TRIP_DATA.title;
+    document.title = L(TRIP_DATA.title, TRIP_DATA.titlePt);
     const ti = todayIdx();
-    const start = dateInfo(TRIP_DATA.days[0].date).dt;
+    const start = dateInfo(D[0].date).dt;
     const now = new Date(); now.setHours(0, 0, 0, 0);
     const diff = Math.round((start - now) / 86400000);
     let banner = "";
-    if (diff > 0) banner = `<div class="banner"><div class="big">${diff}</div><div class="txt">天后出发 · 12 月 19 日 07:40 抵达巴塞罗那</div></div>`;
-    else if (ti >= 0) banner = `<div class="banner"><div class="big">Day ${ti + 1}</div><div class="txt">旅途中 · 今天在 ${esc(TRIP_DATA.days[ti].place)}</div></div>`;
+    if (diff > 0) banner = `<div class="banner"><div class="big">${diff}</div><div class="txt">${esc(tr("daysLeft"))}</div></div>`;
+    else if (ti >= 0) banner = `<div class="banner"><div class="big">Day ${ti + 1}</div><div class="txt">${esc(tr("onTrip", { p: L(D[ti].place, D[ti].placePt) }))}</div></div>`;
+    const todoCount = state.days.reduce((a, day) => a + day.items.filter(it => inBookings(it) && it.booking.status === "todo").length, 0);
 
-    const cards = TRIP_DATA.days.map((d, i) => {
-      const s = state.days[i];
-      const di = dateInfo(d.date);
-      const total = s.items.length, done = s.items.filter(x => x.done).length;
+    const cards = D.map((d, i) => {
+      const s = state.days[i], di = dateInfo(d.date);
+      const main = s.items.filter(isMain);
+      const total = main.length, done = main.filter(x => x.done).length;
       const pct = total ? Math.round(done / total * 100) : 0;
+      const sights = s.items.filter(x => x.kind === "sight").length;
+      const food = s.items.filter(x => x.kind === "food" && !x.details.name).length;
+      const trans = s.items.filter(x => x.kind === "transport").length;
+      const ov = [sights && tr("ovSights", { n: sights }), trans && tr("ovTrans", { n: trans }), food && tr("ovFood", { n: food })].filter(Boolean).join(" · ");
+      const prog = [done ? tr("ovDone", { d: done, t: total }) : "", s.notes ? tr("ovNotes") : ""].filter(Boolean).join(" · ");
       return `
         <button class="card ${i === ti ? "today" : ""}" style="--c: var(--${d.country})" data-day="${i}">
-          ${i === ti ? `<span class="today-tag">今天</span>` : ""}
+          ${i === ti ? `<span class="today-tag">${esc(tr("today"))}</span>` : ""}
           <div class="icon" aria-hidden="true">${d.icon}</div>
           <div class="meta"><span class="dayno">Day ${i + 1}</span><span class="date">${di.md} ${di.week}</span></div>
-          <div class="place">${esc(lang === "pt" ? d.placePt : d.place)}</div>
-          <div class="theme">${esc(d.theme)}</div>
-          <div class="count">${total} 项${done ? ` · 已完成 ${done}` : ""}${s.notes ? " · 有备注" : ""}</div>
+          <div class="place">${esc(L(d.place, d.placePt))}</div>
+          <div class="theme">${esc(L(d.theme, d.themePt))}</div>
+          <div class="count">${esc(ov)}${prog ? `<br>${esc(prog)}` : ""}</div>
           <div class="bar"><i style="width:${pct}%"></i></div>
         </button>`;
     }).join("");
 
     app.innerHTML = `
-      ${topBar("12.19 – 12.31 · 巴塞罗那 · 巴黎 · 瑞士阿尔卑斯")}
+      ${topBar(esc(tr("sub")))}
       ${banner}
+      <div class="shortcuts">
+        <button class="chip" data-go="bookings">${esc(tr("bookings"))}${todoCount ? `<span class="count">${esc(tr("toBook", { n: todoCount }))}</span>` : ""}</button>
+        <button class="chip" data-go="budget">${esc(tr("budget"))}</button>
+      </div>
       <div class="legend">
-        <span style="--c: var(--es)">西班牙</span>
-        <span style="--c: var(--fr)">法国</span>
-        <span style="--c: var(--ch)">瑞士</span>
+        <span style="--c: var(--es)">${esc(tr("es"))}</span>
+        <span style="--c: var(--fr)">${esc(tr("fr"))}</span>
+        <span style="--c: var(--ch)">${esc(tr("ch"))}</span>
       </div>
       <div class="grid">${cards}</div>`;
-    bindTop();
-    app.querySelectorAll(".card").forEach(c => c.addEventListener("click", () => go(+c.dataset.day)));
+    app.querySelectorAll(".card").forEach(c => c.addEventListener("click", () => go(`day-${+c.dataset.day + 1}`)));
+    app.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => go(b.dataset.go)));
   }
 
-  function renderDay(i) {
-    const d = TRIP_DATA.days[i], s = state.days[i], di = dateInfo(d.date);
-    const ro = store.readOnly;
-    document.title = `Day ${i + 1} · ${d.place}`;
-    app.style.setProperty("--c", `var(--${d.country})`);
-    const items = s.items.map(it => `
-      <div class="item ${it.done ? "done" : ""}" data-id="${esc(it.id)}">
-        <button class="check" data-act="toggle" aria-label="标记完成" ${ro ? "disabled" : ""}>${it.done ? "✓" : ""}</button>
-        <div class="time">${esc(T(it)) || "—"}</div>
-        <div class="text">${esc(X(it))}${it.custom ? `<span class="tag">自添</span>` : ""}</div>
-        <div class="acts">${ro ? "" : `
-          <button class="icon-btn" data-act="edit" title="编辑" aria-label="编辑">✎</button>
-          <button class="icon-btn del" data-act="del" title="删除" aria-label="删除">🗑</button>`}
+  function rowHtml(d, it) {
+    const kc = kcVar(it.kind);
+    if (!isMain(it)) {
+      return `
+        <div class="tl-row small ${it.done ? "done" : ""}" style="--kc:${kc}">
+          <div class="tl-time ${it.timeType}">${fmtTimeCol(it)}</div>
+          <div class="tl-dot"></div>
+          <button class="tl-small" data-open="${esc(it.id)}">${it.kind === "move" ? `<span class="mv">↳</span>` : ""}${esc(L(it.title, it.titlePt))}${it.custom ? `<span class="custom-tag">${esc(tr("custom"))}</span>` : ""}</button>
+        </div>`;
+    }
+    const place = itemPlace(it);
+    const desc = L(it.desc, it.descPt);
+    const map = safeUrl(it.details.mapUrl);
+    const st = it.booking.status;
+    const meta = [
+      it.kind === "food" && !it.details.name ? `<span class="pill pending">${esc(tr("toChoose"))}</span>` : "",
+      BOOKABLE.includes(it.kind) && st ? `<span class="pill ${st}">${esc(tr("st_" + st))}</span>` : "",
+      map ? `<a class="maplink" href="${esc(map)}" target="_blank" rel="noopener noreferrer" data-stop>Google Maps ↗</a>` : ""
+    ].join("");
+    return `
+      <div class="tl-row main ${it.done ? "done" : ""} ${it.timeType === "fixed" ? "fixed" : ""}" style="--kc:${kc}">
+        <div class="tl-time ${it.timeType}">${fmtTimeCol(it)}</div>
+        <div class="tl-dot"></div>
+        <div class="tl-card" data-open="${esc(it.id)}" role="button" tabindex="0">
+          <div class="tl-kind">${esc(tr("k_" + it.kind))}${it.custom ? `<span class="custom-tag">${esc(tr("custom"))}</span>` : ""}</div>
+          <div class="tl-title">${esc(itemTitle(it))}</div>
+          ${place ? `<div class="tl-place">${esc(place)}</div>` : ""}
+          ${desc ? `<div class="tl-desc">${esc(desc)}</div>` : ""}
+          <div class="tl-meta">${meta}</div>
+          ${store.readOnly ? "" : `<button class="tl-check" data-toggle="${esc(it.id)}" aria-label="${esc(it.done ? tr("isDone") : tr("markDone"))}" aria-pressed="${it.done}"><i>✓</i></button>`}
         </div>
-      </div>`).join("");
+      </div>`;
+  }
 
+  function renderDay(d) {
+    const day = D[d], s = state.days[d], di = dateInfo(day.date), ro = store.readOnly;
+    document.title = `Day ${d + 1} · ${L(day.place, day.placePt)}`;
+    app.style.setProperty("--c", `var(--${day.country})`);
     app.innerHTML = `
-      ${topBar(`${COUNTRY[d.country]} · Day ${i + 1} / ${N}`)}
+      ${topBar(`${esc(tr(day.country))} · Day ${d + 1} / ${N}`)}
       <div class="dhead">
         <div class="nav">
-          <button class="chip" id="backBtn">← 全部日程</button>
+          <button class="chip" id="backBtn">${esc(tr("back"))}</button>
           <div class="arrows">
-            <button class="chip" id="prevBtn" ${i === 0 ? "disabled" : ""} aria-label="前一天">‹</button>
-            <button class="chip" id="nextBtn" ${i === N - 1 ? "disabled" : ""} aria-label="后一天">›</button>
+            <button class="chip" id="prevBtn" ${d === 0 ? "disabled" : ""} aria-label="${esc(tr("prev"))}">‹</button>
+            <button class="chip" id="nextBtn" ${d === N - 1 ? "disabled" : ""} aria-label="${esc(tr("next"))}">›</button>
           </div>
         </div>
         <div class="dtitle">
-          <div class="icon" aria-hidden="true">${d.icon}</div>
+          <div class="icon" aria-hidden="true">${day.icon}</div>
           <div>
-            <div class="d">Day ${i + 1} · ${di.md} ${di.week}</div>
-            <h2>${esc(lang === "pt" ? d.placePt : d.place)}</h2>
-            <div class="d">${esc(d.theme)}</div>
+            <div class="d">Day ${d + 1} · ${di.md} ${di.week}</div>
+            <h2>${esc(L(day.place, day.placePt))}</h2>
+            <div class="d">${esc(L(day.theme, day.themePt))}</div>
           </div>
         </div>
       </div>
-      ${ro ? `<p class="ro-note">你只有查看权限，看不到编辑按钮。</p>` : ""}
-      <div class="list" id="list">${items || `<div class="empty">这一天还没有安排${ro ? "" : "，点下面添加吧"}</div>`}</div>
-      ${ro ? "" : `<button class="add-btn" id="addBtn">＋ 添加行程</button>`}
+      ${ro ? `<p class="ro-note">${esc(tr("roNote"))}</p>` : ""}
+      <div class="tlegend">${tr("tlegend")}</div>
+      <div class="tl" id="tl">${s.items.map(it => rowHtml(d, it)).join("") || `<div class="empty">—</div>`}</div>
+      ${ro ? "" : `<button class="add-btn" id="addBtn">${esc(tr("add"))}</button>`}
       <div class="notes">
-        <h3>当天备注</h3>
-        <textarea id="notes" placeholder="酒店地址、订票号、餐厅推荐、注意事项……" ${ro ? "readonly" : ""}>${esc(s.notes)}</textarea>
+        <h3>${esc(tr("notesTitle"))}</h3>
+        <textarea id="notes" placeholder="${esc(tr("notesPh"))}" ${ro ? "readonly" : ""}>${esc(s.notes)}</textarea>
         <div class="saved" id="savedHint"></div>
       </div>
-      ${ro ? "" : `<button class="reset-day" id="resetDay">把这一天恢复为原始行程</button>`}`;
-    bindTop();
-    $("#backBtn").onclick = () => go(null);
-    $("#prevBtn").onclick = () => i > 0 && go(i - 1);
-    $("#nextBtn").onclick = () => i < N - 1 && go(i + 1);
-    if (ro) return;
-    $("#addBtn").onclick = () => openForm(i, null);
-    $("#resetDay").onclick = async () => {
-      if (!await ask(`把 Day ${i + 1} 恢复为原始行程？`, "这一天的增删改和备注都会被清除，5 秒内可以撤销。", "恢复")) return;
-      const before = clone(state.days[i]);
-      state.days[i] = buildDay(i);
-      cacheLocal();
-      if (store.mode === "cloud") queue(i, "delete");
-      render();
-      toast(`Day ${i + 1} 已恢复`, () => { state.days[i] = before; persist(i); render(); });
-    };
-    let tmr;
-    const notes = $("#notes");
-    const flushNotes = () => { if (tmr) { clearTimeout(tmr); tmr = null; persist(i); $("#savedHint").textContent = "已保存"; } };
-    notes.addEventListener("input", e => {
-      s.notes = e.target.value;
-      $("#savedHint").textContent = "";
-      clearTimeout(tmr);
-      tmr = setTimeout(flushNotes, 700);
+      ${ro ? "" : `<button class="linkbtn" id="resetDay">${esc(tr("resetDay"))}</button>`}`;
+    $("#backBtn").onclick = () => go("home");
+    $("#prevBtn").onclick = () => d > 0 && go(`day-${d}`);
+    $("#nextBtn").onclick = () => d < N - 1 && go(`day-${d + 2}`);
+    const tl = $("#tl");
+    tl.addEventListener("click", e => {
+      if (e.target.closest("[data-stop]")) return;
+      const tg = e.target.closest("[data-toggle]");
+      if (tg) { e.stopPropagation(); toggleDone(d, tg.dataset.toggle); return; }
+      const op = e.target.closest("[data-open]");
+      if (op) openItem(d, op.dataset.open);
     });
-    notes.addEventListener("blur", () => { flushNotes(); setTimeout(flushStash, 0); });
-    $("#list").addEventListener("click", e => {
-      const btn = e.target.closest("[data-act]"); if (!btn) return;
-      const id = btn.closest(".item").dataset.id;
-      const idx = s.items.findIndex(x => x.id === id); if (idx < 0) return;
-      const it = s.items[idx];
-      if (btn.dataset.act === "toggle") { it.done = !it.done; persist(i); render(); }
-      if (btn.dataset.act === "edit") openForm(i, it);
-      if (btn.dataset.act === "del") {
-        s.items.splice(idx, 1); persist(i); render();
-        const label = X(it);
-        toast(`已删除「${label.slice(0, 14)}${label.length > 14 ? "…" : ""}」`, () => {
-          const day = state.days[i];
-          day.items.splice(Math.min(idx, day.items.length), 0, it); persist(i); render();
-        });
-      }
+    tl.addEventListener("keydown", e => {
+      if ((e.key === "Enter" || e.key === " ") && e.target.matches(".tl-card")) { e.preventDefault(); openItem(d, e.target.dataset.open); }
+    });
+    if (ro) return;
+    $("#addBtn").onclick = () => openNew(d);
+    $("#resetDay").onclick = async () => {
+      if (!await ask(tr("askResetDay", { n: d + 1 }), tr("askResetDayMsg"), tr("resetBtn"))) return;
+      const before = clone(state.days[d]);
+      state.days[d] = buildDay(d); cacheLocal();
+      if (store.mode === "cloud" && !store.readOnly) queue(dayKey(d), "delete");
+      renderView(true);
+      toast(tr("restored"), () => { state.days[d] = before; persistDay(d); renderView(true); });
+    };
+    let tmr = null;
+    const notes = $("#notes");
+    const flush = () => { if (tmr) { clearTimeout(tmr); tmr = null; persistDay(d); const h = $("#savedHint"); if (h) h.textContent = tr("saved"); } };
+    notes.addEventListener("input", e => { s.notes = e.target.value; $("#savedHint").textContent = ""; clearTimeout(tmr); tmr = setTimeout(flush, 700); });
+    notes.addEventListener("blur", () => { flush(); setTimeout(flushStash, 0); });
+  }
+
+  function toggleDone(d, id) {
+    if (store.readOnly) return;
+    const it = findItem(d, id); if (!it) return;
+    it.done = !it.done; persistDay(d); renderView(true);
+    if (sheet.open && sheet.d === d && sheet.id === id && sheet.mode === "view") renderSheet();
+  }
+
+  // ---------- 预订清单 ----------
+  const bkFilter = { st: "all", kind: "all" };
+  function renderBookings() {
+    document.title = tr("bookings");
+    const counts = { "": 0, todo: 0, booked: 0, none: 0 };
+    const costs = {};
+    const groups = [];
+    state.days.forEach((day, d) => {
+      const rows = day.items.filter(inBookings);
+      rows.forEach(it => {
+        counts[it.booking.status || ""]++;
+        const c = parseFloat(String(it.booking.cost).replace(",", "."));
+        if (it.booking.cost !== "" && isFinite(c)) { const k = (it.booking.currency || "").trim().toUpperCase() || tr("noCur"); costs[k] = (costs[k] || 0) + c; }
+      });
+      const shown = rows.filter(it => (bkFilter.st === "all" || (it.booking.status || "") === bkFilter.st) && (bkFilter.kind === "all" || it.kind === bkFilter.kind));
+      if (shown.length) groups.push({ d, rows: shown });
+    });
+    const stChips = ["all", "", "todo", "booked", "none"].map(s => `<button class="chip ${bkFilter.st === s ? "on" : ""}" data-st="${s}">${esc(s === "all" ? tr("bk_all") : tr("st_" + s))}${s !== "all" ? ` ${counts[s]}` : ""}</button>`).join("");
+    const kChips = ["all", "sight", "hotel", "transport", "food"].map(k => `<button class="chip ${bkFilter.kind === k ? "on" : ""}" data-kind="${k}">${esc(k === "all" ? tr("bk_cat_all") : tr("k_" + k))}</button>`).join("");
+    const costTxt = Object.keys(costs).length ? Object.entries(costs).map(([c, v]) => `<b>${esc(fmtNum(v))} ${esc(c)}</b>`).join(" · ") : esc(tr("bkNoCost"));
+    const list = groups.map(g => {
+      const di = dateInfo(D[g.d].date);
+      return `<div class="bk-day"><h3>Day ${g.d + 1} · ${di.md} ${di.week} · ${esc(L(D[g.d].place, D[g.d].placePt))}</h3>${g.rows.map(it => `
+        <div class="bk-row" style="--kc:${kcVar(it.kind)}">
+          <button class="bk-main" data-open="${g.d}|${esc(it.id)}">
+            <div class="k">${esc(tr("k_" + it.kind))} · ${esc(timeText(it) || "—")}</div>
+            <div class="n">${esc(itemTitle(it))}</div>
+            ${itemPlace(it) ? `<div class="s">${esc(itemPlace(it))}</div>` : ""}
+          </button>
+          <select data-bk="${g.d}|${esc(it.id)}" data-st="${it.booking.status}" aria-label="${esc(tr("bookingTitle"))}" ${store.readOnly ? "disabled" : ""}>
+            ${["", "todo", "booked", "none"].map(s => `<option value="${s}" ${it.booking.status === s ? "selected" : ""}>${esc(tr("st_" + s))}</option>`).join("")}
+          </select>
+        </div>`).join("")}</div>`;
+    }).join("");
+    app.innerHTML = `
+      ${topBar(esc(tr("sub")))}
+      <div class="page-head"><button class="chip" id="backBtn">${esc(tr("backHome"))}</button><h2>${esc(tr("bookings"))}</h2></div>
+      <div class="filters">${stChips}</div>
+      <div class="filters">${kChips}</div>
+      <div class="stats"><span>${esc(tr("bkCosts"))} ${costTxt}</span></div>
+      <div class="hint">${esc(tr("bkHint"))}</div>
+      ${list || `<div class="empty">${esc(tr("bkEmpty"))}</div>`}`;
+    $("#backBtn").onclick = () => go("home");
+    app.querySelectorAll("[data-st]").forEach(b => { if (b.tagName === "BUTTON") b.onclick = () => { bkFilter.st = b.dataset.st; renderView(true); }; });
+    app.querySelectorAll("[data-kind]").forEach(b => b.onclick = () => { bkFilter.kind = b.dataset.kind; renderView(true); });
+    app.querySelectorAll("[data-open]").forEach(b => b.onclick = () => { const [d, id] = b.dataset.open.split("|"); openItem(+d, id); });
+    app.querySelectorAll("select[data-bk]").forEach(sel => sel.onchange = () => {
+      const [d, id] = sel.dataset.bk.split("|"); const it = findItem(+d, id); if (!it) return;
+      it.booking.status = sel.value; persistDay(+d); renderView(true);
     });
   }
+
+  // ---------- 预算 ----------
+  const fmtNum = v => (Math.round(v * 100) / 100).toLocaleString(lang === "pt" ? "pt-BR" : "zh-CN", { maximumFractionDigits: 2 });
+  function sumRows(rows) {
+    const out = {}; let bad = 0;
+    for (const r of rows) {
+      const a = String(r.amount).trim(); if (!a) continue;
+      const v = parseFloat(a.replace(/\s/g, "").replace(",", "."));
+      if (!isFinite(v)) { bad++; continue; }
+      const c = (r.currency || "").trim().toUpperCase() || tr("noCur");
+      out[c] = (out[c] || 0) + v;
+    }
+    return { out, bad };
+  }
+  function budgetLines(cat, side) {
+    return state.budget[cat][side].map(r => `
+      <div class="bud-line" data-row="${esc(r.id)}">
+        <input type="text" inputmode="decimal" placeholder="${esc(tr("amount"))}" value="${esc(r.amount)}" data-bud="amount" id="bud-${esc(r.id)}-a" aria-label="${esc(tr("amount"))}" ${store.readOnly ? "disabled" : ""}>
+        <input type="text" list="curList" placeholder="EUR" value="${esc(r.currency)}" data-bud="currency" id="bud-${esc(r.id)}-c" aria-label="${esc(tr("cur"))}" autocapitalize="characters" ${store.readOnly ? "disabled" : ""}>
+        ${store.readOnly ? "<span></span>" : `<button class="x" data-budx aria-label="${esc(tr("del"))}">×</button>`}
+        <input class="note" type="text" placeholder="${esc(tr("note"))}" value="${esc(r.note)}" data-bud="note" id="bud-${esc(r.id)}-n" aria-label="${esc(tr("note"))}" ${store.readOnly ? "disabled" : ""}>
+      </div>`).join("");
+  }
+  function subText(cat) {
+    const p = sumRows(state.budget[cat].plan), a = sumRows(state.budget[cat].actual);
+    const curs = [...new Set([...Object.keys(p.out), ...Object.keys(a.out)])];
+    if (!curs.length) return esc(tr("noAmounts"));
+    const parts = curs.map(c => `${esc(c)}：${esc(tr("plan"))} ${esc(fmtNum(p.out[c] || 0))} · ${esc(tr("actual"))} ${esc(fmtNum(a.out[c] || 0))}`);
+    const bad = p.bad + a.bad;
+    return parts.join("<br>") + (bad ? `<br><span class="neg">${esc(tr("invalid", { n: bad }))}</span>` : "");
+  }
+  function totalsHtml() {
+    const plan = {}, act = {};
+    let bad = 0;
+    for (const c of BUD_CATS) {
+      const p = sumRows(state.budget[c].plan), a = sumRows(state.budget[c].actual);
+      bad += p.bad + a.bad;
+      for (const [k, v] of Object.entries(p.out)) plan[k] = (plan[k] || 0) + v;
+      for (const [k, v] of Object.entries(a.out)) act[k] = (act[k] || 0) + v;
+    }
+    const curs = [...new Set([...Object.keys(plan), ...Object.keys(act)])].sort();
+    if (!curs.length) return `<p class="hint">${esc(tr("noAmounts"))}</p>`;
+    return `<table><thead><tr><th>${esc(tr("cur"))}</th><th>${esc(tr("plan"))}</th><th>${esc(tr("actual"))}</th><th>${esc(tr("diff"))}</th></tr></thead><tbody>${
+      curs.map(c => { const df = (plan[c] || 0) - (act[c] || 0); return `<tr><td>${esc(c)}</td><td>${esc(fmtNum(plan[c] || 0))}</td><td>${esc(fmtNum(act[c] || 0))}</td><td class="${df < 0 ? "neg" : df > 0 ? "pos" : ""}">${esc(fmtNum(df))}</td></tr>`; }).join("")
+    }</tbody></table>${bad ? `<p class="neg hint">${esc(tr("invalid", { n: bad }))}</p>` : ""}`;
+  }
+  function renderBudget() {
+    document.title = tr("budget");
+    app.innerHTML = `
+      ${topBar(esc(tr("sub")))}
+      <div class="page-head"><button class="chip" id="backBtn">${esc(tr("backHome"))}</button><h2>${esc(tr("budget"))}</h2></div>
+      <div class="bud-total"><h3 style="margin:0 0 8px;font-size:15px">${esc(tr("totals"))}</h3><div id="budTotals">${totalsHtml()}</div></div>
+      <p class="hint" style="margin:0 0 12px">${esc(tr("budHint"))}</p>
+      ${BUD_CATS.map(c => `
+        <div class="bud-cat" data-cat="${c}">
+          <h3>${esc(tr("bud_" + c))}</h3>
+          <div class="bud-cols">
+            ${["plan", "actual"].map(side => `
+              <div class="bud-col" data-side="${side}">
+                <h4>${esc(tr(side))}</h4>
+                <div class="bud-lines">${budgetLines(c, side)}</div>
+                ${store.readOnly ? "" : `<button class="bud-add" data-budadd>${esc(tr("addAmount"))}</button>`}
+              </div>`).join("")}
+          </div>
+          <div class="bud-sub" id="sub-${c}">${subText(c)}</div>
+        </div>`).join("")}`;
+    $("#backBtn").onclick = () => go("home");
+  }
+  // 预算页的输入事件只注册一次（委托到 #app，仅在预算页生效）
+  let budTmr = null;
+  const budRefresh = cat => { const t = $("#budTotals"), s = $(`#sub-${cat}`); if (t) t.innerHTML = totalsHtml(); if (s) s.innerHTML = subText(cat); };
+  const onBudgetPage = () => renderedView === "budget";
+  app.addEventListener("input", e => {
+    if (!onBudgetPage()) return;
+    const f = e.target.dataset.bud; if (!f) return;
+    const cat = e.target.closest("[data-cat]").dataset.cat, side = e.target.closest("[data-side]").dataset.side;
+    const row = state.budget[cat][side].find(r => r.id === e.target.closest("[data-row]").dataset.row); if (!row) return;
+    row[f] = e.target.value;
+    budRefresh(cat);
+    clearTimeout(budTmr); budTmr = setTimeout(() => { budTmr = null; persistBudget(); }, 600);
+  });
+  app.addEventListener("change", e => {
+    if (!onBudgetPage()) return;
+    if (e.target.dataset.bud === "currency") { e.target.value = e.target.value.trim().toUpperCase(); e.target.dispatchEvent(new Event("input", { bubbles: true })); }
+  });
+  app.addEventListener("focusout", () => {
+    if (!onBudgetPage()) return;
+    if (budTmr) { clearTimeout(budTmr); budTmr = null; persistBudget(); }
+    setTimeout(flushStash, 0);
+  });
+  app.addEventListener("click", e => {
+    if (!onBudgetPage()) return;
+    {
+      const add = e.target.closest("[data-budadd]"), x = e.target.closest("[data-budx]");
+      if (!add && !x) return;
+      const cat = e.target.closest("[data-cat]").dataset.cat, side = e.target.closest("[data-side]").dataset.side;
+      const rows = state.budget[cat][side];
+      if (add) {
+        const last = rows[rows.length - 1];
+        const r = { id: uid(), amount: "", currency: last ? last.currency : "", note: "" };
+        rows.push(r); persistBudget();
+        e.target.closest("[data-side]").querySelector(".bud-lines").insertAdjacentHTML("beforeend", budgetLines(cat, side).split('<div class="bud-line"').filter(Boolean).map(s => '<div class="bud-line"' + s).pop());
+        const inp = document.getElementById(`bud-${r.id}-a`); if (inp) inp.focus();
+      } else {
+        const id = x.closest("[data-row]").dataset.row; const idx = rows.findIndex(r => r.id === id); if (idx < 0) return;
+        const [gone] = rows.splice(idx, 1); persistBudget();
+        x.closest("[data-row]").remove(); budRefresh(cat);
+        toast(tr("deleted", { x: `${gone.amount || "—"} ${gone.currency || ""}`.trim() }), () => { state.budget[cat][side].splice(idx, 0, gone); persistBudget(); renderView(true); });
+      }
+    }
+  });
 
   function bindTop() {
     setSync(store.sync);
     $("#langBtn").onclick = () => {
-      lang = lang === "zh" ? "pt" : "zh";
-      try { localStorage.setItem(LANG_KEY, lang); } catch (e) {}
-      render();
+      lang = lang === "zh" ? "pt" : "zh"; lsSet(LANG_KEY, lang);
+      document.documentElement.lang = lang === "pt" ? "pt-BR" : "zh-CN";
+      renderView(true); if (sheet.open) renderSheet();
     };
     const pop = $("#menuPop");
     $("#menuBtn").onclick = e => { e.stopPropagation(); pop.hidden = !pop.hidden; };
@@ -835,26 +1414,299 @@ window.TRIP_DATA = {
       const b = e.target.closest("button"); if (!b) return;
       pop.hidden = true;
       const act = b.dataset.act;
+      if (act === "bookings" || act === "budget") go(act);
       if (act === "export") exportJSON();
       if (act === "import") $("#importFile").click();
       if (act === "resetAll") {
-        if (!await ask("把全部 13 天恢复为原始行程？", "所有修改和备注都会被清除，5 秒内可以撤销。建议先导出一份备份。", "全部恢复")) return;
-        const before = clone(state);
-        state = buildDefault(); cacheLocal();
-        if (store.mode === "cloud") for (let i = 0; i < N; i++) queue(i, "delete");
-        render();
-        toast("已全部恢复", () => { state = before; for (let i = 0; i < N; i++) persist(i); render(); });
+        if (!await ask(tr("askResetAll"), tr("askResetAllMsg"), tr("resetBtn"))) return;
+        const before = clone(state.days);
+        state.days = D.map((_, d) => buildDay(d)); cacheLocal();
+        if (store.mode === "cloud" && !store.readOnly) for (let d = 0; d < N; d++) queue(dayKey(d), "delete");
+        renderView(true);
+        toast(tr("restored"), () => { state.days = before; for (let d = 0; d < N; d++) persistDay(d); renderView(true); });
       }
     };
   }
   document.addEventListener("click", () => { const p = $("#menuPop"); if (p) p.hidden = true; });
 
-  // ---------- 确认框（替代浏览器自带的 confirm） ----------
+  function renderView(force) {
+    const { view } = parseHash();
+    if (!force && view === renderedView) return;
+    const changedView = view !== renderedView;
+    renderedView = view;
+    app.style.removeProperty("--c");
+    if (view === "home") renderHome();
+    else if (view === "bookings") renderBookings();
+    else if (view === "budget") renderBudget();
+    else renderDay(+view.slice(4) - 1);
+    bindTop();
+    if (changedView) window.scrollTo(0, 0);
+  }
+
+  // ---------- 详情面板 ----------
+  const sheetBg = $("#sheetBg"), sheetEl = $("#sheet");
+  const sheet = { open: false, d: 0, id: null, mode: "view", pushed: false, draft: null, isNew: false };
+
+  function openItem(d, id) {
+    const { view } = parseHash();
+    sheet.pushed = true;
+    location.hash = `${viewHash(view) ? viewHash(view) + "-" : ""}item-${d + 1}-${id}`;
+  }
+  function openNew(d) {
+    sheet.open = true; sheet.d = d; sheet.id = null; sheet.isNew = true; sheet.mode = "edit";
+    sheet.draft = normItem({ id: uid(), kind: "activity", custom: true });
+    showSheet(); renderSheet();
+  }
+  function showSheet() {
+    if (sheetBg.hidden) { sheetBg.hidden = false; document.documentElement.style.overflow = "hidden"; sheetEl.scrollTop = 0; }
+  }
+  function hideSheet() {
+    sheet.open = false; sheet.mode = "view"; sheet.draft = null; sheet.isNew = false;
+    sheetBg.hidden = true; document.documentElement.style.overflow = "";
+    setTimeout(flushStash, 0);
+  }
+  function closeSheet() {
+    if (sheet.isNew || !parseHash().item) { hideSheet(); return; }
+    if (sheet.pushed) { sheet.pushed = false; history.back(); }
+    else { const { view } = parseHash(); location.replace("#" + viewHash(view)); }
+  }
+  function syncSheetToHash() {
+    const { item } = parseHash();
+    if (!item) { if (sheet.open && !sheet.isNew) hideSheet(); return; }
+    const it = findItem(item.d, item.id);
+    if (!it) { if (sheet.open) hideSheet(); return; }
+    const same = sheet.open && sheet.d === item.d && sheet.id === item.id && !sheet.isNew;
+    sheet.open = true; sheet.d = item.d; sheet.id = item.id; sheet.isNew = false;
+    if (!same) { sheet.mode = "view"; sheet.draft = null; }
+    showSheet(); renderSheet();
+  }
+
+  function fieldDefs(kind) {
+    const F = (k, label, type) => ({ k, label, type: type || "text" });
+    switch (kind) {
+      case "sight": return [F("local", tr("f_local_sight")), F("duration", tr("f_duration")), F("address", tr("f_address")), F("hours", tr("f_hours"), "long"),
+        F("price", tr("f_price_sight"), "money"), F("reservation", tr("f_reservation")), F("website", tr("f_website"), "url"), F("ticketUrl", tr("f_ticketUrl"), "url"), F("notes", tr("f_notes"), "long")];
+      case "food": return [F("name", tr("f_name_food")), F("address", tr("f_address_food")), F("price", tr("f_price_food"), "money"), F("hours", tr("f_hours"), "long"),
+        F("dishes", tr("f_dishes"), "long"), F("reserve", tr("f_reserve")), F("alternatives", tr("f_alternatives"), "long"), F("notes", tr("f_notes"), "long")];
+      case "hotel": return [F("name", tr("f_name_hotel")), F("address", tr("f_address")), F("checkin", tr("f_checkin")), F("checkout", tr("f_checkout")), F("website", tr("f_website"), "url"), F("notes", tr("f_notes"), "long")];
+      case "transport": return [F("from", tr("f_from")), F("to", tr("f_to")), F("operator", tr("f_operator")), F("ticketInfo", tr("f_ticketInfo"), "long"), F("notes", tr("f_notes"), "long")];
+      case "activity": case "move": return [F("local", tr("f_local")), F("notes", tr("f_notes"), "long")];
+      default: return [F("notes", tr("f_notes"), "long")];
+    }
+  }
+  const fieldVal = (it, k) => k === "local" ? it.local : (it.details[k] || "");
+  const hasMap = kind => kind !== "minor";
+
+  function linkOrText(u, label) {
+    if (!u) return null;
+    const s = safeUrl(u);
+    return s ? `<a href="${esc(s)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>` : `${esc(u)} <span class="neg">${esc(tr("badLink"))}</span>`;
+  }
+  function renderSheetView(it) {
+    const d = sheet.d, ro = store.readOnly;
+    const kc = kcVar(it.kind);
+    const desc = L(it.desc, it.descPt);
+    const rows = fieldDefs(it.kind).map(f => {
+      let v = fieldVal(it, f.k);
+      let html;
+      if (f.type === "money") { const cur = it.details.priceCur || ""; html = v ? esc(`${v} ${cur}`.trim()) : null; }
+      else if (f.type === "url") html = linkOrText(v, f.k === "ticketUrl" ? tr("openTicket") : tr("openSite"));
+      else html = v ? esc(v) : null;
+      return `<dt>${esc(f.label)}</dt><dd class="${html ? "" : "missing"}">${html || esc(tr("missing"))}</dd>`;
+    }).join("");
+    const map = safeUrl(it.details.mapUrl);
+    const mapHtml = !hasMap(it.kind) ? "" : `<div class="map-row">${map
+      ? `<a class="map-btn" href="${esc(map)}" target="_blank" rel="noopener noreferrer">${esc(tr("mapOpen"))} ↗</a>`
+      : `<div class="map-missing">${esc(tr("mapMissing"))}${it.details.mapUrl ? ` ${esc(tr("badLink"))}` : ""}</div>`}</div>`;
+    const b = it.booking;
+    const bookingHtml = !BOOKABLE.includes(it.kind) ? "" : `
+      <div class="section">
+        <h3>${esc(tr("bookingTitle"))}</h3>
+        <div class="seg" role="radiogroup" aria-label="${esc(tr("bookingTitle"))}">
+          ${["", "todo", "booked", "none"].map(s => `<button type="button" role="radio" aria-checked="${b.status === s}" class="${b.status === s ? "on" : ""}" data-st="${s}" ${ro ? "disabled" : ""}>${esc(tr("st_" + s))}</button>`).join("")}
+        </div>
+        <dl class="fields" style="margin-top:10px">
+          <dt>${esc(tr("b_date"))}</dt><dd class="${b.date ? "" : "missing"}">${esc(b.date || tr("missing"))}</dd>
+          <dt>${esc(tr("b_cost"))}</dt><dd class="${b.cost ? "" : "missing"}">${esc(b.cost ? `${b.cost} ${b.currency}`.trim() : tr("missing"))}</dd>
+          <dt>${esc(tr("b_link"))}</dt><dd class="${b.link ? "" : "missing"}">${linkOrText(b.link, tr("openLink")) || esc(tr("missing"))}</dd>
+          <dt>${esc(tr("b_note"))}</dt><dd class="${b.note ? "" : "missing"}">${esc(b.note || tr("missing"))}</dd>
+        </dl>
+        <p class="hint">${esc(tr("bookingHint"))}</p>
+      </div>`;
+    const timeLabel = it.kind === "sight" ? tr("plannedArrive") : tr("plannedTime");
+    sheetEl.style.setProperty("--kc", kc);
+    sheetEl.innerHTML = `
+      <div class="sheet-head"><span class="grab"></span>
+        <span class="sh-kind">${esc(tr("k_" + it.kind))} · Day ${d + 1}</span>
+        <button class="close-btn" id="shClose" aria-label="${esc(tr("close"))}">×</button>
+      </div>
+      <div class="sh-title">${esc(itemTitle(it))}</div>
+      ${it.kind === "sight" && it.local ? `<div class="sh-local">${esc(it.local)}</div>` : (itemPlace(it) && it.kind !== "sight" ? `<div class="sh-local">${esc(itemPlace(it))}</div>` : "")}
+      <div class="sh-time"><span>${esc(timeLabel)}${lang === "pt" ? ": " : "："}${esc(timeText(it) || tr("tbc"))}</span><span class="tt-badge ${it.timeType}">${esc(tr("tt_" + it.timeType))}</span></div>
+      ${desc ? `<p class="sh-desc">${esc(desc)}</p>` : ""}
+      ${mapHtml}
+      <div class="sh-actions">
+        ${ro ? "" : `<button class="btn ${it.done ? "done-on" : ""}" id="shDone">${it.done ? "✓ " + esc(tr("isDone")) : esc(tr("markDone"))}</button>
+        <button class="btn primary" id="shEdit">${esc(tr("edit"))}</button>
+        <button class="btn ghost-danger" id="shDel">${esc(tr("del"))}</button>`}
+      </div>
+      ${isMain(it) || it.kind === "move" ? `<div class="section"><dl class="fields">${rows}</dl></div>` : `<div class="section"><dl class="fields">${rows}</dl></div>`}
+      ${bookingHtml}`;
+    $("#shClose").onclick = closeSheet;
+    if (ro) return;
+    $("#shDone").onclick = () => toggleDone(d, it.id);
+    $("#shEdit").onclick = () => { sheet.mode = "edit"; sheet.draft = clone(it); renderSheet(); sheetEl.scrollTop = 0; };
+    $("#shDel").onclick = () => {
+      const day = state.days[d]; const idx = day.items.findIndex(x => x.id === it.id); if (idx < 0) return;
+      day.items.splice(idx, 1); persistDay(d);
+      closeSheet(); renderView(true);
+      toast(tr("deleted", { x: itemTitle(it).slice(0, 16) }), () => { state.days[d].items.splice(Math.min(idx, state.days[d].items.length), 0, it); persistDay(d); renderView(true); });
+    };
+    sheetEl.querySelectorAll(".seg button").forEach(btn => btn.onclick = () => {
+      it.booking.status = btn.dataset.st; persistDay(d); renderView(true); renderSheet();
+    });
+  }
+
+  function inputHtml(id, val, type, ph, extra) {
+    if (type === "long") return `<textarea id="${id}" placeholder="${esc(ph || "")}" ${extra || ""}>${esc(val)}</textarea>`;
+    return `<input type="${type === "url" ? "url" : "text"}" id="${id}" value="${esc(val)}" placeholder="${esc(ph || "")}" ${type === "url" ? 'inputmode="url" autocapitalize="off"' : ""} ${extra || ""}>`;
+  }
+  function renderSheetEdit() {
+    const dr = sheet.draft;
+    const isNew = sheet.isNew;
+    const kc = kcVar(dr.kind);
+    sheetEl.style.setProperty("--kc", kc);
+    const fields = fieldDefs(dr.kind).map(f => {
+      if (f.type === "money") return `<div class="field"><label for="x-price">${esc(f.label)}</label>
+        <div class="row2">${inputHtml("x-price", dr.details.price || "", "text", tr("missing"), 'inputmode="decimal"')}${inputHtml("x-priceCur", dr.details.priceCur || "", "text", "EUR", 'list="curList" autocapitalize="characters"')}</div></div>`;
+      const id = f.k === "local" ? "f-local" : `x-${f.k}`;
+      return `<div class="field"><label for="${id}">${esc(f.label)}</label>${inputHtml(id, fieldVal(dr, f.k), f.type, f.type === "url" ? "https://" : tr("missing"))}</div>`;
+    }).join("");
+    const mapField = hasMap(dr.kind) ? `<div class="field"><label for="x-mapUrl">${esc(tr("f_mapUrl"))}</label>${inputHtml("x-mapUrl", dr.details.mapUrl || "", "url", "https://maps.app.goo.gl/…")}</div>` : "";
+    const b = dr.booking;
+    const bookingFs = BOOKABLE.includes(dr.kind) ? `
+      <fieldset><legend>${esc(tr("bookingTitle"))}</legend>
+        <div class="field"><label for="b-status">${esc(tr("bookingTitle"))}</label>
+          <select id="b-status">${["", "todo", "booked", "none"].map(s => `<option value="${s}" ${b.status === s ? "selected" : ""}>${esc(tr("st_" + s))}</option>`).join("")}</select></div>
+        <div class="row-half">
+          <div class="field"><label for="b-date">${esc(tr("b_date"))}</label><input type="date" id="b-date" value="${esc(b.date)}"></div>
+          <div class="field"><label for="b-cost">${esc(tr("b_cost"))}</label><div class="row2" style="grid-template-columns:1fr 76px">${inputHtml("b-cost", b.cost, "text", "", 'inputmode="decimal"')}${inputHtml("b-currency", b.currency, "text", "EUR", 'list="curList" autocapitalize="characters"')}</div></div>
+        </div>
+        <div class="field"><label for="b-link">${esc(tr("b_link"))}</label>${inputHtml("b-link", b.link, "url", "https://")}</div>
+        <div class="field"><label for="b-note">${esc(tr("b_note"))}</label>${inputHtml("b-note", b.note, "long")}</div>
+      </fieldset>` : "";
+    // 当前语言下显示的文字（保存时只有改动过的字段才会覆盖）
+    const shownTime = isNew ? "" : timeText(dr), shownTitle = isNew ? "" : L(dr.title, dr.titlePt), shownDesc = isNew ? "" : L(dr.desc, dr.descPt);
+    sheetEl.innerHTML = `
+      <div class="sheet-head"><span class="grab"></span>
+        <span class="sh-kind">${esc(isNew ? tr("newItem") : tr("editItem"))} · Day ${sheet.d + 1}</span>
+        <button class="close-btn" id="shClose" aria-label="${esc(tr("close"))}">×</button>
+      </div>
+      <form class="form" id="shForm" novalidate>
+        ${isNew ? `<div class="quick" id="quick">
+          <button type="button" data-q="food|午餐|Almoço">${esc(tr("quickLunch"))}</button>
+          <button type="button" data-q="food|晚餐|Jantar">${esc(tr("quickDinner"))}</button>
+          ${["sight", "hotel", "transport", "activity"].map(k => `<button type="button" data-q="${k}||">${esc(tr("k_" + k))}</button>`).join("")}
+        </div>` : ""}
+        <div class="row-half">
+          <div class="field"><label for="f-kind">${esc(tr("f_kind"))}</label>
+            <select id="f-kind">${KINDS.map(k => `<option value="${k}" ${dr.kind === k ? "selected" : ""}>${esc(tr("k_" + k))}</option>`).join("")}</select></div>
+          <div class="field"><label for="f-timeType">${esc(tr("timeType"))}</label>
+            <select id="f-timeType">${["fixed", "approx", "vague"].map(k => `<option value="${k}" ${dr.timeType === k ? "selected" : ""}>${esc(tr("tt_" + k))}</option>`).join("")}</select></div>
+        </div>
+        <div class="field"><label for="f-time">${esc(tr("f_time"))}</label><input type="text" id="f-time" value="${esc(dr._time ?? shownTime)}" placeholder="${esc(tr("f_timePh"))}"></div>
+        <div class="field"><label for="f-title">${esc(tr("f_title"))}</label><input type="text" id="f-title" value="${esc(dr._title ?? shownTitle)}" required></div>
+        <div class="field"><label for="f-desc">${esc(tr("f_desc"))}</label><input type="text" id="f-desc" value="${esc(dr._desc ?? shownDesc)}"></div>
+        ${mapField}
+        ${fields}
+        ${bookingFs}
+        <div class="form-actions">
+          <button type="button" class="btn" id="shCancel">${esc(tr("cancel"))}</button>
+          <button type="submit" class="btn primary">${esc(tr("save"))}</button>
+        </div>
+      </form>`;
+    sheetEl.dataset.shownTime = shownTime; sheetEl.dataset.shownTitle = shownTitle; sheetEl.dataset.shownDesc = shownDesc;
+    $("#shClose").onclick = cancelEdit;
+    $("#shCancel").onclick = cancelEdit;
+    $("#f-kind").onchange = () => { readForm(); dr.kind = $("#f-kind").value; renderSheet(); };
+    const q = $("#quick");
+    if (q) q.onclick = e => {
+      const b2 = e.target.closest("[data-q]"); if (!b2) return;
+      readForm();
+      const [k, zh, pt] = b2.dataset.q.split("|");
+      dr.kind = k;
+      if (zh) { dr.title = lang === "pt" ? pt : zh; dr.titlePt = null; sheetEl.dataset.forceTitle = "1"; }
+      renderSheet();
+      if (zh) $("#f-title").value = lang === "pt" ? pt : zh;
+      $("#f-time").focus();
+    };
+    $("#shForm").addEventListener("submit", e => { e.preventDefault(); saveEdit(); });
+    if (isNew) setTimeout(() => { const t = $("#f-title"); if (t && !t.value) t.focus(); }, 30);
+  }
+  function readForm() {
+    const dr = sheet.draft; if (!dr || !$("#shForm")) return;
+    const v = id => { const el = document.getElementById(id); return el ? el.value.trim() : undefined; };
+    dr.timeType = v("f-timeType") || dr.timeType;
+    dr._time = v("f-time"); dr._title = v("f-title"); dr._desc = v("f-desc");
+    if (v("f-local") !== undefined) dr.local = v("f-local");
+    for (const f of fieldDefs(dr.kind)) {
+      if (f.k === "local") continue;
+      if (f.type === "money") { dr.details.price = v("x-price") ?? dr.details.price; dr.details.priceCur = (v("x-priceCur") ?? dr.details.priceCur ?? "").toUpperCase(); continue; }
+      const val = v(`x-${f.k}`); if (val !== undefined) dr.details[f.k] = f.type === "url" ? normUrl(val) : val;
+    }
+    if (v("x-mapUrl") !== undefined) dr.details.mapUrl = normUrl(v("x-mapUrl"));
+    if (v("b-status") !== undefined) {
+      dr.booking = { status: v("b-status"), date: v("b-date"), cost: v("b-cost"), currency: (v("b-currency") || "").toUpperCase(), link: normUrl(v("b-link")), note: v("b-note") };
+    }
+  }
+  const normUrl = u => { u = (u || "").trim(); if (!u) return ""; if (/^https?:\/\//i.test(u)) return u; if (/^[\w-]+(\.[\w-]+)+(\/|$)/.test(u)) return "https://" + u; return u; };
+  function cancelEdit() {
+    if (sheet.isNew) { hideSheet(); return; }
+    sheet.mode = "view"; sheet.draft = null; renderSheet();
+  }
+  function saveEdit() {
+    readForm();
+    const dr = sheet.draft;
+    if (!dr._title) { const t = $("#f-title"); t.setCustomValidity(tr("titleRequired")); t.reportValidity(); t.oninput = () => t.setCustomValidity(""); return; }
+    const d = sheet.d, day = state.days[d];
+    const ds = sheetEl.dataset;
+    // 只有改动过的文字才覆盖；覆盖后中葡两种语言都显示你写的内容
+    if (sheet.isNew || dr._time !== ds.shownTime) { dr.time = dr._time; dr.timePt = null; }
+    if (sheet.isNew || dr._title !== ds.shownTitle || ds.forceTitle) { dr.title = dr._title; dr.titlePt = null; }
+    if (sheet.isNew || dr._desc !== ds.shownDesc) { dr.desc = dr._desc; dr.descPt = null; }
+    delete ds.forceTitle;
+    delete dr._time; delete dr._title; delete dr._desc;
+    const item = normItem(dr);
+    if (sheet.isNew) {
+      item.custom = true;
+      day.items.push(item);
+      day.items = sortItems(day.items);
+      persistDay(d); hideSheet(); renderView(true);
+      toast(tr("saved"));
+      return;
+    }
+    const idx = day.items.findIndex(x => x.id === item.id);
+    if (idx >= 0) day.items[idx] = item;
+    day.items = sortItems(day.items);
+    persistDay(d);
+    sheet.mode = "view"; sheet.draft = null;
+    renderView(true); renderSheet();
+    toast(tr("saved"));
+  }
+  function renderSheet() {
+    if (!sheet.open) return;
+    if (sheet.mode === "edit" && sheet.draft) { renderSheetEdit(); return; }
+    const it = findItem(sheet.d, sheet.id);
+    if (!it) { hideSheet(); return; }
+    renderSheetView(it);
+  }
+  sheetBg.addEventListener("mousedown", e => { if (e.target === sheetBg) { if (sheet.mode === "edit") cancelEdit(); else closeSheet(); } });
+
+  // ---------- 确认框 ----------
   let askResolve = null;
   function ask(title, msg, okText) {
-    $("#askTitle").textContent = title;
-    $("#askMsg").textContent = msg;
-    $("#askYes").textContent = okText || "确定";
+    $("#askTitle").textContent = title; $("#askMsg").textContent = msg;
+    $("#askYes").textContent = okText || tr("ok"); $("#askNo").textContent = tr("cancel");
     $("#askBg").hidden = false;
     setTimeout(() => $("#askNo").focus(), 30);
     return new Promise(res => { askResolve = res; });
@@ -864,59 +1716,15 @@ window.TRIP_DATA = {
   $("#askNo").onclick = () => closeAsk(false);
   $("#askBg").addEventListener("mousedown", e => { if (e.target.id === "askBg") closeAsk(false); });
 
-  // ---------- 添加 / 编辑 ----------
-  let editing = null; // { day, item }
-  const modalBg = $("#modalBg");
-  $("#quick").innerHTML = QUICK.map(q => `<button type="button">${q}</button>`).join("");
-  $("#quick").onclick = e => { const b = e.target.closest("button"); if (b) { $("#fText").value = b.textContent; $("#fText").focus(); } };
-
-  function openForm(day, item) {
-    editing = { day, item };
-    $("#modalTitle").textContent = item ? "编辑行程" : "添加行程";
-    $("#fTime").value = item ? T(item) : "";
-    $("#fText").value = item ? X(item) : "";
-    modalBg.hidden = false;
-    setTimeout(() => (item ? $("#fText") : $("#fTime")).focus(), 30);
-  }
-  function closeForm() { modalBg.hidden = true; editing = null; setTimeout(flushStash, 0); }
-  $("#cancelBtn").onclick = closeForm;
-  modalBg.addEventListener("mousedown", e => { if (e.target === modalBg) closeForm(); });
-  document.addEventListener("keydown", e => {
-    if (e.key !== "Escape") return;
-    if (!$("#askBg").hidden) closeAsk(false);
-    else if (!modalBg.hidden) closeForm();
-  });
-
-  $("#itemForm").addEventListener("submit", e => {
-    e.preventDefault();
-    if (!editing) return;
-    const time = $("#fTime").value.trim();
-    const text = $("#fText").value.trim();
-    if (!text) return;
-    const i = editing.day, s = state.days[i];
-    if (editing.item) {
-      const it = s.items.find(x => x.id === editing.item.id);
-      if (it && (time !== T(it) || text !== X(it))) {
-        // 修改后两种语言都显示你写的内容
-        it.time = time; it.text = text; it.timePt = null; it.textPt = null;
-      }
-    } else {
-      s.items.push({ id: uid(), time, text, timePt: null, textPt: null, done: false, custom: true });
-    }
-    s.items = sortItems(s.items);
-    persist(i); closeForm(); render();
-    toast("已保存");
-  });
-
   // ---------- 导入 / 导出 ----------
   async function exportJSON() {
-    const json = JSON.stringify({ app: "europa-trip-2026", exportedAt: new Date().toISOString(), state }, null, 2);
+    const json = JSON.stringify({ app: "europa-trip-2026", version: 2, exportedAt: new Date().toISOString(), state }, null, 2);
     const filename = `欧洲行程备份_${new Date().toISOString().slice(0, 10)}.json`;
     let dl = null;
     if (window.claude && typeof window.claude.use === "function") { try { dl = await window.claude.use("downloads"); } catch (e) {} }
     if (dl) {
-      try { await dl.save({ filename, data: json }); toast("备份已保存"); }
-      catch (e) { if (e && e.code !== "declined") toast("这里暂时不能保存文件"); }
+      try { await dl.save({ filename, data: json }); toast(tr("exportSaved")); }
+      catch (e) { if (e && e.code !== "declined") toast(tr("exportFail")); }
       return;
     }
     const a = document.createElement("a");
@@ -925,21 +1733,20 @@ window.TRIP_DATA = {
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
+  async function importText(text) {
+    let next;
+    try { const data = JSON.parse(text); next = toV2(data.state || data, state.budget); } catch (err) { next = null; }
+    if (!next) { toast(tr("importFail")); return false; }
+    if (!await ask(tr("askImport"), tr("askImportMsg"), tr("importBtn"))) return false;
+    const before = clone(state);
+    lsSet(KEY_BACKUP_IMPORT, JSON.stringify(before));
+    state = next; persistAll(); renderView(true);
+    toast(tr("imported"), () => { state = before; persistAll(); renderView(true); });
+    return true;
+  }
   $("#importFile").addEventListener("change", async e => {
     const f = e.target.files[0]; e.target.value = "";
-    if (!f) return;
-    let s;
-    try {
-      const data = JSON.parse(await f.text());
-      s = data.state || data;
-      if (!Array.isArray(s.days) || s.days.length !== N || !s.days.every(validDay)) throw 0;
-    } catch (err) { toast("导入失败：这不是本网站导出的备份文件"); return; }
-    if (!await ask("导入这份备份？", "会覆盖当前所有内容，5 秒内可以撤销。", "导入")) return;
-    const before = clone(state);
-    state = { version: 1, days: s.days.map(d => ({ notes: d.notes || "", items: d.items })) };
-    for (let i = 0; i < N; i++) persist(i);
-    render();
-    toast("导入成功", () => { state = before; for (let i = 0; i < N; i++) persist(i); render(); });
+    if (f) await importText(await f.text());
   });
 
   // ---------- 提示条 ----------
@@ -947,29 +1754,38 @@ window.TRIP_DATA = {
   function toast(msg, undo) {
     $("#toastMsg").textContent = msg;
     undoFn = undo || null;
-    $("#toastUndo").hidden = !undo;
+    const ub = $("#toastUndo"); ub.hidden = !undo; ub.textContent = tr("undo");
     $("#toast").classList.add("show");
     clearTimeout(toastTmr);
     toastTmr = setTimeout(() => { $("#toast").classList.remove("show"); undoFn = null; }, undo ? 5000 : 1800);
   }
   $("#toastUndo").onclick = () => { if (undoFn) { const f = undoFn; undoFn = null; f(); } $("#toast").classList.remove("show"); };
 
-  // ---------- 路由 ----------
-  function current() { const m = location.hash.match(/^#day-(\d+)$/); const n = m ? +m[1] - 1 : null; return n != null && n >= 0 && n < N ? n : null; }
-  function go(i) { location.hash = i == null ? "" : `day-${i + 1}`; }
-  function render() {
-    const i = current();
-    app.style.removeProperty("--c");
-    i == null ? renderHome() : renderDay(i);
-  }
-  window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
-  document.addEventListener("keydown", e => {
-    if (busy() || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
-    const i = current(); if (i == null) return;
-    if (e.key === "ArrowLeft" && i > 0) go(i - 1);
-    if (e.key === "ArrowRight" && i < N - 1) go(i + 1);
+  // ---------- 路由与键盘 ----------
+  function go(view) { location.hash = viewHash(view); }
+  window.addEventListener("hashchange", () => {
+    renderView(false);
+    syncSheetToHash();
   });
-  render();
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if (!$("#askBg").hidden) closeAsk(false);
+      else if (sheet.open) { if (sheet.mode === "edit") cancelEdit(); else closeSheet(); }
+      return;
+    }
+    if (busy() || /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) return;
+    const { view } = parseHash(); if (!view.startsWith("day-")) return;
+    const i = +view.slice(4) - 1;
+    if (e.key === "ArrowLeft" && i > 0) go(`day-${i}`);
+    if (e.key === "ArrowRight" && i < N - 1) go(`day-${i + 2}`);
+  });
+
+  // 测试用钩子（不影响使用）
+  window.__trip = { get state() { return state; }, importText, toV2, KEY_V1, KEY_V2 };
+
+  document.documentElement.lang = lang === "pt" ? "pt-BR" : "zh-CN";
+  renderView(true);
+  syncSheetToHash();
   connect();
 })();
 </script>
