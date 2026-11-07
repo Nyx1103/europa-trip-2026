@@ -337,8 +337,10 @@
   .bud-cat h3 { margin: 0 0 10px; font-size: 16px; }
   .bud-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .bud-col h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
-  .bud-line { display: grid; grid-template-columns: minmax(0, 1fr) 76px 36px; gap: 6px; margin-bottom: 6px; }
-  .bud-line .note { grid-column: 1 / 3; }
+  .bud-head, .bud-line { display: grid; grid-template-columns: minmax(0, 1fr) 96px 96px 70px 36px; gap: 6px; }
+  .bud-head { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .bud-line { margin-bottom: 6px; }
+  .bud-line input[data-bud="plan"], .bud-line input[data-bud="actual"] { text-align: right; font-variant-numeric: tabular-nums; }
   .bud-line input { min-height: 38px; padding: 6px 8px; }
   .bud-line .x { border: 0; background: none; color: var(--faint); font-size: 18px; border-radius: 8px; }
   .bud-line .x:hover { color: var(--danger); background: var(--surface-2); }
@@ -379,7 +381,9 @@
     .tl-time { padding-right: 6px; }
     .tl-time .t1 { font-size: 13px; }
     .tl-title { font-size: 16px; }
-    .bud-cols { grid-template-columns: 1fr; }
+    .bud-head { display: none; }
+    .bud-line { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 64px 36px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+    .bud-line .lbl { grid-column: 1 / -1; }
     .bk-row { grid-template-columns: minmax(0, 1fr); }
     dl.fields { grid-template-columns: 96px minmax(0, 1fr); }
   }
@@ -423,7 +427,7 @@
 // 不在这里编造营业时间、票价、地址或餐厅。
 window.TRIP_DATA = (function () {
 const T = {
-  dataRev: 2,
+  dataRev: 3,
   title: "欧洲之旅 2026",
   titlePt: "Viagem à Europa 2026",
   start: "2026-12-19",
@@ -552,7 +556,7 @@ const T = {
         { s: 7, k: "food", t: "14:30–15:30", n: "午餐", np: "Almoço" },
         { s: 8, k: "sight", t: "15:30–17:00", n: "格林德瓦小镇", np: "Vila de Grindelwald", l: "Grindelwald", d: "小镇与观景点，欣赏冬日艾格峰与阿尔卑斯山景", dp: "Vila e pontos panorâmicos, vista do Eiger e dos Alpes" },
         { s: 9, k: "minor", t: "17:00–18:00", n: "回酒店休息", np: "Retorno ao hotel e descanso" },
-        { s: 10, k: "food", t: "18:00–19:30", n: "平安夜晚餐", np: "Jantar de véspera de Natal", d: "原行程建议提前预订", dp: "Reserva antecipada recomendada", x: { reserve: "建议提前预订" } },
+        { s: 10, k: "food", t: "18:00–19:30", n: "平安夜晚餐", np: "Jantar de véspera de Natal", d: "原行程建议提前预订", dp: "Reserva antecipada recomendada", x: { reserve: "建议提前预订", bookAdvice: "recommend" } },
         { s: 11, k: "minor", t: "19:30 后", n: "返回酒店休息", np: "Retorno ao hotel e descanso" }
       ]
     },
@@ -681,7 +685,7 @@ const T = {
 const M = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
 const C6 = "（核查 2026-11-06）", C7 = "（核查 2026-11-07）";
 const TBC = "待确认";
-const HOTEL = (inD, outD) => ({ name: "", checkinDate: inD, checkoutDate: outD, checkin: TBC, checkout: TBC,
+const HOTEL = (inD, outD) => ({ name: "", checkinDate: inD, checkoutDate: outD, checkin: TBC, checkout: TBC, bookAdvice: "must",
   notes: "酒店尚未确定（计划住宿），入住/退房日期按行程推算；请勿当作已确认预订。" });
 
 const INFO = {
@@ -779,7 +783,7 @@ const INFO = {
     sources: "https://guia.barcelona.cat/en/detall/museu-d-historia-de-barcelona-turo-de-la-rovira_99400267435.html " + C7 + "\nhttps://www.barcelona.cat/museuhistoria/en/heritages/museum-spaces/turo-de-la-rovira " + C6 } },
 
   // ---------- Day 4 · 12/22 巴塞罗那 → 巴黎 ----------
-  "o4-4": { tt: null, x: { mapUrl: M("Aeroport Josep Tarradellas Barcelona-El Prat"),
+  "o4-4": { tt: null, x: { bookAdvice: "must", mapUrl: M("Aeroport Josep Tarradellas Barcelona-El Prat"),
     notes: "航班尚未确认，09:15–11:05 为计划时间；购票后再改为固定时间并填写航站楼。" } },
   "o4-6": { x: { local: "Paris-Orly → 市区（地铁 14 号线）", mapUrl: M("Paris Orly Airport"),
     notes: "可乘地铁 14 号线进入市区。2026 年机场专用票 Paris Region <> Airports €14/人。酒店目的站未确定。",
@@ -856,7 +860,8 @@ const INFO = {
     ticketInfo: "12/24 具体班次及到达时间" + TBC + "；法国与瑞士段可能分开购票",
     notes: "官网提示部分 TGV Lyria 列车在 2027 年初前改时刻（停靠站、时长可能变化）。",
     sources: "https://www.tgv-lyria.com/ch/en/destination/train-route/basel-paris " + C6 + "\nhttps://www.tgv-lyria.com/ch/en/train-travel/practical-information/traffic-info " + C6 } },
-  "o6-4": { x: { operator: "SBB", transfers: "建议方案，待确认：Basel SBB → Interlaken Ost（可能需在 Bern 等站换乘）",
+  "o6-4": { x: { operator: "SBB", bookAdvice: "must",
+    notes: "这一段由瑞士交通通票覆盖。预订清单里的「瑞士交通通票（8 天）」状态记在这一项。", transfers: "建议方案，待确认：Basel SBB → Interlaken Ost（可能需在 Bern 等站换乘）",
     duration: TBC, refPrice: TBC, ticketUrl: "https://www.sbb.ch/en", mapUrl: M("Basel SBB") } },
   "o6-5": { x: { operator: "BOB 少女峰铁路", duration: TBC, refPrice: TBC,
     ticketUrl: "https://www.jungfrau.ch/en-gb/plan-book/timetable/", mapUrl: M("Interlaken Ost") } },
@@ -975,7 +980,7 @@ const INFO = {
   "o13-3": { x: { operator: "SBB", duration: TBC, refPrice: TBC,
     transfers: "Luzern → Zürich Flughafen，实际发车时间及站台用 SBB 查询",
     ticketUrl: "https://www.sbb.ch/en", mapUrl: M("Luzern Bahnhof") } },
-  "o13-5": { tt: null, x: { mapUrl: M("Zürich Flughafen"),
+  "o13-5": { tt: null, x: { bookAdvice: "must", mapUrl: M("Zürich Flughafen"),
     notes: "航班尚未确认，13:50 为计划时间；购票后再改为固定时间。国际航班请预留充分的值机、托运和安检时间。" } }
 };
 
@@ -987,6 +992,37 @@ T.days.forEach((day, i) => day.items.forEach(r => {
   r.x = Object.assign({}, r.x || {}, info.x || {});
   if (r.x.local) { r.l = r.x.local; delete r.x.local; }   // 当地名称是条目顶层字段
 }));
+// ===================== 第三阶段：预订清单与交通预算 =====================
+// 预订清单只收真正需要购买/预订/预约的条目（其余仍在时间线里）。label 为清单里显示的名称（null = 用条目名称）；k 为清单分类。
+T.bookingList = {
+  "o13-5": { zh: "欧洲往返机票（12/19 抵达巴塞罗那 · 12/31 苏黎世 → 上海）", pt: "Passagens ida e volta (19/12 chegada a Barcelona · 31/12 Zurique → Xangai)", k: "transport" },
+  "o4-4": null,
+  "o6-3": { zh: "巴黎 → 巴塞尔火车（TGV Lyria）", pt: "Trem Paris → Basileia (TGV Lyria)", k: "transport" },
+  "o6-4": { zh: "瑞士交通通票（8 天）", pt: "Swiss Travel Pass (8 dias)", k: "transport" },
+  "o2-11": { zh: "蒙特惠奇缆车", pt: "Teleférico de Montjuïc", k: "transport" },
+  "o3-3": { zh: "Cuca de Llum 缆索铁路（提比达博）", pt: "Funicular Cuca de Llum (Tibidabo)", k: "transport" },
+  "o7-7": { zh: "Kleine Scheidegg 山区铁路", pt: "Trem de montanha Kleine Scheidegg", k: "transport" },
+  "o8-4": { zh: "Grindelwald First 缆车", pt: "Teleférico Grindelwald First", k: "transport" },
+  "o9-4": { zh: "少女峰登山交通", pt: "Trem para Jungfraujoch", k: "transport" },
+  "o10-6": { zh: "Oeschinensee 缆车", pt: "Teleférico Oeschinensee", k: "transport" },
+  "o11-4": { zh: "Gornergrat 登山铁路", pt: "Trem Gornergrat", k: "transport" },
+  "o1-11": null, "o2-3": null, "o2-7": null, "o4-12": null, "o5-5": null, "o5-9": null,
+  "o1-9": null, "o4-7": null, "o6-6": null, "o10-9": null, "o12-3": null
+};
+// 交通预算（预计）。瑞士境内普通铁路已由通票覆盖，不再单列。山区交通为暂估，可修改。只在资料版本 < 3 时补入一次（按 id 去重）。
+T.budgetSeed = { rev: 3, transport: [
+  { id: "bt-01", label: "欧洲往返机票", plan: "6758", currency: "CNY" },
+  { id: "bt-02", label: "巴塞罗那 → 巴黎机票", plan: "562", currency: "CNY" },
+  { id: "bt-03", label: "巴黎 → 巴塞尔火车", plan: "1372", currency: "CNY" },
+  { id: "bt-04", label: "瑞士境内8天交通通票", plan: "492", currency: "CHF" },
+  { id: "bt-05", label: "巴塞罗那及巴黎日常打车（暂按7天）", plan: "700", currency: "EUR" },
+  { id: "bt-06", label: "Kleine Scheidegg 山区铁路", plan: "50", currency: "CHF" },
+  { id: "bt-07", label: "Grindelwald First 缆车", plan: "45", currency: "CHF" },
+  { id: "bt-08", label: "少女峰登山交通", plan: "155", currency: "CHF" },
+  { id: "bt-09", label: "Oeschinensee 缆车", plan: "20", currency: "CHF" },
+  { id: "bt-10", label: "Gornergrat 登山铁路", plan: "60", currency: "CHF" },
+  { id: "bt-11", label: "其他交通及价格浮动预留", plan: "20", currency: "CHF" }
+] };
 return T;
 })();
 
@@ -1065,7 +1101,10 @@ return T;
       f_sources: "资料来源与核查日期", f_duration_tr: "预计乘车时间", f_transfers: "路线 / 换乘", f_refPrice: "参考票价",
       f_bookUrl: "官方查询 / 订票", f_checkinDate: "入住日期", f_checkoutDate: "退房日期", f_warning: "风险提醒（简短）",
       adv_: "待确认", adv_must: "必须提前预订", adv_recommend: "建议提前预订", adv_onsite: "可以现场购买", adv_none: "无需预订",
-      openSummit: "打开山顶位置地图", warnPill: "注意"
+      openSummit: "打开山顶位置地图", warnPill: "注意",
+      bkg_must: "必须购买或预约", bkg_recommend: "建议提前购买或预约", bkg_other: "可现场购买 / 购票方式待确认", bkg_booked: "已预订",
+      bkk_transport: "交通", bkk_sight: "景点门票", bkk_hotel: "酒店", bkk_food: "餐厅", bkk_activity: "活动", bkk_minor: "其他",
+      budLabel: "用途", budTransHint: "瑞士境内普通铁路已包含在交通通票里，不再单列；山区交通为暂估，可随时修改。"
     },
     pt: {
       sub: "19–31 dez · Barcelona · Paris · Alpes suíços",
@@ -1121,7 +1160,10 @@ return T;
       f_sources: "Fontes e data da verificação", f_duration_tr: "Duração prevista", f_transfers: "Rota / conexões", f_refPrice: "Preço de referência",
       f_bookUrl: "Consulta / compra oficial", f_checkinDate: "Data de entrada", f_checkoutDate: "Data de saída", f_warning: "Aviso de risco (curto)",
       adv_: "A confirmar", adv_must: "Reserva obrigatória", adv_recommend: "Reserva recomendada", adv_onsite: "Compra no local", adv_none: "Sem reserva",
-      openSummit: "Abrir o topo no mapa", warnPill: "Atenção"
+      openSummit: "Abrir o topo no mapa", warnPill: "Atenção",
+      bkg_must: "Compra / reserva obrigatória", bkg_recommend: "Recomendado comprar / reservar antes", bkg_other: "Compra no local / a confirmar", bkg_booked: "Reservado",
+      bkk_transport: "Transporte", bkk_sight: "Ingresso", bkk_hotel: "Hotel", bkk_food: "Restaurante", bkk_activity: "Atividade", bkk_minor: "Outro",
+      budLabel: "Finalidade", budTransHint: "Trens comuns na Suíça já estão no passe; transporte de montanha é estimativa e pode ser alterado."
     }
   };
   let lang = "zh";
@@ -1164,7 +1206,15 @@ return T;
 
   // ---------- 数据模型 ----------
   const emptyBooking = () => ({ status: "", date: "", cost: "", currency: "", link: "", note: "" });
-  const emptyBudget = () => Object.fromEntries(BUD_CATS.map(c => [c, { plan: [], actual: [] }]));
+  const emptyBudget = () => Object.fromEntries(BUD_CATS.map(c => [c, { items: [] }]));
+  const SEED = TRIP_DATA.budgetSeed || { rev: 0 };
+  // 按 id 补入默认交通预算（只补缺失的，不改已有金额）
+  function seedBudget(b) {
+    for (const cat of BUD_CATS) for (const r of (SEED[cat] || [])) {
+      if (!b[cat].items.some(x => x.id === r.id)) b[cat].items.push({ id: r.id, label: r.label || "", plan: String(r.plan ?? ""), actual: String(r.actual ?? ""), currency: r.currency || "" });
+    }
+    return b;
+  }
 
   function buildItem(d, r) {
     return {
@@ -1177,7 +1227,7 @@ return T;
     };
   }
   const buildDay = d => ({ notes: "", items: D[d].items.map(r => buildItem(d, r)) });
-  const buildDefault = () => ({ version: 2, dataRev: DATA_REV, days: D.map((_, d) => buildDay(d)), budget: emptyBudget() });
+  const buildDefault = () => ({ version: 2, dataRev: DATA_REV, days: D.map((_, d) => buildDay(d)), budget: seedBudget(emptyBudget()) });
 
   // 把新版默认资料合并进已保存的一天：只填空字段；标题/说明仅在用户没改过时更新；不碰完成、预订状态、备注、自添条目
   function mergeDay(d, day) {
@@ -1246,11 +1296,19 @@ return T;
     }
     return { notes: typeof old.notes === "string" ? old.notes : "", items: sortItems(items) };
   }
+  // 预算：新格式 {items:[{id,label,plan,actual,currency}]}；旧格式 {plan:[],actual:[]}（每笔 amount/currency/note）自动转换，不丢数据
   function normBudget(b) {
     const out = emptyBudget();
-    if (b && typeof b === "object") for (const c of BUD_CATS) for (const side of ["plan", "actual"]) {
-      const rows = b[c] && Array.isArray(b[c][side]) ? b[c][side] : [];
-      out[c][side] = rows.filter(r => r && typeof r === "object").map(r => ({ id: String(r.id || uid()), amount: String(r.amount ?? ""), currency: String(r.currency ?? ""), note: String(r.note ?? "") }));
+    if (!b || typeof b !== "object") return out;
+    const S = v => String(v ?? "");
+    for (const c of BUD_CATS) {
+      const src = b[c] || {};
+      if (Array.isArray(src.items)) {
+        out[c].items = src.items.filter(r => r && typeof r === "object").map(r => ({ id: S(r.id) || uid(), label: S(r.label), plan: S(r.plan), actual: S(r.actual), currency: S(r.currency) }));
+      } else {
+        for (const r of (Array.isArray(src.plan) ? src.plan : [])) if (r && typeof r === "object") out[c].items.push({ id: S(r.id) || uid(), label: S(r.note), plan: S(r.amount), actual: "", currency: S(r.currency) });
+        for (const r of (Array.isArray(src.actual) ? src.actual : [])) if (r && typeof r === "object") out[c].items.push({ id: S(r.id) || uid(), label: S(r.note), plan: "", actual: S(r.amount), currency: S(r.currency) });
+      }
     }
     return out;
   }
@@ -1266,7 +1324,9 @@ return T;
     }
     const isV1 = s.days.every(isV1Day) && !s.days.every(isV2Day);
     if (!isV1 && (+s.dataRev || 1) < DATA_REV) days.forEach((day, d) => mergeDay(d, day));
-    return { version: 2, dataRev: DATA_REV, days, budget: s.budget ? normBudget(s.budget) : (keepBudget || emptyBudget()) };
+    const budget = s.budget ? normBudget(s.budget) : (keepBudget ? normBudget(keepBudget) : emptyBudget());
+    if ((+s.dataRev || 1) < (SEED.rev || 0)) seedBudget(budget);
+    return { version: 2, dataRev: DATA_REV, days, budget };
   }
 
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -1301,7 +1361,7 @@ return T;
   function persistBudget() { cacheLocal(); if (store.mode === "cloud" && !store.readOnly) queue("budget", "set"); }
   function persistAll() { cacheLocal(); if (store.mode === "cloud" && !store.readOnly) { for (let d = 0; d < N; d++) queue(dayKey(d), "set"); queue("budget", "set"); } }
   function refOf(key) { return key === "budget" ? store.db.doc("extra/budget") : store.db.doc(`days/d${+key.slice(1) + 1}`); }
-  function payloadOf(key) { return key === "budget" ? { v: 2, budget: clone(state.budget) } : Object.assign({ v: 2, rev: DATA_REV }, clone(state.days[+key.slice(1)])); }
+  function payloadOf(key) { return key === "budget" ? { v: 2, rev: DATA_REV, budget: clone(state.budget) } : Object.assign({ v: 2, rev: DATA_REV }, clone(state.days[+key.slice(1)])); }
   function queue(key, op) { store.next[key] = op; if (!store.writing[key]) drain(key); }
   async function drain(key) {
     store.writing[key] = true; setSync("saving");
@@ -1350,7 +1410,7 @@ return T;
     }
     if (store.snaps.extra && (force || !(store.writing.budget || store.next.budget))) {
       const doc = store.snaps.extra.docs.find(x => x.id === "budget");
-      const next = doc && doc.data() ? normBudget(doc.data().budget) : emptyBudget();
+      const raw = doc && doc.data(); const next = raw ? normBudget(raw.budget) : emptyBudget(); if (!raw || (+raw.rev || 1) < (SEED.rev || 0)) seedBudget(next);
       if (JSON.stringify(next) !== JSON.stringify(state.budget)) { state.budget = next; changed = true; }
     }
     if (changed) { lsSet(KEY_V2, JSON.stringify(state)); renderView(true); }
@@ -1408,10 +1468,22 @@ return T;
     return main + (it.timeType === "fixed" ? `<span class="tag-fixed">${esc(tr("tt_fixed"))}</span>` : "");
   }
   const kcVar = k => `var(--k-${k === "move" ? "minor" : k})`;
+  // 预订清单只收真正需要购买/预订/预约的条目（名单在 data.js 的 bookingList）；
+  // 另外：你自己标了「待预订 / 已预订」的条目、需要预约的餐厅，也会出现。其余条目仍保留在时间线里。
+  const BK = TRIP_DATA.bookingList || {};
+  const inBkList = it => Object.prototype.hasOwnProperty.call(BK, it.id);
   function inBookings(it) {
-    if (["sight", "hotel", "transport"].includes(it.kind)) return true;
-    if (it.kind === "food") return !!it.booking.status || !!(it.details.reserve && !/^(不需要|无需|não|nao|sem)/i.test(it.details.reserve.trim()));
-    return !!it.booking.status;
+    if (it.booking.status === "todo" || it.booking.status === "booked") return true;
+    if (inBkList(it)) return true;
+    if (it.kind === "food") return !!(it.details.reserve && !/^(不需要|无需|não|nao|sem)/i.test(it.details.reserve.trim()));
+    return false;
+  }
+  const bkLabel = it => (BK[it.id] ? L(BK[it.id].zh, BK[it.id].pt) : itemTitle(it));
+  const bkKind = it => (BK[it.id] && BK[it.id].k) || (it.kind === "move" ? "transport" : it.kind);
+  function bkGroup(it) {
+    if (it.booking.status === "booked") return "booked";
+    const a = it.details.bookAdvice || "";
+    return a === "must" ? "must" : a === "recommend" ? "recommend" : "other";
   }
   function findItem(d, id) { const day = state.days[d]; if (!day) return null; return day.items.find(x => x.id === id) || null; }
 
@@ -1617,34 +1689,32 @@ return T;
     document.title = tr("bookings");
     const counts = { "": 0, todo: 0, booked: 0, none: 0 };
     const costs = {};
-    const groups = [];
+    const sections = { must: [], recommend: [], other: [], booked: [] };
     state.days.forEach((day, d) => {
       const rows = day.items.filter(inBookings);
       rows.forEach(it => {
         counts[it.booking.status || ""]++;
         const c = parseFloat(String(it.booking.cost).replace(",", "."));
         if (it.booking.cost !== "" && isFinite(c)) { const k = (it.booking.currency || "").trim().toUpperCase() || tr("noCur"); costs[k] = (costs[k] || 0) + c; }
+        if ((bkFilter.st === "all" || (it.booking.status || "") === bkFilter.st) && (bkFilter.kind === "all" || bkKind(it) === bkFilter.kind)) sections[bkGroup(it)].push({ d, it });
       });
-      const shown = rows.filter(it => (bkFilter.st === "all" || (it.booking.status || "") === bkFilter.st) && (bkFilter.kind === "all" || it.kind === bkFilter.kind));
-      if (shown.length) groups.push({ d, rows: shown });
     });
     const stChips = ["all", "", "todo", "booked", "none"].map(s => `<button class="chip ${bkFilter.st === s ? "on" : ""}" data-st="${s}">${esc(s === "all" ? tr("bk_all") : tr("st_" + s))}${s !== "all" ? ` ${counts[s]}` : ""}</button>`).join("");
-    const kChips = ["all", "sight", "hotel", "transport", "food"].map(k => `<button class="chip ${bkFilter.kind === k ? "on" : ""}" data-kind="${k}">${esc(k === "all" ? tr("bk_cat_all") : tr("k_" + k))}</button>`).join("");
+    const kChips = ["all", "transport", "sight", "hotel", "food"].map(k => `<button class="chip ${bkFilter.kind === k ? "on" : ""}" data-kind="${k}">${esc(k === "all" ? tr("bk_cat_all") : tr("bkk_" + k))}</button>`).join("");
     const costTxt = Object.keys(costs).length ? Object.entries(costs).map(([c, v]) => `<b>${esc(fmtNum(v))} ${esc(c)}</b>`).join(" · ") : esc(tr("bkNoCost"));
-    const list = groups.map(g => {
-      const di = dateInfo(D[g.d].date);
-      return `<div class="bk-day"><h3>Day ${g.d + 1} · ${di.md} ${di.week} · ${esc(L(D[g.d].place, D[g.d].placePt))}</h3>${g.rows.map(it => `
-        <div class="bk-row" style="--kc:${kcVar(it.kind)}">
-          <button class="bk-main" data-open="${g.d}|${esc(it.id)}">
-            <div class="k">${esc(tr("k_" + it.kind))} · ${esc(timeText(it) || "—")}</div>
-            <div class="n">${esc(itemTitle(it))}</div>
+    const list = ["must", "recommend", "other", "booked"].filter(g => sections[g].length).map(g => {
+      return `<div class="bk-day bk-sec-${g}"><h3>${esc(tr("bkg_" + g))} · ${sections[g].length}</h3>${sections[g].map(({ d: dd, it }) => { const di = dateInfo(D[dd].date); return `
+        <div class="bk-row" style="--kc:${kcVar(bkKind(it))}">
+          <button class="bk-main" data-open="${dd}|${esc(it.id)}">
+            <div class="k">${esc(tr("bkk_" + bkKind(it)))} · Day ${dd + 1} · ${di.md} · ${esc(timeText(it) || "—")}</div>
+            <div class="n">${esc(bkLabel(it))}</div>
             ${itemPlace(it) ? `<div class="s">${esc(itemPlace(it))}</div>` : ""}
             <div class="s">${esc(tr("f_bookAdvice"))}：${esc(tr("adv_" + (ADVICE.includes(it.details.bookAdvice || "") ? it.details.bookAdvice || "" : "")))}${it.kind === "hotel" && it.details.checkinDate ? ` · ${esc(it.details.checkinDate)} → ${esc(it.details.checkoutDate || "")}` : ""}${it.details.warning ? ` · <span class="neg">⚠</span>` : ""}</div>
           </button>
-          <select data-bk="${g.d}|${esc(it.id)}" data-st="${it.booking.status}" aria-label="${esc(tr("bookingTitle"))}" ${store.readOnly ? "disabled" : ""}>
+          <select data-bk="${dd}|${esc(it.id)}" data-st="${it.booking.status}" aria-label="${esc(tr("bookingTitle"))}" ${store.readOnly ? "disabled" : ""}>
             ${["", "todo", "booked", "none"].map(s => `<option value="${s}" ${it.booking.status === s ? "selected" : ""}>${esc(tr("st_" + s))}</option>`).join("")}
           </select>
-        </div>`).join("")}</div>`;
+        </div>`; }).join("")}</div>`;
     }).join("");
     app.innerHTML = `
       ${topBar(esc(tr("sub")))}
@@ -1666,42 +1736,43 @@ return T;
 
   // ---------- 预算 ----------
   const fmtNum = v => (Math.round(v * 100) / 100).toLocaleString(lang === "pt" ? "pt-BR" : "zh-CN", { maximumFractionDigits: 2 });
-  function sumRows(rows) {
-    const out = {}; let bad = 0;
-    for (const r of rows) {
-      const a = String(r.amount).trim(); if (!a) continue;
-      const v = parseFloat(a.replace(/\s/g, "").replace(",", "."));
-      if (!isFinite(v)) { bad++; continue; }
+  const parseAmt = a => { a = String(a ?? "").trim(); if (!a) return null; if (!/^[-+]?[\d\s.,]+$/.test(a)) return NaN; const v = parseFloat(a.replace(/\s/g, "").replace(",", ".")); return isFinite(v) ? v : NaN; };
+  // 同一货币才相加；没填货币的单独一组，不混合
+  function sumItems(items) {
+    const plan = {}, act = {}; let bad = 0;
+    for (const r of items) {
       const c = (r.currency || "").trim().toUpperCase() || tr("noCur");
-      out[c] = (out[c] || 0) + v;
+      const p = parseAmt(r.plan), a = parseAmt(r.actual);
+      if (Number.isNaN(p) || Number.isNaN(a)) bad++;
+      if (p != null && !Number.isNaN(p)) plan[c] = (plan[c] || 0) + p;
+      if (a != null && !Number.isNaN(a)) act[c] = (act[c] || 0) + a;
     }
-    return { out, bad };
+    return { plan, act, bad };
   }
-  function budgetLines(cat, side) {
-    return state.budget[cat][side].map(r => `
+  function budgetRow(r) {
+    const ro = store.readOnly ? "disabled" : "";
+    return `
       <div class="bud-line" data-row="${esc(r.id)}">
-        <input type="text" inputmode="decimal" placeholder="${esc(tr("amount"))}" value="${esc(r.amount)}" data-bud="amount" id="bud-${esc(r.id)}-a" aria-label="${esc(tr("amount"))}" ${store.readOnly ? "disabled" : ""}>
-        <input type="text" list="curList" placeholder="EUR" value="${esc(r.currency)}" data-bud="currency" id="bud-${esc(r.id)}-c" aria-label="${esc(tr("cur"))}" autocapitalize="characters" ${store.readOnly ? "disabled" : ""}>
+        <input class="lbl" type="text" placeholder="${esc(tr("budLabel"))}" value="${esc(r.label)}" data-bud="label" id="bud-${esc(r.id)}-l" aria-label="${esc(tr("budLabel"))}" ${ro}>
+        <input type="text" inputmode="decimal" placeholder="${esc(tr("plan"))}" value="${esc(r.plan)}" data-bud="plan" id="bud-${esc(r.id)}-p" aria-label="${esc(tr("plan"))}" ${ro}>
+        <input type="text" inputmode="decimal" placeholder="${esc(tr("actual"))}" value="${esc(r.actual)}" data-bud="actual" id="bud-${esc(r.id)}-a" aria-label="${esc(tr("actual"))}" ${ro}>
+        <input type="text" list="curList" placeholder="EUR" value="${esc(r.currency)}" data-bud="currency" id="bud-${esc(r.id)}-c" aria-label="${esc(tr("cur"))}" autocapitalize="characters" ${ro}>
         ${store.readOnly ? "<span></span>" : `<button class="x" data-budx aria-label="${esc(tr("del"))}">×</button>`}
-        <input class="note" type="text" placeholder="${esc(tr("note"))}" value="${esc(r.note)}" data-bud="note" id="bud-${esc(r.id)}-n" aria-label="${esc(tr("note"))}" ${store.readOnly ? "disabled" : ""}>
-      </div>`).join("");
+      </div>`;
   }
   function subText(cat) {
-    const p = sumRows(state.budget[cat].plan), a = sumRows(state.budget[cat].actual);
-    const curs = [...new Set([...Object.keys(p.out), ...Object.keys(a.out)])];
+    const { plan, act, bad } = sumItems(state.budget[cat].items);
+    const curs = [...new Set([...Object.keys(plan), ...Object.keys(act)])].sort();
     if (!curs.length) return esc(tr("noAmounts"));
-    const parts = curs.map(c => `${esc(c)}：${esc(tr("plan"))} ${esc(fmtNum(p.out[c] || 0))} · ${esc(tr("actual"))} ${esc(fmtNum(a.out[c] || 0))}`);
-    const bad = p.bad + a.bad;
+    const parts = curs.map(c => `${esc(c)}：${esc(tr("plan"))} ${esc(fmtNum(plan[c] || 0))} · ${esc(tr("actual"))} ${esc(fmtNum(act[c] || 0))}`);
     return parts.join("<br>") + (bad ? `<br><span class="neg">${esc(tr("invalid", { n: bad }))}</span>` : "");
   }
   function totalsHtml() {
-    const plan = {}, act = {};
-    let bad = 0;
+    const plan = {}, act = {}; let bad = 0;
     for (const c of BUD_CATS) {
-      const p = sumRows(state.budget[c].plan), a = sumRows(state.budget[c].actual);
-      bad += p.bad + a.bad;
-      for (const [k, v] of Object.entries(p.out)) plan[k] = (plan[k] || 0) + v;
-      for (const [k, v] of Object.entries(a.out)) act[k] = (act[k] || 0) + v;
+      const t = sumItems(state.budget[c].items); bad += t.bad;
+      for (const [k, v] of Object.entries(t.plan)) plan[k] = (plan[k] || 0) + v;
+      for (const [k, v] of Object.entries(t.act)) act[k] = (act[k] || 0) + v;
     }
     const curs = [...new Set([...Object.keys(plan), ...Object.keys(act)])].sort();
     if (!curs.length) return `<p class="hint">${esc(tr("noAmounts"))}</p>`;
@@ -1719,14 +1790,10 @@ return T;
       ${BUD_CATS.map(c => `
         <div class="bud-cat" data-cat="${c}">
           <h3>${esc(tr("bud_" + c))}</h3>
-          <div class="bud-cols">
-            ${["plan", "actual"].map(side => `
-              <div class="bud-col" data-side="${side}">
-                <h4>${esc(tr(side))}</h4>
-                <div class="bud-lines">${budgetLines(c, side)}</div>
-                ${store.readOnly ? "" : `<button class="bud-add" data-budadd>${esc(tr("addAmount"))}</button>`}
-              </div>`).join("")}
-          </div>
+          ${c === "transport" ? `<p class="hint" style="margin:-4px 0 8px">${esc(tr("budTransHint"))}</p>` : ""}
+          <div class="bud-head" aria-hidden="true"><span>${esc(tr("budLabel"))}</span><span>${esc(tr("plan"))}</span><span>${esc(tr("actual"))}</span><span>${esc(tr("cur"))}</span><span></span></div>
+          <div class="bud-lines">${state.budget[c].items.map(budgetRow).join("")}</div>
+          ${store.readOnly ? "" : `<button class="bud-add" data-budadd>${esc(tr("addAmount"))}</button>`}
           <div class="bud-sub" id="sub-${c}">${subText(c)}</div>
         </div>`).join("")}`;
     $("#backBtn").onclick = () => go("home");
@@ -1738,8 +1805,8 @@ return T;
   app.addEventListener("input", e => {
     if (!onBudgetPage()) return;
     const f = e.target.dataset.bud; if (!f) return;
-    const cat = e.target.closest("[data-cat]").dataset.cat, side = e.target.closest("[data-side]").dataset.side;
-    const row = state.budget[cat][side].find(r => r.id === e.target.closest("[data-row]").dataset.row); if (!row) return;
+    const cat = e.target.closest("[data-cat]").dataset.cat;
+    const row = state.budget[cat].items.find(r => r.id === e.target.closest("[data-row]").dataset.row); if (!row) return;
     row[f] = e.target.value;
     budRefresh(cat);
     clearTimeout(budTmr); budTmr = setTimeout(() => { budTmr = null; persistBudget(); }, 600);
@@ -1755,23 +1822,21 @@ return T;
   });
   app.addEventListener("click", e => {
     if (!onBudgetPage()) return;
-    {
-      const add = e.target.closest("[data-budadd]"), x = e.target.closest("[data-budx]");
-      if (!add && !x) return;
-      const cat = e.target.closest("[data-cat]").dataset.cat, side = e.target.closest("[data-side]").dataset.side;
-      const rows = state.budget[cat][side];
-      if (add) {
-        const last = rows[rows.length - 1];
-        const r = { id: uid(), amount: "", currency: last ? last.currency : "", note: "" };
-        rows.push(r); persistBudget();
-        e.target.closest("[data-side]").querySelector(".bud-lines").insertAdjacentHTML("beforeend", budgetLines(cat, side).split('<div class="bud-line"').filter(Boolean).map(s => '<div class="bud-line"' + s).pop());
-        const inp = document.getElementById(`bud-${r.id}-a`); if (inp) inp.focus();
-      } else {
-        const id = x.closest("[data-row]").dataset.row; const idx = rows.findIndex(r => r.id === id); if (idx < 0) return;
-        const [gone] = rows.splice(idx, 1); persistBudget();
-        x.closest("[data-row]").remove(); budRefresh(cat);
-        toast(tr("deleted", { x: `${gone.amount || "—"} ${gone.currency || ""}`.trim() }), () => { state.budget[cat][side].splice(idx, 0, gone); persistBudget(); renderView(true); });
-      }
+    const add = e.target.closest("[data-budadd]"), x = e.target.closest("[data-budx]");
+    if (!add && !x) return;
+    const cat = e.target.closest("[data-cat]").dataset.cat;
+    const rows = state.budget[cat].items;
+    if (add) {
+      const last = rows[rows.length - 1];
+      const r = { id: uid(), label: "", plan: "", actual: "", currency: last ? last.currency : "" };
+      rows.push(r); persistBudget();
+      e.target.closest("[data-cat]").querySelector(".bud-lines").insertAdjacentHTML("beforeend", budgetRow(r));
+      const inp = document.getElementById(`bud-${r.id}-l`); if (inp) inp.focus();
+    } else {
+      const id = x.closest("[data-row]").dataset.row; const idx = rows.findIndex(r => r.id === id); if (idx < 0) return;
+      const [gone] = rows.splice(idx, 1); persistBudget();
+      x.closest("[data-row]").remove(); budRefresh(cat);
+      toast(tr("deleted", { x: (gone.label || `${gone.plan || gone.actual || "—"} ${gone.currency || ""}`).trim().slice(0, 16) }), () => { state.budget[cat].items.splice(idx, 0, gone); persistBudget(); renderView(true); });
     }
   });
 
@@ -1864,7 +1929,7 @@ return T;
         F("reservation", tr("f_reservation"), "long"), F("website", tr("f_website"), "url"), F("ticketUrl", tr("f_ticketUrl"), "url"), F("summitMapUrl", tr("f_summitMapUrl"), "url"),
         F("notes", tr("f_notes"), "long"), SRC];
       case "food": return [F("name", tr("f_name_food")), F("address", tr("f_address_food")), F("price", tr("f_price_food"), "money"), F("hours", tr("f_hours"), "long"),
-        F("dishes", tr("f_dishes"), "long"), F("reserve", tr("f_reserve")), F("alternatives", tr("f_alternatives"), "long"), F("notes", tr("f_notes"), "long")];
+        F("dishes", tr("f_dishes"), "long"), F("reserve", tr("f_reserve")), F("bookAdvice", tr("f_bookAdvice"), "advice"), F("alternatives", tr("f_alternatives"), "long"), F("notes", tr("f_notes"), "long")];
       case "hotel": return [F("name", tr("f_name_hotel")), F("address", tr("f_address")), F("checkinDate", tr("f_checkinDate")), F("checkoutDate", tr("f_checkoutDate")),
         F("checkin", tr("f_checkin")), F("checkout", tr("f_checkout")), F("website", tr("f_website"), "url"), F("notes", tr("f_notes"), "long"), SRC];
       case "transport": return [F("from", tr("f_from")), F("to", tr("f_to")), F("operator", tr("f_operator")), F("transfers", tr("f_transfers"), "long"),
@@ -1904,7 +1969,7 @@ return T;
       ? `<a class="map-btn" href="${esc(map)}" target="_blank" rel="noopener noreferrer">${esc(tr("mapOpen"))} ↗</a>`
       : `<div class="map-missing">${esc(tr("mapMissing"))}${it.details.mapUrl ? ` ${esc(tr("badLink"))}` : ""}</div>`}</div>`;
     const b = it.booking;
-    const bookingHtml = !BOOKABLE.includes(it.kind) ? "" : `
+    const bookingHtml = !(BOOKABLE.includes(it.kind) || inBkList(it)) ? "" : `
       <div class="section">
         <h3>${esc(tr("bookingTitle"))}</h3>
         <div class="seg" role="radiogroup" aria-label="${esc(tr("bookingTitle"))}">
