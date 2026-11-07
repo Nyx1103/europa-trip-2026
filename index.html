@@ -198,6 +198,15 @@
   .pill.booked { color: var(--ok); }
   .pill.none, .pill.unset { color: var(--faint); }
   .pill.pending { color: var(--k-food); border-style: dashed; }
+  .pill.warn { color: var(--danger); font-weight: 600; }
+  .warn-mark { color: var(--danger); }
+  .warn-box {
+    margin: 12px 0 0; padding: 10px 12px; border-radius: 10px; font-size: 14px; line-height: 1.45;
+    background: color-mix(in srgb, var(--danger) 10%, var(--surface)); border-left: 4px solid var(--danger); color: var(--text);
+  }
+  .warn-box b { color: var(--danger); }
+  dl.fields dd.src { font-size: 12px; color: var(--muted); }
+  dl.fields dd a { overflow-wrap: anywhere; }
   .maplink { font-size: 12px; text-decoration: none; border-radius: 999px; padding: 1px 8px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
   .tl-check {
     position: absolute; right: 6px; top: 6px; width: 40px; height: 40px; border-radius: 50%;
@@ -412,7 +421,9 @@
 //   d / dp   简短说明（中文 / 葡语）
 //   x   详情预填（只填原行程里有依据的内容）
 // 不在这里编造营业时间、票价、地址或餐厅。
-window.TRIP_DATA = {
+window.TRIP_DATA = (function () {
+const T = {
+  dataRev: 2,
   title: "欧洲之旅 2026",
   titlePt: "Viagem à Europa 2026",
   start: "2026-12-19",
@@ -660,6 +671,325 @@ window.TRIP_DATA = {
   ]
 };
 
+// ===================== 第二阶段：已核实资料（按条目 ID 合并进 details） =====================
+// 规则：只填官方核实或用户导入包提供的信息；未确认写「待确认」或留空；不改用户的完成/预订状态。
+// 字段：local 当地名称 · address 地址 · hours 营业时间 · lastEntry 最后入场/末班 · duration 建议时长
+//       price 票价（文字，含货币，起价注明「起」）· ticketType 门票类型 · bookAdvice 预订建议（must/recommend/onsite/none）
+//       reservation 预约要求 · website 官网 · ticketUrl 官方购票/查询 · mapUrl 主要导航 · summitMapUrl 山顶位置
+//       warning / warningPt 风险提醒 · notes 注意事项 · sources 来源与核查日期
+//       交通另有 from/to/operator/duration/transfers/refPrice；酒店另有 checkinDate/checkoutDate
+const M = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+const C6 = "（核查 2026-11-06）", C7 = "（核查 2026-11-07）";
+const TBC = "待确认";
+const HOTEL = (inD, outD) => ({ name: "", checkinDate: inD, checkoutDate: outD, checkin: TBC, checkout: TBC,
+  notes: "酒店尚未确定（计划住宿），入住/退房日期按行程推算；请勿当作已确认预订。" });
+
+const INFO = {
+  // ---------- Day 1 · 12/19 巴塞罗那 ----------
+  "o1-1": { tt: null, x: { notes: "航班尚未确认，07:40 为计划时间；购票后再改为固定时间。" } },
+  "o1-5": { x: { mapUrl: M("Plaça de Catalunya Barcelona"), price: "免费（街区步行）", bookAdvice: "none",
+    notes: "导航目标为起点加泰罗尼亚广场；主教座堂只看外观。" } },
+  "o1-9": { x: HOTEL("2026-12-19", "2026-12-22") },
+  "o1-11": { x: {
+    address: "Carrer de Mallorca, 401, 08013 Barcelona（游客入口：Carrer de la Marina 一侧，诞生立面）",
+    hours: "11–2 月：周一至周六 09:00–18:00，周日 10:30–18:00；12/25、12/26 为 09:00–14:00。12/19（周六）09:00–18:00",
+    lastEntry: "按所购时段入场，迟到不能入场；官网未写最后入场时间",
+    duration: "约 1.5 小时（基础票）",
+    price: "€26 普通票（含语音导览 App）；€24 学生 / 30 岁以下（需官方认可证明）；€36 含塔楼",
+    ticketType: "基础票含教堂内部和博物馆，不含塔楼登顶；实名、限定时段，约提前两个月开售",
+    bookAdvice: "must", reservation: "官网称只能网上购票（现场仅有视余票情况的二维码购票）",
+    website: "https://sagradafamilia.org/en/", ticketUrl: "https://tickets.sagradafamilia.org/",
+    mapUrl: M("Basílica de la Sagrada Família Barcelona"),
+    notes: "建议保留 16:00 入场计划，买到票后再把时间改为「固定」。入场需带有照片的证件。",
+    sources: "开放时间 https://sagradafamilia.org/en/schedules-how-to-get " + C6 + "\n票价 https://sagradafamilia.org/en/prices " + C6 + "\n用户导入包 " + C7 } },
+  "o1-13": { x: { mapUrl: M("Passeig de Gràcia Barcelona"), price: "免费（街道步行）", bookAdvice: "none" } },
+
+  // ---------- Day 2 · 12/20（周日）巴塞罗那 ----------
+  "o2-3": { x: {
+    address: "主要入口：Carretera del Carmel, 23；或 Av. del Santuari de Sant Josep de la Muntanya（扶梯，Lesseps 方向）；或 Carrer de Larrard",
+    hours: "游客购票时段 09:30 起；具体日期的最后时段以官方预约日历为准",
+    lastEntry: "票面时间后 30 分钟内入场；最后时段见预约日历（" + TBC + "）",
+    duration: "约 1.5 小时（古迹区）",
+    price: "€18 成人；€13.50 7–12 岁 / 65 岁以上；0–6 岁免费",
+    ticketType: "古迹区（Monumental Zone）限时段实名票，约提前三个月开售",
+    bookAdvice: "must", reservation: "官网称需提前网上购票，现场不保证能入场",
+    website: "https://parkguell.barcelona/en", ticketUrl: "https://parkguell.barcelona/en/buy-tickets",
+    mapUrl: M("Park Güell Barcelona"),
+    notes: "游览重点：古迹区、马赛克长椅、蜥蜴喷泉。L3 Vallcarca 站扶梯停用，建议从 Lesseps 方向走。官网提示园内有施工可能影响参观。",
+    sources: "https://parkguell.barcelona/en/planning-your-visit/prices-and-times " + C6 + "\nhttps://parkguell.barcelona/en/planning-your-visit/faqs " + C6 + "\n用户导入包 " + C7 } },
+  "o2-7": { x: {
+    address: "Passeig de Gràcia, 43, 08007 Barcelona（地铁 Passeig de Gràcia L3/L4）",
+    hours: "全年每天开放；日间常规参观 09:00 起，当天售票时段以购票页为准",
+    lastEntry: "按所选时段入场，时段后 15 分钟内进入",
+    duration: "常规参观约 1 小时 15 分钟",
+    price: "€29 起（官网常规参观，动态价格；现场窗口贵 €4–15）；学生证 −€6，实际价格按日期和票种",
+    ticketType: "蓝票为最便宜常规参观，不含屋顶；银票及以上含屋顶",
+    bookAdvice: "recommend", reservation: "常规参观可现场买，但建议提前网购（价格更低、可选时段）",
+    website: "https://www.casabatllo.es/en/", ticketUrl: "https://www.casabatllo.es/en/online-tickets/",
+    mapUrl: M("Casa Batlló Barcelona"),
+    notes: "11/28–1/6 每晚 18:30–21:30 外立面有圣诞灯光。",
+    sources: "https://www.casabatllo.es/en/visit/faqs/ " + C6 + "\nhttps://www.casabatllo.es/en/online-tickets/ " + C7 } },
+  "o2-10": { x: { local: "Telefèric de Montjuïc · Parc Montjuïc 站", mapUrl: M("Telefèric de Montjuïc Parc Montjuïc Station") } },
+  "o2-11": { x: { local: "Telefèric de Montjuïc（Parc Montjuïc → Castell）", mapUrl: M("Telefèric de Montjuïc Parc Montjuïc Station"),
+    notes: "11–12 月 10:00–18:00；最后上车为关闭前 15 分钟（全程往返需提前 20 分钟）。成人往返 €17.10（网购）/ €19.00；单程 €12.00（仅窗口）。上车点 Avinguda de Miramar, 30。",
+    sources: "https://www.telefericdemontjuic.cat/en/teleferic-timetables-seasons " + C7 + "\nhttps://www.telefericdemontjuic.cat/en/teleferic-fares-and-prices " + C7 } },
+  "o2-12": { x: {
+    address: "Carretera de Montjuïc, 66, 08038 Barcelona",
+    hours: "11–2 月 10:00–18:00（售票 17:30 截止）；12/25、1/1 闭馆",
+    lastEntry: "售票 17:30 截止",
+    duration: "约 1 小时",
+    price: "€12 普通票；€8 优惠票；每周日 15:00 后免费（12/20 是周日，16:00 到达符合免费规则）",
+    ticketType: "城堡入场；官网只自营网上售票",
+    bookAdvice: "none", reservation: "周日 15:00 后免费，无需预订",
+    website: "https://ajuntament.barcelona.cat/castelldemontjuic/en", ticketUrl: "",
+    mapUrl: M("Castell de Montjuïc Barcelona"),
+    sources: "https://ajuntament.barcelona.cat/castelldemontjuic/en/visit/planning-your-visit " + C6 + "\nhttps://guia.barcelona.cat/en/detall/_99077121755.html " + C7 } },
+  "o2-13": { x: { mapUrl: M("Castell de Montjuïc Barcelona"), price: "免费", bookAdvice: "none" } },
+  "o2-15": { x: { local: "Telefèric de Montjuïc",
+    warning: "缆车 18:00 关闭，最后上车约为关闭前 15 分钟。约 17:40 下山余量很小，请预留排队和步行时间，不保证一定赶上。",
+    warningPt: "O teleférico fecha às 18:00; descer ~17:40 deixa pouca margem.",
+    sources: "https://www.telefericdemontjuic.cat/en/teleferic-timetables-seasons " + C7 } },
+
+  // ---------- Day 3 · 12/21（周一）巴塞罗那 ----------
+  "o3-3": { x: { local: "Funicular del Tibidabo（Cuca de Llum）· 下站 Plaça del Doctor Andreu", mapUrl: M("Cuca de Llum Lower Station Barcelona"),
+    notes: "Cuca de Llum 普通往返 €13.50；游乐园开放日通常 10:30 开始运营。游乐园全票 €39（含缆车），以观景和教堂为主不必买全票。",
+    sources: "https://tibidabo.cat/en/plan-the-visit/schedules " + C7 + "\nhttps://tibidabo.cat/en/plan-the-visit/rates " + C7 } },
+  "o3-4": { x: {
+    hours: TBC, price: TBC + "（教堂内部及额外观景设施）", bookAdvice: "",
+    mapUrl: M("Temple Expiatori del Sagrat Cor Barcelona"),
+    notes: "圣心赎罪殿内部及登顶观景设施的开放时间和价格未能核实。" } },
+  "o3-5": { x: {
+    hours: "12/21 属官方公布的游乐园开放日期（具体时段以官网日历为准）",
+    price: "全景区免费进入；Cuca de Llum 往返 €13.50；游乐园全票 €39（不必默认购买）",
+    bookAdvice: "none", website: "https://tibidabo.cat/en", ticketUrl: "https://tibidabo.cat/en/plan-the-visit/rates",
+    mapUrl: M("Tibidabo Barcelona"),
+    notes: "官网缆车时刻页曾把 12/21 列为普通工作日（约 10:45–16:15）。如当天按工作日运营，16:15 后可能没有缆车，下山前请看现场时刻。",
+    sources: "https://tibidabo.cat/en/plan-the-visit/schedules " + C7 + "\nhttps://tibidabo.cat/en/funicular-timetable " + C6 } },
+  "o3-8": { x: {
+    address: "Carrer de Marià Labèrnia, 1, 08032 Barcelona（公交 22 路）",
+    hours: "冬季 09:00–17:30（guia.barcelona.cat）",
+    lastEntry: "17:30 关闭",
+    duration: "约 1–2 小时",
+    price: "免费", bookAdvice: "none",
+    website: "https://www.barcelona.cat/museuhistoria/en/heritages/museum-spaces/turo-de-la-rovira",
+    mapUrl: M("Turó de la Rovira Barcelona"),
+    warning: "开放到 17:30，计划 17:25 左右看日落，离关闭只剩几分钟；17:25 之后继续停留不可行。",
+    warningPt: "Fecha às 17:30; o pôr do sol (~17:25) fica muito perto do fechamento.",
+    notes: "MUHBA 官网称户外区域可自由进入、开放时间只针对展陈空间，与上述时间说法不同，以现场告示为准。",
+    sources: "https://guia.barcelona.cat/en/detall/museu-d-historia-de-barcelona-turo-de-la-rovira_99400267435.html " + C7 + "\nhttps://www.barcelona.cat/museuhistoria/en/heritages/museum-spaces/turo-de-la-rovira " + C6 } },
+
+  // ---------- Day 4 · 12/22 巴塞罗那 → 巴黎 ----------
+  "o4-4": { tt: null, x: { mapUrl: M("Aeroport Josep Tarradellas Barcelona-El Prat"),
+    notes: "航班尚未确认，09:15–11:05 为计划时间；购票后再改为固定时间并填写航站楼。" } },
+  "o4-6": { x: { local: "Paris-Orly → 市区（地铁 14 号线）", mapUrl: M("Paris Orly Airport"),
+    notes: "可乘地铁 14 号线进入市区。2026 年机场专用票 Paris Region <> Airports €14/人。酒店目的站未确定。",
+    sources: "https://www.iledefrance-mobilites.fr/en/titres-et-tarifs/detail/ticket-paris-region-aeroports " + C7 } },
+  "o4-7": { x: HOTEL("2026-12-22", "2026-12-24") },
+  "o4-11": { x: { mapUrl: M("Trocadéro Paris"), price: "免费", bookAdvice: "none", notes: "在广场拍铁塔全景。" } },
+  "o4-12": { n: "埃菲尔铁塔（登顶）与战神广场", np: "Torre Eiffel (topo) e Champ de Mars", d: "电梯登顶最高观景层（Sommet）", dp: "Elevador até o topo (Sommet)",
+    x: {
+    local: "Tour Eiffel · Sommet（顶层）",
+    address: "Champ de Mars, Paris",
+    hours: TBC + "（以所购门票时段为准）",
+    lastEntry: TBC,
+    duration: "预留 2–3 小时（安检、排队、两段电梯、参观）",
+    price: "€36.70 成人电梯登顶；€18.40 12–24 岁电梯登顶",
+    ticketType: "必须买写明「The top / Summit / Sommet」的电梯票；只写「Second Floor」的票不符合要求；登顶需换乘两段电梯",
+    bookAdvice: "must", reservation: "官方一般提前约 90 天开售电梯票；售罄时不代表现场一定能买到登顶名额",
+    website: "https://www.toureiffel.paris/en", ticketUrl: "https://ticket.toureiffel.paris/en",
+    mapUrl: M("Tour Eiffel Paris"),
+    warning: "你要求登顶最高层。原计划 16:30–17:30 只够看外观，不够完整登顶（需 2–3 小时）；实际入场时间以门票为准。",
+    warningPt: "Subir ao topo exige 2–3 h; o horário 16:30–17:30 não basta. Siga o horário do ingresso.",
+    sources: "https://www.toureiffel.paris/en/rates-opening-times " + C7 + "\n用户导入包 " + C7 } },
+  "o4-13": { x: { price: "免费", bookAdvice: "none" } },
+
+  // ---------- Day 5 · 12/23（周三）巴黎 ----------
+  "o5-2": { x: {
+    address: "6 Parvis Notre-Dame – Pl. Jean-Paul II, 75004 Paris",
+    hours: "周三 07:50–19:00",
+    lastEntry: "通常闭馆前 30 分钟",
+    duration: "约 1 小时",
+    price: "免费", ticketType: "免费入场；可在官网申请免费时段（不强制）",
+    bookAdvice: "none", reservation: "免费预约通常只在临近参观日开放，非必须",
+    website: "https://www.notredamedeparis.fr/en/", ticketUrl: "https://www.notredamedeparis.fr/en/visit/reservation-free/",
+    mapUrl: M("Cathédrale Notre-Dame de Paris"),
+    notes: "圣诞期间可能因宗教活动调整参观安排。",
+    sources: "https://www.notredamedeparis.fr/en/ " + C7 } },
+  "o5-3": { x: { mapUrl: M("Île de la Cité Paris"), price: "免费", bookAdvice: "none" } },
+  "o5-5": { x: {
+    local: "Musée du Louvre · Pyramide du Louvre",
+    address: "主入口：玻璃金字塔（持票绿色通道）；另有 Carrousel 入口（99 rue de Rivoli）",
+    hours: "周三 09:00–21:00（周二闭馆；12/25 闭馆）",
+    lastEntry: "闭馆前 1 小时；闭馆前 30 分钟清场",
+    duration: "原计划 2 小时，只能看部分主要展区",
+    price: "€32 非 EEA 居民及公民；€22 EEA 符合条件游客（2026/1/14 起）",
+    ticketType: "限时段门票；非 EEA 游客不能仅因 18–25 岁自动免费，按实际购票资格确认",
+    bookAdvice: "recommend", reservation: "建议购买指定入场时段（低峰时可现场买，视余票）",
+    website: "https://www.louvre.fr/en", ticketUrl: "https://ticket.louvre.fr/en",
+    mapUrl: M("Pyramide du Louvre Paris"),
+    sources: "https://www.louvre.fr/en/visit/hours-admission " + C6 + "\nhttps://www.louvre.fr/en/visit/hours-admission/tickets-and-prices " + C7 } },
+  "o5-7": { x: { mapUrl: M("Jardin des Tuileries Paris"), hours: "11–3 月 07:30–19:30", price: "免费", bookAdvice: "none",
+    sources: "https://www.louvre.fr/en/explore/the-gardens " + C6 } },
+  "o5-8": { x: { mapUrl: M("Avenue des Champs-Élysées Paris"), price: "免费", bookAdvice: "none" } },
+  "o5-9": { x: {
+    address: "Place Charles de Gaulle, 75008 Paris",
+    hours: "冬季 10:00–22:30（10/1–3/31；周二 11:00 起）",
+    lastEntry: "闭馆前 45 分钟",
+    duration: "约 1 小时（含登顶看日落）",
+    price: "€16 冬季普通票；18–25 岁免费仅限 EEA 国籍或法国合法居留等条件，不能仅凭年龄默认免票",
+    ticketType: "登顶观景台",
+    bookAdvice: "", website: "https://www.paris-arc-de-triomphe.fr/en/",
+    ticketUrl: "https://www.paris-arc-de-triomphe.fr/en/visit/practical-information",
+    mapUrl: M("Arc de Triomphe Paris"),
+    warning: "11/06 查询时官网横幅显示「目前关闭」（未说明原因）；电梯自 2026 年 7 月底停用，只能走 284 级台阶。出发前请复查。",
+    warningPt: "Em 06/11 o site oficial dizia “fechado”; elevador fora de serviço (284 degraus). Verifique antes.",
+    notes: "经地下通道 Passage du Souvenir 进入，不要横穿环岛车流。行李限 40×40×20 cm，无寄存处。",
+    sources: "https://www.paris-arc-de-triomphe.fr/en/visit/practical-information " + C6 + " / " + C7 } },
+  "o5-10": { x: { mapUrl: M("Avenue des Champs-Élysées Paris"), price: "免费", bookAdvice: "none" } },
+
+  // ---------- Day 6 · 12/24 巴黎 → 格林德瓦 ----------
+  "o6-3": { x: { operator: "TGV Lyria", duration: "约 3 小时 4 分（直达，官方参考时长）",
+    refPrice: "标准座起价约 €29 起（越早买越便宜）；12/24 实际票价" + TBC,
+    transfers: "建议方案，待确认：Paris Gare de Lyon → Basel SBB（直达）",
+    bookAdvice: "recommend", ticketUrl: "https://www.sncf-connect.com/en-en/train/route/paris/basel",
+    mapUrl: M("Gare de Lyon Paris"),
+    ticketInfo: "12/24 具体班次及到达时间" + TBC + "；法国与瑞士段可能分开购票",
+    notes: "官网提示部分 TGV Lyria 列车在 2027 年初前改时刻（停靠站、时长可能变化）。",
+    sources: "https://www.tgv-lyria.com/ch/en/destination/train-route/basel-paris " + C6 + "\nhttps://www.tgv-lyria.com/ch/en/train-travel/practical-information/traffic-info " + C6 } },
+  "o6-4": { x: { operator: "SBB", transfers: "建议方案，待确认：Basel SBB → Interlaken Ost（可能需在 Bern 等站换乘）",
+    duration: TBC, refPrice: TBC, ticketUrl: "https://www.sbb.ch/en", mapUrl: M("Basel SBB") } },
+  "o6-5": { x: { operator: "BOB 少女峰铁路", duration: TBC, refPrice: TBC,
+    ticketUrl: "https://www.jungfrau.ch/en-gb/plan-book/timetable/", mapUrl: M("Interlaken Ost") } },
+  "o6-6": { x: Object.assign(HOTEL("2026-12-24", "2026-12-28"), {
+    warning: "上午从巴黎出发、约 14:00 到格林德瓦比较紧，不保证实现；到达时间为预计。",
+    warningPt: "Chegar a Grindelwald ~14:00 saindo de Paris de manhã é apertado." }) },
+  "o6-8": { x: { mapUrl: M("Grindelwald Bahnhof"), price: "免费", bookAdvice: "none" } },
+
+  // ---------- Day 7 · 12/25 劳特布伦嫩 → 文根 → 小沙伊德格 ----------
+  "o7-3": { x: { mapUrl: M("Lauterbrunnen Bahnhof"), price: "镇区散步免费", bookAdvice: "none" } },
+  "o7-5": { x: { mapUrl: M("Wengen Bahnhof"), price: "镇区散步免费", bookAdvice: "none" } },
+  "o7-7": { x: { mapUrl: M("Kleine Scheidegg Bahnhof"),
+    price: "需乘山区铁路（WAB），费用取决于出发站、票种和优惠卡；具体" + TBC,
+    hours: "12/25 当日班次" + TBC, bookAdvice: "",
+    website: "https://www.jungfrau.ch/en-gb/", ticketUrl: "https://www.jungfrau.ch/en-gb/plan-book/timetable/",
+    notes: "区域通票不等于所有山区交通都免费。",
+    sources: "https://www.jungfrau.ch/en-gb/ " + C7 } },
+
+  // ---------- Day 8 · 12/26 Grindelwald-First ----------
+  "o8-3": { x: { local: "Firstbahn 山下站", mapUrl: M("Grindelwald Firstbahn Talstation") } },
+  "o8-4": { x: {
+    local: "Grindelwald-First · First Cliff Walk",
+    address: "Talstation Firstbahn, 3818 Grindelwald（距 Grindelwald 火车站步行约 8 分钟；乘火车到 Grindelwald 站，不是 Grindelwald Terminal）",
+    hours: "2026/27 冬季计划运营 2026/12/19–2027/3/29；每日时段" + TBC,
+    lastEntry: "末班下山缆车：" + TBC + "（上一季 2024/25 官方时刻表同期为 16:15 从 First 下山，仅供参考）",
+    duration: "缆车单程约 25 分钟（经 Bort、Schreckfeld）",
+    price: "缆车票 CHF 38 起（官网起价）；具体往返价格及优惠按购票页",
+    ticketType: "First 缆车票；First Cliff Walk 在山顶站旁",
+    bookAdvice: "", website: "https://www.jungfrau.ch/en-gb/grindelwaldfirst/",
+    ticketUrl: "https://top-of-travel.jungfrau.ch/en/booking/first/start",
+    mapUrl: M("Grindelwald Firstbahn Talstation"), summitMapUrl: M("Grindelwald First"),
+    warning: "原计划 16:50 后下山有风险：末班下山时间待确认（上一季同期 16:15）。山顶开放及 Cliff Walk 受天气影响。",
+    warningPt: "Descer após 16:50 é arriscado: último teleférico a confirmar (temporada anterior: 16:15).",
+    notes: "冬季运营状态：https://www.jungfrau.ch/en-gb/live/slope-data/",
+    sources: "https://www.jungfrau.ch/en-gb/grindelwaldfirst/ " + C6 + " / " + C7 + "\n上一季官方时刻表 tp-info.ch 2025/2440（见 资料/官方原始资料）" + C6 } },
+  "o8-7": { x: { warning: "日落时段可能晚于末班下山缆车（待确认），不要在没有确认末班时间前留到 16:50。",
+    warningPt: "O pôr do sol pode ser depois do último teleférico." } },
+  "o8-8": { x: { warning: "末班下山缆车时间待确认（上一季同期 16:15）。", warningPt: "Último teleférico a confirmar." } },
+
+  // ---------- Day 9 · 12/27 少女峰 ----------
+  "o9-3": { x: { local: "Grindelwald Terminal → Eiger Express → Eigergletscher → 少女峰铁路", mapUrl: M("Grindelwald Terminal") } },
+  "o9-4": { x: {
+    local: "Jungfraujoch – Top of Europe",
+    address: "出发站 Grindelwald Terminal：Grundstrasse 54, 3818 Grindelwald",
+    hours: "全年计划运营，可能受天气和交通限制影响；当天时刻" + TBC,
+    lastEntry: "末班下山列车：" + TBC + "（上一季冬季约 16:47，仅供参考）",
+    duration: "Grindelwald Terminal → 少女峰约 45 分钟（艾格快线 15 分钟 + 少女峰铁路 26 分钟）",
+    price: "Grindelwald Terminal 出发往返 CHF 129.60 起（官网起价，按日期、路线和优惠卡确定）；座位预约 CHF 10",
+    ticketType: "往返车票；座位预约另购（2026/5/1–10/31 强制，12 月可自选）",
+    bookAdvice: "recommend", reservation: "繁忙时段建议座位预约；12/27 可按客流决定",
+    website: "https://www.jungfrau.ch/en-gb/jungfraujoch-top-of-europe/",
+    ticketUrl: "https://top-of-travel.jungfrau.ch/en/booking/joch/start",
+    mapUrl: M("Grindelwald Terminal"), summitMapUrl: M("Jungfraujoch Top of Europe"),
+    warning: "原计划 16:20–16:50 看日落：能否实现取决于末班下山列车（待确认；上一季约 16:47）。",
+    warningPt: "Pôr do sol 16:20–16:50 depende do último trem (a confirmar; antes ~16:47).",
+    notes: "时刻表：https://www.jungfrau.ch/en-gb/plan-book/timetable/ ；座位预约：https://top-of-travel.jungfrau.ch/en/booking/joch-epr/start ；实时摄像头：https://www.jungfrau.ch/en-gb/live/webcams/jungfraujoch-top-of-europe/",
+    sources: "https://www.jungfrau.ch/en-gb/jungfraujoch-top-of-europe/ " + C6 + " / " + C7 } },
+  "o9-7": { x: { warning: "看日落可能赶不上末班下山列车（待确认）。", warningPt: "Pode perder o último trem." } },
+  "o9-8": { x: { warning: "末班下山列车时间待确认（上一季冬季约 16:47）。", warningPt: "Último trem a confirmar." } },
+
+  // ---------- Day 10 · 12/28 厄希嫩湖 → 采尔马特 ----------
+  "o10-2": { x: { operator: "SBB / BLS", duration: TBC, refPrice: TBC,
+    transfers: "建议方案，待确认：Grindelwald → Interlaken Ost → Spiez → Kandersteg",
+    ticketUrl: "https://www.sbb.ch/en", mapUrl: M("Grindelwald Bahnhof") } },
+  "o10-3": { x: { notes: "SBB 公布 Kandersteg 站有 24 小时储物柜：大柜 44×88×61 cm、15 个、CHF 8/24 小时，不保证当天有空柜。缆车山下站和山顶站也有储物柜（冬季开到 18:00）。",
+    sources: "https://www.sbb.ch/en/travel-information/stations/find-station/station.7475.kandersteg.html " + C7 } },
+  "o10-5": { x: { local: "Gondelbahn Kandersteg-Oeschinensee 山下站", mapUrl: M("Oeschinensee Gondelbahn Talstation Kandersteg") } },
+  "o10-6": { x: {
+    address: "山下站 Oeschistrasse 50, 3718 Kandersteg（从 Kandersteg 火车站步行 10–15 分钟，冬季无接驳巴士）",
+    hours: "2026/27 冬季缆车 2026/12/5–2027/3/7，每天 09:00–17:00",
+    lastEntry: "缆车 17:00 结束；冰面仅在官方开放时 09:00–16:00 可进入",
+    duration: "山顶站到湖边：冬季 C 路线约 25–30 分钟",
+    price: "2026/27 冬季票价" + TBC + "；2025/26 冬季成人往返 CHF 32（半价卡 / Swiss Travel Pass CHF 16），仅作历史参考",
+    ticketType: "缆车往返票",
+    bookAdvice: "onsite", reservation: "官网称时段预约只到 2026/11/8，12 月无需时段",
+    website: "https://www.oeschinensee.ch/en/", ticketUrl: "https://www.oeschinensee.ch/en/tarife-fahrplan/",
+    mapUrl: M("Oeschinensee Gondelbahn Talstation Kandersteg"), summitMapUrl: M("Oeschinensee"),
+    warning: "湖面能否行走由官方当日安全公告决定，不要默认能走上冰面；滑冰通常不可能。",
+    warningPt: "Andar sobre o lago gelado só com liberação oficial do dia.",
+    notes: "需穿防滑保暖冬季鞋。冬季开放：山顶 Bergstübli 自助、湖边 Bergrestaurant。运营状况：https://www.oeschinensee.ch/en/live/ ；冬季徒步：https://www.oeschinensee.ch/en/winterwandern/",
+    sources: "https://www.oeschinensee.ch/tarife-fahrplan/ " + C6 + "\nhttps://www.oeschinensee.ch/winterwandern/ " + C6 + "\n用户导入包 " + C7 } },
+  "o10-8": { x: { operator: "BLS / MGB", duration: TBC, refPrice: TBC,
+    transfers: "建议方案，待确认：Kandersteg → Visp → Zermatt",
+    ticketUrl: "https://www.sbb.ch/en", mapUrl: M("Kandersteg Bahnhof"),
+    ticketInfo: "具体换乘及车次" + TBC } },
+  "o10-9": { x: HOTEL("2026-12-28", "2026-12-30") },
+
+  // ---------- Day 11 · 12/29 戈尔内格拉特 ----------
+  "o11-3": { x: { local: "Gornergrat Bahn · Zermatt 站（火车站正对面）", mapUrl: M("Gornergrat Bahn Zermatt") } },
+  "o11-4": { x: {
+    address: "山下站：Zermatt 火车站正对面",
+    hours: "2026/12/23–2027/3/29 冬季时刻：Zermatt 首班 08:24，之后约每 24 分钟一班",
+    lastEntry: "12/29 末班下山列车：" + TBC + "（上一季冬季时刻表有 17:18、18:18 等下山班次，仅供参考）",
+    duration: "全天（含午餐、拍摄、日落）",
+    price: "官方 2026/27 价目表：11 月–4 月 Zermatt–Gornergrat 往返 CHF 102、单程 CHF 51；半价卡 / GA / Swiss Travel Pass 5 折。最终金额以购票页为准",
+    ticketType: "登山铁路车票",
+    bookAdvice: "onsite", reservation: "无需预约；官网建议网上买票免排队",
+    website: "https://www.gornergrat.ch/en/", ticketUrl: "https://www.gornergrat.ch/en/products/ticket",
+    mapUrl: M("Gornergrat Bahn Zermatt"), summitMapUrl: M("Gornergrat"),
+    warning: "17:10 之后下山尚未确认可行，需核对 12/29 末班下山列车。",
+    warningPt: "Descer depois das 17:10 ainda não confirmado.",
+    sources: "https://www.gornergrat.ch/en/pages/timetable-gornergrat-bahn " + C6 + "\n官方价目表 2026/27（资料/官方原始资料）" + C6 + "\nhttps://www.gornergrat.ch/en/pages/prices-gornergrat-bahn " + C7 } },
+  "o11-7": { x: { warning: "日落/蓝调时刻后能否下山取决于末班列车（待确认）。", warningPt: "Depende do último trem (a confirmar)." } },
+  "o11-9": { x: { mapUrl: M("Zermatt Bahnhof"), price: "免费", bookAdvice: "none" } },
+
+  // ---------- Day 12 · 12/30 采尔马特 → 卢塞恩 ----------
+  "o12-2": { x: { operator: "SBB / MGB", duration: TBC, refPrice: TBC,
+    transfers: "建议方案，待确认：按 12/30 实际时刻表确定路线及换乘",
+    ticketUrl: "https://www.sbb.ch/en", mapUrl: M("Zermatt Bahnhof") } },
+  "o12-3": { x: HOTEL("2026-12-30", "2026-12-31") },
+  "o12-5": { x: { mapUrl: M("Altstadt Luzern"), price: "免费", bookAdvice: "none" } },
+  "o12-6": { x: { mapUrl: M("Kapellbrücke Luzern"), price: "免费", bookAdvice: "none" } },
+  "o12-7": { x: { price: "免费（湖畔步行）", bookAdvice: "none" } },
+
+  // ---------- Day 13 · 12/31 卢塞恩 → 苏黎世机场 ----------
+  "o13-3": { x: { operator: "SBB", duration: TBC, refPrice: TBC,
+    transfers: "Luzern → Zürich Flughafen，实际发车时间及站台用 SBB 查询",
+    ticketUrl: "https://www.sbb.ch/en", mapUrl: M("Luzern Bahnhof") } },
+  "o13-5": { tt: null, x: { mapUrl: M("Zürich Flughafen"),
+    notes: "航班尚未确认，13:50 为计划时间；购票后再改为固定时间。国际航班请预留充分的值机、托运和安检时间。" } }
+};
+
+T.days.forEach((day, i) => day.items.forEach(r => {
+  const info = INFO[`o${i + 1}-${r.s}${r.sx || ""}`];
+  if (!info) return;
+  if ("tt" in info) { if (info.tt) r.tt = info.tt; else delete r.tt; }
+  for (const k of ["n", "np", "d", "dp", "l"]) if (info[k] != null) r[k] = info[k];
+  r.x = Object.assign({}, r.x || {}, info.x || {});
+  if (r.x.local) { r.l = r.x.local; delete r.x.local; }   // 当地名称是条目顶层字段
+}));
+return T;
+})();
+
 </script>
 <script>
 (() => {
@@ -675,6 +1005,9 @@ window.TRIP_DATA = {
   const MAIN_KINDS = ["sight", "food", "hotel", "transport", "activity"];
   const KINDS = ["sight", "food", "hotel", "transport", "activity", "move", "minor"];
   const BUD_CATS = ["lodging", "food", "transport", "tickets", "other"];
+  const DATA_REV = TRIP_DATA.dataRev || 1;           // 默认资料版本；升级时只补空字段，不覆盖用户内容
+  const KEY_BACKUP_REV = "europa-trip-2026-backup-before-data-rev";
+  const ADVICE = ["", "must", "recommend", "onsite", "none"];
 
   // ---------- 界面文字（中 / 葡） ----------
   const I18N = {
@@ -727,7 +1060,12 @@ window.TRIP_DATA = {
       sync_local: "仅存本机", sync_ok: "已同步", sync_saving: "保存中…", sync_loading: "同步中…", sync_offline: "暂时连不上云端", sync_error: "同步失败", sync_readonly: "只读",
       roNote: "你只有查看权限，修改不会保存。", roToast: "你对这个页面只有查看权限，修改没有保存",
       saveFail: "保存到云端失败，请检查网络后再改一次", quota: "云端空间已满，修改没有保存", storageFail: "保存失败：浏览器禁止了本地存储",
-      langBtn: "中文 · PT"
+      langBtn: "中文 · PT",
+      f_lastEntry: "最后入场 / 末班", f_ticketType: "门票类型", f_bookAdvice: "预订建议", f_summitMapUrl: "山顶位置",
+      f_sources: "资料来源与核查日期", f_duration_tr: "预计乘车时间", f_transfers: "路线 / 换乘", f_refPrice: "参考票价",
+      f_bookUrl: "官方查询 / 订票", f_checkinDate: "入住日期", f_checkoutDate: "退房日期", f_warning: "风险提醒（简短）",
+      adv_: "待确认", adv_must: "必须提前预订", adv_recommend: "建议提前预订", adv_onsite: "可以现场购买", adv_none: "无需预订",
+      openSummit: "打开山顶位置地图", warnPill: "注意"
     },
     pt: {
       sub: "19–31 dez · Barcelona · Paris · Alpes suíços",
@@ -778,7 +1116,12 @@ window.TRIP_DATA = {
       sync_local: "Só neste aparelho", sync_ok: "Sincronizado", sync_saving: "Salvando…", sync_loading: "Sincronizando…", sync_offline: "Sem conexão com a nuvem", sync_error: "Falha ao sincronizar", sync_readonly: "Somente leitura",
       roNote: "Você só pode visualizar; alterações não serão salvas.", roToast: "Somente leitura: a alteração não foi salva",
       saveFail: "Falha ao salvar na nuvem; verifique a conexão", quota: "Espaço na nuvem cheio", storageFail: "Falha ao salvar: o navegador bloqueou o armazenamento",
-      langBtn: "PT · 中文"
+      langBtn: "PT · 中文",
+      f_lastEntry: "Última entrada / último transporte", f_ticketType: "Tipo de ingresso", f_bookAdvice: "Reserva antecipada", f_summitMapUrl: "Local do topo",
+      f_sources: "Fontes e data da verificação", f_duration_tr: "Duração prevista", f_transfers: "Rota / conexões", f_refPrice: "Preço de referência",
+      f_bookUrl: "Consulta / compra oficial", f_checkinDate: "Data de entrada", f_checkoutDate: "Data de saída", f_warning: "Aviso de risco (curto)",
+      adv_: "A confirmar", adv_must: "Reserva obrigatória", adv_recommend: "Reserva recomendada", adv_onsite: "Compra no local", adv_none: "Sem reserva",
+      openSummit: "Abrir o topo no mapa", warnPill: "Atenção"
     }
   };
   let lang = "zh";
@@ -834,7 +1177,25 @@ window.TRIP_DATA = {
     };
   }
   const buildDay = d => ({ notes: "", items: D[d].items.map(r => buildItem(d, r)) });
-  const buildDefault = () => ({ version: 2, days: D.map((_, d) => buildDay(d)), budget: emptyBudget() });
+  const buildDefault = () => ({ version: 2, dataRev: DATA_REV, days: D.map((_, d) => buildDay(d)), budget: emptyBudget() });
+
+  // 把新版默认资料合并进已保存的一天：只填空字段；标题/说明仅在用户没改过时更新；不碰完成、预订状态、备注、自添条目
+  function mergeDay(d, day) {
+    const defs = new Map(buildDay(d).items.map(x => [x.id, x]));
+    for (const it of day.items) {
+      const def = defs.get(it.id); if (!def) continue;
+      for (const [k, v] of Object.entries(def.details)) {
+        if (v === "" || v == null) continue;
+        if (!String(it.details[k] ?? "").trim()) it.details[k] = v;
+      }
+      if (!it.local && def.local) it.local = def.local;
+      if (it.titlePt !== null && it.title !== def.title) { it.title = def.title; it.titlePt = def.titlePt; }
+      if (it.descPt !== null && it.desc !== def.desc) { it.desc = def.desc; it.descPt = def.descPt; }
+      // 未购票航班：旧默认标成了「固定」，时间没改过的改回「预计」
+      if (it.timeType === "fixed" && def.timeType !== "fixed" && it.timePt !== null && it.time === def.time) it.timeType = def.timeType;
+    }
+    return day;
+  }
 
   function normItem(x) {
     const it = Object.assign({
@@ -903,14 +1264,24 @@ window.TRIP_DATA = {
       else if (isV1Day(x)) days.push(migrateV1Day(d, x));
       else return null;
     }
-    return { version: 2, days, budget: s.budget ? normBudget(s.budget) : (keepBudget || emptyBudget()) };
+    const isV1 = s.days.every(isV1Day) && !s.days.every(isV2Day);
+    if (!isV1 && (+s.dataRev || 1) < DATA_REV) days.forEach((day, d) => mergeDay(d, day));
+    return { version: 2, dataRev: DATA_REV, days, budget: s.budget ? normBudget(s.budget) : (keepBudget || emptyBudget()) };
   }
 
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
 
   function loadLocal() {
-    try { const s = toV2(JSON.parse(lsGet(KEY_V2) || "null")); if (s) return s; } catch (e) {}
+    try {
+      const raw = lsGet(KEY_V2);
+      const parsed = JSON.parse(raw || "null");
+      const s = toV2(parsed);
+      if (s) {
+        if ((+parsed.dataRev || 1) < DATA_REV) { lsSet(KEY_BACKUP_REV, raw); lsSet(KEY_V2, JSON.stringify(s)); }  // 合并前先备份
+        return s;
+      }
+    } catch (e) {}
     const rawV1 = lsGet(KEY_V1);
     if (rawV1) {
       try {
@@ -930,7 +1301,7 @@ window.TRIP_DATA = {
   function persistBudget() { cacheLocal(); if (store.mode === "cloud" && !store.readOnly) queue("budget", "set"); }
   function persistAll() { cacheLocal(); if (store.mode === "cloud" && !store.readOnly) { for (let d = 0; d < N; d++) queue(dayKey(d), "set"); queue("budget", "set"); } }
   function refOf(key) { return key === "budget" ? store.db.doc("extra/budget") : store.db.doc(`days/d${+key.slice(1) + 1}`); }
-  function payloadOf(key) { return key === "budget" ? { v: 2, budget: clone(state.budget) } : Object.assign({ v: 2 }, clone(state.days[+key.slice(1)])); }
+  function payloadOf(key) { return key === "budget" ? { v: 2, budget: clone(state.budget) } : Object.assign({ v: 2, rev: DATA_REV }, clone(state.days[+key.slice(1)])); }
   function queue(key, op) { store.next[key] = op; if (!store.writing[key]) drain(key); }
   async function drain(key) {
     store.writing[key] = true; setSync("saving");
@@ -967,7 +1338,8 @@ window.TRIP_DATA = {
         const m = /^d(\d+)$/.exec(doc.id); if (!m) continue;
         const d = +m[1] - 1, data = doc.data();
         if (d < 0 || d >= N || !data) continue;
-        if (isV2Day(data)) remote[d] = normDay(data); else if (isV1Day(data)) remote[d] = migrateV1Day(d, data);
+        if (isV2Day(data)) { remote[d] = normDay(data); if ((+data.rev || 1) < DATA_REV) mergeDay(d, remote[d]); }
+        else if (isV1Day(data)) remote[d] = migrateV1Day(d, data);
       }
       for (let d = 0; d < N; d++) {
         const k = dayKey(d);
@@ -1140,7 +1512,7 @@ window.TRIP_DATA = {
         <div class="tl-row small ${it.done ? "done" : ""}" style="--kc:${kc}">
           <div class="tl-time ${it.timeType}">${fmtTimeCol(it)}</div>
           <div class="tl-dot"></div>
-          <button class="tl-small" data-open="${esc(it.id)}">${it.kind === "move" ? `<span class="mv">↳</span>` : ""}${esc(L(it.title, it.titlePt))}${it.custom ? `<span class="custom-tag">${esc(tr("custom"))}</span>` : ""}</button>
+          <button class="tl-small" data-open="${esc(it.id)}">${it.kind === "move" ? `<span class="mv">↳</span>` : ""}${esc(L(it.title, it.titlePt))}${it.custom ? `<span class="custom-tag">${esc(tr("custom"))}</span>` : ""}${it.details.warning ? `<span class="warn-mark" title="${esc(tr("warnPill"))}"> ⚠</span>` : ""}</button>
         </div>`;
     }
     const place = itemPlace(it);
@@ -1148,6 +1520,7 @@ window.TRIP_DATA = {
     const map = safeUrl(it.details.mapUrl);
     const st = it.booking.status;
     const meta = [
+      it.details.warning ? `<span class="pill warn">⚠ ${esc(tr("warnPill"))}</span>` : "",
       it.kind === "food" && !it.details.name ? `<span class="pill pending">${esc(tr("toChoose"))}</span>` : "",
       BOOKABLE.includes(it.kind) && st ? `<span class="pill ${st}">${esc(tr("st_" + st))}</span>` : "",
       map ? `<a class="maplink" href="${esc(map)}" target="_blank" rel="noopener noreferrer" data-stop>Google Maps ↗</a>` : ""
@@ -1266,6 +1639,7 @@ window.TRIP_DATA = {
             <div class="k">${esc(tr("k_" + it.kind))} · ${esc(timeText(it) || "—")}</div>
             <div class="n">${esc(itemTitle(it))}</div>
             ${itemPlace(it) ? `<div class="s">${esc(itemPlace(it))}</div>` : ""}
+            <div class="s">${esc(tr("f_bookAdvice"))}：${esc(tr("adv_" + (ADVICE.includes(it.details.bookAdvice || "") ? it.details.bookAdvice || "" : "")))}${it.kind === "hotel" && it.details.checkinDate ? ` · ${esc(it.details.checkinDate)} → ${esc(it.details.checkoutDate || "")}` : ""}${it.details.warning ? ` · <span class="neg">⚠</span>` : ""}</div>
           </button>
           <select data-bk="${g.d}|${esc(it.id)}" data-st="${it.booking.status}" aria-label="${esc(tr("bookingTitle"))}" ${store.readOnly ? "disabled" : ""}>
             ${["", "todo", "booked", "none"].map(s => `<option value="${s}" ${it.booking.status === s ? "selected" : ""}>${esc(tr("st_" + s))}</option>`).join("")}
@@ -1483,20 +1857,28 @@ window.TRIP_DATA = {
 
   function fieldDefs(kind) {
     const F = (k, label, type) => ({ k, label, type: type || "text" });
+    const SRC = F("sources", tr("f_sources"), "long");
     switch (kind) {
-      case "sight": return [F("local", tr("f_local_sight")), F("duration", tr("f_duration")), F("address", tr("f_address")), F("hours", tr("f_hours"), "long"),
-        F("price", tr("f_price_sight"), "money"), F("reservation", tr("f_reservation")), F("website", tr("f_website"), "url"), F("ticketUrl", tr("f_ticketUrl"), "url"), F("notes", tr("f_notes"), "long")];
+      case "sight": return [F("local", tr("f_local_sight")), F("address", tr("f_address"), "long"), F("hours", tr("f_hours"), "long"), F("lastEntry", tr("f_lastEntry"), "long"),
+        F("duration", tr("f_duration")), F("price", tr("f_price_sight"), "money"), F("ticketType", tr("f_ticketType"), "long"), F("bookAdvice", tr("f_bookAdvice"), "advice"),
+        F("reservation", tr("f_reservation"), "long"), F("website", tr("f_website"), "url"), F("ticketUrl", tr("f_ticketUrl"), "url"), F("summitMapUrl", tr("f_summitMapUrl"), "url"),
+        F("notes", tr("f_notes"), "long"), SRC];
       case "food": return [F("name", tr("f_name_food")), F("address", tr("f_address_food")), F("price", tr("f_price_food"), "money"), F("hours", tr("f_hours"), "long"),
         F("dishes", tr("f_dishes"), "long"), F("reserve", tr("f_reserve")), F("alternatives", tr("f_alternatives"), "long"), F("notes", tr("f_notes"), "long")];
-      case "hotel": return [F("name", tr("f_name_hotel")), F("address", tr("f_address")), F("checkin", tr("f_checkin")), F("checkout", tr("f_checkout")), F("website", tr("f_website"), "url"), F("notes", tr("f_notes"), "long")];
-      case "transport": return [F("from", tr("f_from")), F("to", tr("f_to")), F("operator", tr("f_operator")), F("ticketInfo", tr("f_ticketInfo"), "long"), F("notes", tr("f_notes"), "long")];
-      case "activity": case "move": return [F("local", tr("f_local")), F("notes", tr("f_notes"), "long")];
-      default: return [F("notes", tr("f_notes"), "long")];
+      case "hotel": return [F("name", tr("f_name_hotel")), F("address", tr("f_address")), F("checkinDate", tr("f_checkinDate")), F("checkoutDate", tr("f_checkoutDate")),
+        F("checkin", tr("f_checkin")), F("checkout", tr("f_checkout")), F("website", tr("f_website"), "url"), F("notes", tr("f_notes"), "long"), SRC];
+      case "transport": return [F("from", tr("f_from")), F("to", tr("f_to")), F("operator", tr("f_operator")), F("transfers", tr("f_transfers"), "long"),
+        F("duration", tr("f_duration_tr")), F("refPrice", tr("f_refPrice"), "long"), F("bookAdvice", tr("f_bookAdvice"), "advice"), F("ticketUrl", tr("f_bookUrl"), "url"),
+        F("ticketInfo", tr("f_ticketInfo"), "long"), F("notes", tr("f_notes"), "long"), SRC];
+      case "activity": case "move": return [F("local", tr("f_local")), F("notes", tr("f_notes"), "long"), SRC];
+      default: return [F("notes", tr("f_notes"), "long"), SRC];
     }
   }
   const fieldVal = (it, k) => k === "local" ? it.local : (it.details[k] || "");
   const hasMap = kind => kind !== "minor";
 
+  // 文字里的 http(s) 链接变成可点击链接（先转义再替换，保证安全）
+  const linkify = text => esc(text).replace(/https?:\/\/[^\s<>"'（）]+/g, u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
   function linkOrText(u, label) {
     if (!u) return null;
     const s = safeUrl(u);
@@ -1509,11 +1891,14 @@ window.TRIP_DATA = {
     const rows = fieldDefs(it.kind).map(f => {
       let v = fieldVal(it, f.k);
       let html;
-      if (f.type === "money") { const cur = it.details.priceCur || ""; html = v ? esc(`${v} ${cur}`.trim()) : null; }
-      else if (f.type === "url") html = linkOrText(v, f.k === "ticketUrl" ? tr("openTicket") : tr("openSite"));
-      else html = v ? esc(v) : null;
-      return `<dt>${esc(f.label)}</dt><dd class="${html ? "" : "missing"}">${html || esc(tr("missing"))}</dd>`;
+      if (f.type === "money") { const cur = it.details.priceCur || ""; html = v ? linkify(`${v} ${cur}`.trim()) : null; }
+      else if (f.type === "url") html = linkOrText(v, f.k === "summitMapUrl" ? tr("openSummit") : f.k === "ticketUrl" ? (it.kind === "transport" ? tr("openLink") : tr("openTicket")) : tr("openSite"));
+      else if (f.type === "advice") html = esc(tr("adv_" + (ADVICE.includes(v) ? v : "")));
+      else html = v ? linkify(v) : null;
+      if (f.k === "sources" && !v) return "";
+      return `<dt>${esc(f.label)}</dt><dd class="${html ? "" : "missing"} ${f.k === "sources" ? "src" : ""}">${html || esc(tr("missing"))}</dd>`;
     }).join("");
+    const warn = L(it.details.warning, it.details.warningPt);
     const map = safeUrl(it.details.mapUrl);
     const mapHtml = !hasMap(it.kind) ? "" : `<div class="map-row">${map
       ? `<a class="map-btn" href="${esc(map)}" target="_blank" rel="noopener noreferrer">${esc(tr("mapOpen"))} ↗</a>`
@@ -1544,6 +1929,7 @@ window.TRIP_DATA = {
       ${it.kind === "sight" && it.local ? `<div class="sh-local">${esc(it.local)}</div>` : (itemPlace(it) && it.kind !== "sight" ? `<div class="sh-local">${esc(itemPlace(it))}</div>` : "")}
       <div class="sh-time"><span>${esc(timeLabel)}${lang === "pt" ? ": " : "："}${esc(timeText(it) || tr("tbc"))}</span><span class="tt-badge ${it.timeType}">${esc(tr("tt_" + it.timeType))}</span></div>
       ${desc ? `<p class="sh-desc">${esc(desc)}</p>` : ""}
+      ${warn ? `<div class="warn-box" role="note"><b>⚠ ${esc(tr("warnPill"))}</b> ${esc(warn)}</div>` : ""}
       ${mapHtml}
       <div class="sh-actions">
         ${ro ? "" : `<button class="btn ${it.done ? "done-on" : ""}" id="shDone">${it.done ? "✓ " + esc(tr("isDone")) : esc(tr("markDone"))}</button>
@@ -1568,6 +1954,7 @@ window.TRIP_DATA = {
   }
 
   function inputHtml(id, val, type, ph, extra) {
+    if (type === "advice") return `<select id="${id}">${ADVICE.map(a => `<option value="${a}" ${(val || "") === a ? "selected" : ""}>${esc(tr("adv_" + a))}</option>`).join("")}</select>`;
     if (type === "long") return `<textarea id="${id}" placeholder="${esc(ph || "")}" ${extra || ""}>${esc(val)}</textarea>`;
     return `<input type="${type === "url" ? "url" : "text"}" id="${id}" value="${esc(val)}" placeholder="${esc(ph || "")}" ${type === "url" ? 'inputmode="url" autocapitalize="off"' : ""} ${extra || ""}>`;
   }
@@ -1617,6 +2004,7 @@ window.TRIP_DATA = {
         <div class="field"><label for="f-time">${esc(tr("f_time"))}</label><input type="text" id="f-time" value="${esc(dr._time ?? shownTime)}" placeholder="${esc(tr("f_timePh"))}"></div>
         <div class="field"><label for="f-title">${esc(tr("f_title"))}</label><input type="text" id="f-title" value="${esc(dr._title ?? shownTitle)}" required></div>
         <div class="field"><label for="f-desc">${esc(tr("f_desc"))}</label><input type="text" id="f-desc" value="${esc(dr._desc ?? shownDesc)}"></div>
+        <div class="field"><label for="x-warning">${esc(tr("f_warning"))}</label>${inputHtml("x-warning", dr.details.warning || "", "long", "")}</div>
         ${mapField}
         ${fields}
         ${bookingFs}
@@ -1655,6 +2043,8 @@ window.TRIP_DATA = {
       const val = v(`x-${f.k}`); if (val !== undefined) dr.details[f.k] = f.type === "url" ? normUrl(val) : val;
     }
     if (v("x-mapUrl") !== undefined) dr.details.mapUrl = normUrl(v("x-mapUrl"));
+    const w = v("x-warning");
+    if (w !== undefined && w !== (dr.details.warning || "")) { dr.details.warning = w; dr.details.warningPt = ""; }  // 改过后两种语言都显示你写的
     if (v("b-status") !== undefined) {
       dr.booking = { status: v("b-status"), date: v("b-date"), cost: v("b-cost"), currency: (v("b-currency") || "").toUpperCase(), link: normUrl(v("b-link")), note: v("b-note") };
     }
