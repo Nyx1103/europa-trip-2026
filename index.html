@@ -6,7 +6,7 @@
 <title>欧洲之旅 2026</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-  /* 布局：首页三大目的地 + 酒店 / 交通入口；目的地页 = 已选择 / 未选择两组图片卡片；手机优先单列 */
+  /* 布局：首页三大目的地（瑞士内再分三个地区）+ 酒店 / 交通；目的地页 = 「已选择」「备选景点」两个分页；点照片 / 标题看详情 */
   :root {
     --bg: #eef1f2; --surface: #ffffff; --surface-2: #e8ecee; --text: #1b2226; --muted: #5f6b73; --faint: #8a959c;
     --line: #d9dfe2; --accent: #2e5e52; --on-accent: #ffffff; --danger: #b3412f; --ok: #2f8a5c; --warn: #b7791f;
@@ -58,6 +58,16 @@
   /* 首页 */
   .banner { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
   .banner b { color: var(--accent); font-size: 20px; }
+  .cd { border-radius: var(--radius); padding: 14px 16px; margin: 0 0 12px; border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+    background: linear-gradient(120deg, color-mix(in srgb, var(--accent) 14%, var(--surface)), var(--surface) 70%); box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px 18px; flex-wrap: wrap; }
+  .cd-k { font-weight: 700; font-size: 16px; }
+  .cd-f { display: block; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .cd-n { display: flex; gap: 10px; font-variant-numeric: tabular-nums; }
+  .cd-n span { display: flex; align-items: baseline; gap: 2px; }
+  .cd-n b { font-size: 28px; line-height: 1; color: var(--accent); min-width: 1.3em; text-align: right; }
+  .cd-n i { font-style: normal; font-size: 13px; color: var(--muted); }
+  .cd-msg { font-size: 18px; font-weight: 700; color: var(--accent); }
   .dest-grid { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .dest { position: relative; display: block; border: 0; padding: 0; border-radius: var(--radius); overflow: hidden; aspect-ratio: 4 / 5; background: var(--surface-2);
     box-shadow: var(--shadow); text-align: left; color: #fff; width: 100%; }
@@ -68,32 +78,48 @@
   .dest .nm { font-size: 24px; font-weight: 700; margin-top: 4px; }
   .dest .en { font-size: 14px; opacity: .9; }
   .dest .meta { font-size: 13px; opacity: .9; margin-top: 4px; }
+  .dest .covers { font-size: 12px; opacity: .85; margin-top: 2px; }
   .links { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; margin-top: 12px; }
   .link-card { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 14px 16px; text-align: left; min-height: 64px; }
   .link-card .ic { font-size: 24px; }
   .link-card b { display: block; font-size: 16px; }
   .link-card span { font-size: 13px; color: var(--muted); }
+  .small-note { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
 
   /* 目的地页 */
-  .rhead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 0 6px; }
+  .rhead { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 0 0 4px; }
   .rhead h2 { margin: 0; font-size: 24px; }
   .rhead .d { color: var(--muted); font-size: 14px; }
-  .sec-title { font-size: 16px; margin: 22px 0 10px; display: flex; align-items: center; gap: 8px; }
-  .sec-title .n { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .rcovers { color: var(--muted); font-size: 13px; margin: 0 0 10px; }
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; background: var(--surface-2); border-radius: 14px; margin: 12px 0 12px; }
+  .tabs button { border: 0; background: transparent; border-radius: 10px; min-height: 44px; font-size: 15px; font-weight: 600; color: var(--muted); }
+  .tabs button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+  .tabs .n { font-weight: 500; font-size: 13px; margin-left: 4px; }
+  .days { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 8px; margin-bottom: 4px; scrollbar-width: thin; }
+  .days .chip { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+  .days .chip.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .day-h { font-size: 15px; margin: 18px 0 10px; display: flex; align-items: baseline; gap: 8px; }
+  .day-h:first-of-type { margin-top: 6px; }
+  .day-h .n { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .hint { color: var(--muted); font-size: 13px; margin: 0 0 10px; }
   .cards { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .empty { color: var(--muted); font-size: 14px; padding: 14px; border: 1.5px dashed var(--line); border-radius: 12px; text-align: center; }
   .att { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; min-width: 0; }
-  .att.unsel { opacity: .92; }
-  .ph { position: relative; aspect-ratio: 16 / 9; background: var(--surface-2); overflow: hidden; min-height: 0; }
+  .att.flash { animation: flash 1.6s ease; }
+  @keyframes flash { 0%, 40% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: var(--shadow); } }
+  .ph { position: relative; aspect-ratio: 16 / 9; background: var(--surface-2); overflow: hidden; min-height: 0; display: block; width: 100%; border: 0; padding: 0; cursor: pointer; }
   .ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 35%; display: block; }
   .ph .fallback { position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; color: var(--muted);
     background: repeating-linear-gradient(135deg, var(--surface-2), var(--surface-2) 12px, var(--surface) 12px, var(--surface) 24px); }
-  .ph .area { position: absolute; left: 10px; bottom: 10px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 999px; }
+  .ph .area { position: absolute; left: 10px; bottom: 10px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 999px; max-width: calc(100% - 20px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .ph .bk { position: absolute; right: 10px; top: 10px; background: var(--ok); color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 999px; }
-  .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
   .att h3 { margin: 0; font-size: 18px; line-height: 1.3; }
-  .local { font-size: 13px; color: var(--muted); margin-top: -6px; overflow-wrap: anywhere; }
-  dl.facts { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 4px 10px; margin: 0; font-size: 14px; }
+  .tl { border: 0; background: none; padding: 0; text-align: left; font-weight: 700; color: inherit; display: inline-flex; gap: 6px; align-items: baseline; }
+  .tl .go { color: var(--faint); font-size: 14px; font-weight: 400; }
+  .cf { margin: 0; font-size: 13px; padding: 6px 10px; border-radius: 8px; color: var(--danger); background: color-mix(in srgb, var(--danger) 9%, var(--surface)); }
+  .local { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+  dl.facts { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 6px 10px; margin: 0; font-size: 14px; }
   dl.facts dt { color: var(--muted); }
   dl.facts dd { margin: 0; overflow-wrap: anywhere; }
   .tbc { color: var(--faint); }
@@ -111,7 +137,7 @@
   .tg input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); flex-shrink: 0; }
   .tg.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); font-weight: 600; }
   details.more { border-top: 1px solid var(--line); padding-top: 6px; font-size: 14px; }
-  details.more summary { cursor: pointer; color: var(--muted); min-height: 36px; display: flex; align-items: center; }
+  details.more summary { cursor: pointer; color: var(--muted); min-height: 40px; display: flex; align-items: center; }
   details.more .in { display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
   details.more p { margin: 0; overflow-wrap: anywhere; }
   .credit { font-size: 11px; color: var(--faint); }
@@ -123,30 +149,48 @@
   .btn.ghost-danger { color: var(--danger); }
   .add-btn { width: 100%; margin-top: 14px; padding: 13px; border-radius: 12px; border: 1.5px dashed var(--line); background: transparent; color: var(--muted); font-size: 15px; }
 
+  /* 详情 */
+  .dt { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+  .dt .ph { border-radius: 12px; cursor: default; }
+  .dt h4 { margin: 0 0 6px; font-size: 15px; }
+  .route { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; background: color-mix(in srgb, var(--accent) 4%, var(--surface)); }
+  .route .small { font-size: 12px; color: var(--muted); }
+  .linkrow { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; }
+
   /* 酒店 / 交通 */
+  .grp-title { font-size: 16px; margin: 20px 0 10px; color: var(--muted); display: flex; gap: 8px; align-items: baseline; }
+  .grp-title:first-of-type { margin-top: 6px; }
   .list { display: flex; flex-direction: column; gap: 12px; }
-  .item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .item { background: var(--surface); border: 1px solid var(--line); border-left-width: 5px; border-radius: var(--radius); padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .item.ok { border-left-color: var(--ok); }
+  .item.no { border-left-color: var(--warn); background: color-mix(in srgb, var(--warn) 6%, var(--surface)); }
+  .item.na { border-left-color: var(--faint); }
   .item .hd { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
   .item h3 { margin: 0; font-size: 17px; overflow-wrap: anywhere; }
   .item .city { font-size: 13px; color: var(--muted); }
   .item .when { font-size: 14px; font-variant-numeric: tabular-nums; }
-  .item .route { font-size: 15px; font-weight: 600; }
-  .item .times { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .item .route2 { font-size: 15px; font-weight: 600; }
+  .item .times { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
   .item .note { font-size: 13px; color: var(--muted); }
-  .badge { font-size: 12px; padding: 2px 9px; border-radius: 999px; white-space: nowrap; border: 1px solid currentColor; }
-  .badge.ok { color: var(--ok); } .badge.no { color: var(--warn); }
+  .legs { display: flex; flex-direction: column; gap: 4px; }
+  .leg { font-size: 14px; font-variant-numeric: tabular-nums; padding: 6px 10px; border-radius: 8px; background: var(--surface-2); overflow-wrap: anywhere; }
+  .leg b { margin-right: 6px; }
+  .badge { font-size: 12px; padding: 2px 9px; border-radius: 999px; white-space: nowrap; border: 1px solid currentColor; font-weight: 600; }
+  .badge.ok { color: var(--ok); } .badge.no { color: var(--warn); } .badge.na { color: var(--faint); }
   .datebox { font-size: 13px; font-weight: 700; color: var(--accent); }
 
-  /* 编辑面板（手机底部弹出 / 电脑右侧） */
+  /* 面板（手机底部弹出 / 电脑右侧） */
   .sheet-bg { position: fixed; inset: 0; background: var(--scrim); z-index: 50; display: flex; align-items: flex-end; justify-content: center; }
   .sheet { background: var(--surface); width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; overscroll-behavior: contain; border-radius: 20px 20px 0 0;
     padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
   @media (min-width: 900px) { .sheet-bg { justify-content: flex-end; align-items: stretch; } .sheet { max-width: 460px; max-height: none; height: 100%; border-radius: 0; padding: 0 24px 28px; } }
-  .sheet-head { position: sticky; top: 0; background: var(--surface); z-index: 2; padding: 12px 0 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+  .sheet-head { position: sticky; top: 0; background: var(--surface); z-index: 2; padding: 12px 0 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); }
   .sheet-head b { font-size: 16px; }
-  .close-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font-size: 20px; }
+  .close-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); font-size: 20px; flex-shrink: 0; }
   .form { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
   .form label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .form .legbox { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .form .legbox b { grid-column: 1 / -1; font-size: 13px; }
   .form-actions { display: flex; gap: 8px; justify-content: space-between; position: sticky; bottom: 0; background: var(--surface); padding: 10px 0 2px; flex-wrap: wrap; }
 
   .modal-bg { position: fixed; inset: 0; background: var(--scrim); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -164,7 +208,7 @@
     .dest { aspect-ratio: 16 / 8; }
     .cards { grid-template-columns: 1fr; }
   }
-  @media (max-width: 420px) { .links { grid-template-columns: 1fr; } .top h1 { font-size: 21px; } }
+  @media (max-width: 420px) { .links { grid-template-columns: 1fr; } .top h1 { font-size: 21px; } .cd-n b { font-size: 24px; } }
 </style>
 </head>
 <body>
@@ -181,7 +225,7 @@
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
 <script>
-// 欧洲之旅 2026 · 第四版数据（以景点为中心）
+// 欧洲之旅 2026 · 第五版数据（以景点为中心；瑞士分三个地区；含中国行程的酒店与交通）
 // 资料复用自旧版（官方核查 2026-11-06/07，见 资料/第二阶段资料核查记录.md）；无法证实的写「待确认」。
 // 本文件只含公开行程信息：不含订单号、PIN、票号、证件等任何私人信息。
 window.TRIP_DATA = (function () {
@@ -290,7 +334,7 @@ const A = [
     src: "https://www.paris-arc-de-triomphe.fr/en/visit/practical-information（" + C + "）", from: ["o5-9"] },
   { id: "par-orsay", region: "par", area: "巴黎 · 7 区", name: "奥赛博物馆", namePt: "Museu d'Orsay", local: "Musée d'Orsay",
     sel: false, hours: TBC, price: TBC, last: TBC, map: M("Musée d'Orsay Paris"), web: "https://www.musee-orsay.fr/en" },
-  { id: "par-sacrecoeur", region: "par", area: "巴黎 · 蒙马特", name: "圣心大教堂（蒙马特）", namePt: "Sacré-Cœur (Montmartre)", local: "Basilique du Sacré-Cœur de Montmartre",
+  { id: "par-sacrecoeur", region: "par", area: "巴黎 · 18 区 · 蒙马特", name: "蒙马特高地与圣心大教堂", namePt: "Montmartre e Sacré-Cœur", local: "Basilique du Sacré-Cœur de Montmartre",
     sel: false, hours: TBC, price: TBC, last: TBC, map: M("Basilique du Sacré-Cœur de Montmartre Paris") },
   { id: "par-saintechapelle", region: "par", area: "巴黎 · 西岱岛", name: "圣礼拜堂", namePt: "Sainte-Chapelle", local: "Sainte-Chapelle",
     sel: false, hours: TBC, price: TBC, last: TBC, map: M("Sainte-Chapelle Paris") },
@@ -299,7 +343,7 @@ const A = [
   { id: "ch-grindelwald", region: "ch", area: "Grindelwald", name: "格林德瓦小镇", namePt: "Vila de Grindelwald", local: "Grindelwald",
     sel: true, date: "2026-12-24", time: "",
     hours: "全天", price: "免费", last: "", map: M("Grindelwald Bahnhof"),
-    notes: "原计划 15:30 散步；TGV 13:24 才到巴塞尔，实际到格林德瓦的时间待确认。", from: ["o6-8"] },
+    notes: "TGV 13:24 到 Basel SBB 后，SBB 时刻表参考：Basel 13:58（ICE）→ Interlaken Ost → Grindelwald 16:40（换乘 1 次）；赶不上可坐 14:58 或 15:30 的车，约 17:40 / 18:10 到。原计划 15:30 散步来不及。（SBB 时刻表，查询 2026-11-15）", from: ["o6-8"] },
   { id: "ch-lauterbrunnen", region: "ch", area: "Lauterbrunnen", name: "劳特布伦嫩山谷", namePt: "Vale de Lauterbrunnen", local: "Lauterbrunnen",
     sel: true, date: "2026-12-25", time: "09:30", hours: "全天", price: "镇区散步免费", last: "", map: M("Lauterbrunnen Bahnhof"), from: ["o7-3"] },
   { id: "ch-wengen", region: "ch", area: "Wengen", name: "文根", namePt: "Wengen", local: "Wengen",
@@ -327,13 +371,13 @@ const A = [
     warn: "16:20–16:50 看日落能否实现取决于末班下山列车（待确认）。",
     notes: "路线：Grindelwald Terminal（Grundstrasse 54）→ 艾格快线 → Eigergletscher → 少女峰铁路，约 45 分钟。冬季座位预约非强制，繁忙时建议。实时摄像头：https://www.jungfrau.ch/en-gb/live/webcams/jungfraujoch-top-of-europe/",
     src: "https://www.jungfrau.ch/en-gb/jungfraujoch-top-of-europe/（" + C + "）", from: ["o9-4"] },
-  { id: "ch-oeschinensee", region: "ch", area: "Kandersteg", name: "厄希嫩湖", namePt: "Lago Oeschinen", local: "Oeschinensee",
+  { id: "ch-oeschinensee", region: "ch", area: "Kandersteg（12/28 换酒店途中）", name: "厄希嫩湖", namePt: "Lago Oeschinen", local: "Oeschinensee",
     sel: true, date: "2026-12-28", time: "11:30",
     hours: "冬季缆车 2026/12/5–2027/3/7，每天 09:00–17:00", price: "2026/27 票价" + TBC + "（上季往返 CHF 32，通票 CHF 16）",
     last: "缆车 17:00 结束", map: M("Oeschinensee Gondelbahn Talstation Kandersteg"), summit: M("Oeschinensee"),
     ticket: "https://www.oeschinensee.ch/en/tarife-fahrplan/", web: "https://www.oeschinensee.ch/en/",
     warn: "湖面能否行走以官方当日公告为准；滑冰通常不可能。",
-    notes: "山下站 Oeschistrasse 50，从 Kandersteg 火车站步行 10–15 分钟。山顶站到湖边冬季步道约 25–30 分钟，需防滑鞋。Kandersteg 站有储物柜（大柜 CHF 8/24 小时，不保证有空柜），缆车站也有储物柜。当晚住 Visp。",
+    notes: "位于 Kandersteg（不在采尔马特），放在本板块是因为适合 12/28 从格林德瓦去 Visp 途中顺路参观。山下站 Oeschistrasse 50，从 Kandersteg 火车站步行 10–15 分钟。山顶站到湖边冬季步道约 25–30 分钟，需防滑鞋。Kandersteg 站有储物柜（大柜 CHF 8/24 小时，不保证有空柜），缆车站也有储物柜。当晚住 Visp。",
     src: "https://www.oeschinensee.ch/tarife-fahrplan/ · https://www.oeschinensee.ch/winterwandern/（" + C + "）", from: ["o10-6"] },
   { id: "ch-gornergrat", region: "ch", area: "Zermatt", name: "戈尔内格拉特（看马特洪峰）", namePt: "Gornergrat", local: "Gornergrat",
     sel: true, date: "2026-12-29", time: "08:30",
@@ -341,11 +385,11 @@ const A = [
     last: "12/29 末班下山" + TBC + "（上一季有 17:18、18:18 等班次）",
     map: M("Gornergrat Bahn Zermatt"), summit: M("Gornergrat"),
     ticket: "https://www.gornergrat.ch/en/products/ticket", web: "https://www.gornergrat.ch/en/",
-    warn: "酒店在 Visp：从 Visp 往返 Zermatt 的时间和回程末班车待确认。",
+    warn: "酒店在 Visp：Visp → Zermatt 火车约 1 小时 11 分钟；12/29 Zermatt 回 Visp 末班车 22:12（23:14 到，SBB 时刻表）。",
     notes: "Gornergrat 铁路站在 Zermatt 火车站正对面。价格来自官方 2026/27 价目表（11 月–4 月）。17:10 后下山尚未确认可行。",
     src: "https://www.gornergrat.ch/en/pages/timetable-gornergrat-bahn · 官方价目表 2026/27（" + C + "）", from: ["o11-4"] },
   { id: "ch-zermatt", region: "ch", area: "Zermatt", name: "采尔马特小镇", namePt: "Vila de Zermatt", local: "Zermatt",
-    sel: true, date: "2026-12-29", time: "18:00", hours: "全天", price: "免费", last: "回 Visp 的末班车" + TBC,
+    sel: true, date: "2026-12-29", time: "18:00", hours: "全天", price: "免费", last: "12/29 回 Visp 末班车 22:12 → 23:14 到（SBB 时刻表，查询 2026-11-15）",
     map: M("Zermatt Bahnhof"), notes: "天气晴朗时可拍马特洪峰夜景。酒店在 Visp，注意回程时间。", from: ["o11-9"] },
   { id: "ch-kapellbruecke", region: "ch", area: "Luzern", name: "卡佩尔廊桥与卢塞恩老城", namePt: "Kapellbrücke e centro de Lucerna", local: "Kapellbrücke · Altstadt Luzern",
     sel: true, date: "2026-12-30", time: "14:00", hours: "全天", price: "免费", last: "",
@@ -353,47 +397,172 @@ const A = [
     notes: "12/30 住苏黎世机场酒店，是否顺路在卢塞恩停留请确认。", from: ["o12-5", "o12-6"] },
   { id: "ch-lakeluzern", region: "ch", area: "Luzern", name: "卢塞恩湖畔", namePt: "Lago de Lucerna", local: "Vierwaldstättersee",
     sel: true, date: "2026-12-30", time: "15:40", hours: "全天", price: "免费", last: "", map: M("Luzern Bahnhof"), from: ["o12-7"] },
-  { id: "ch-pilatus", region: "ch", area: "Luzern", name: "皮拉图斯山", namePt: "Monte Pilatus", local: "Pilatus",
-    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Pilatus Kulm"), web: "https://www.pilatus.ch/en/" },
-  { id: "ch-rigi", region: "ch", area: "Luzern", name: "瑞吉山", namePt: "Monte Rigi", local: "Rigi",
-    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Rigi Kulm"), web: "https://www.rigi.ch/en" },
+  { id: "ch-pilatus", region: "ch", area: "Luzern · Kriens", name: "皮拉图斯山", namePt: "Monte Pilatus", local: "Pilatus",
+    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Pilatus-Bahnen Talstation Kriens"), summit: M("Pilatus Kulm"), web: "https://www.pilatus.ch/en/",
+    warn: "冬季世界最陡齿轨铁路（Alpnachstad 一侧）停运，冬季从 Kriens 乘缆车上山。",
+    notes: "SBB 12 月时刻表给出的路线是 Kriens → Fräkmüntegg → Pilatus Kulm（缆车）。齿轨铁路冬季停运属常规季节安排，具体日期以官网为准。" },
+  { id: "ch-rigi", region: "ch", area: "Arth-Goldau / Vitznau", name: "瑞吉山", namePt: "Monte Rigi", local: "Rigi",
+    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Bahnhof Arth-Goldau"), summit: M("Rigi Kulm"), web: "https://www.rigi.ch/en",
+    notes: "SBB 12 月时刻表有 Arth-Goldau → Rigi Kulm 登山铁路班次（冬季运营）；也可从 Vitznau 上山。" },
   { id: "ch-mgp", region: "ch", area: "Zermatt", name: "马特洪峰冰川天堂", namePt: "Matterhorn Glacier Paradise", local: "Matterhorn Glacier Paradise",
     sel: false, hours: "冬季缆车约 09:00–16:00（2026/27 时刻表，Trockener Steg → 山顶段）", price: TBC, last: "最后下山约 16:15（官方 2026/27 冬季时刻表）",
     map: M("Matterhorn Express Talstation Zermatt"), summit: M("Matterhorn Glacier Paradise"), web: "https://www.matterhornparadise.ch/en",
     src: "Zermatt Bergbahnen 2026/27 冬季时刻表（核查 2026-11-06）" },
-  { id: "ch-schilthorn", region: "ch", area: "Mürren", name: "雪朗峰", namePt: "Schilthorn", local: "Schilthorn – Piz Gloria",
+  { id: "ch-schilthorn", region: "ch", area: "Mürren · Lauterbrunnen 山谷", name: "雪朗峰", namePt: "Schilthorn", local: "Schilthorn – Piz Gloria",
     sel: false, hours: TBC, price: TBC, last: TBC, map: M("Schilthornbahn Stechelberg"), summit: M("Schilthorn Piz Gloria"), web: "https://schilthorn.ch/en" }
 ];
 
-const HOTELS = [
-  { id: "h-bcn", city: "巴塞罗那", cityPt: "Barcelona", name: "Hotel Catalonia Atenas", in: "2026-12-19", out: "2026-12-22", checkin: "15:00 后", checkout: "12:00 前", map: M("Hotel Catalonia Atenas Barcelona") },
-  { id: "h-par", city: "巴黎", cityPt: "Paris", name: "ibis Paris Tour Eiffel Cambronne 15ème", in: "2026-12-22", out: "2026-12-24", checkin: "14:00 后", checkout: "12:00 前", map: M("ibis Paris Tour Eiffel Cambronne 15eme") },
-  { id: "h-grw", city: "格林德瓦", cityPt: "Grindelwald", name: "Hotel Fiescherblick", in: "2026-12-24", out: "2026-12-28", checkin: "15:00 后", checkout: "07:30–11:00", map: M("Hotel Fiescherblick Grindelwald") },
-  { id: "h-vsp", city: "Visp（不是 Zermatt）", cityPt: "Visp (não Zermatt)", name: "Baxter Hotel", in: "2026-12-28", out: "2026-12-30", checkin: "14:00 后", checkout: "07:00–11:00", map: M("Baxter Hotel Visp") },
-  { id: "h-zrh", city: "苏黎世机场", cityPt: "Aeroporto de Zurique", name: "Hyatt Place Zurich Airport the Circle", in: "2026-12-30", out: "2026-12-31", checkin: "15:00 后", checkout: "12:00 前", map: M("Hyatt Place Zurich Airport the Circle") }
+const HOTELS = [   // grp: eu 欧洲 / cn 中国；booked: 默认预订状态（欧洲 5 家凭证已确认）；noBook: 无需预订
+  { id: "h-bcn", grp: "eu", booked: true, city: "巴塞罗那", cityPt: "Barcelona", name: "Hotel Catalonia Atenas", in: "2026-12-19", out: "2026-12-22", checkin: "15:00 后", checkout: "12:00 前", map: M("Hotel Catalonia Atenas Barcelona") },
+  { id: "h-par", grp: "eu", booked: true, city: "巴黎", cityPt: "Paris", name: "ibis Paris Tour Eiffel Cambronne 15ème", in: "2026-12-22", out: "2026-12-24", checkin: "14:00 后", checkout: "12:00 前", map: M("ibis Paris Tour Eiffel Cambronne 15eme") },
+  { id: "h-grw", grp: "eu", booked: true, city: "格林德瓦", cityPt: "Grindelwald", name: "Hotel Fiescherblick", toStation: "酒店步行到 Grindelwald 火车站约 16 分钟（步行路线约 1.2 公里）", in: "2026-12-24", out: "2026-12-28", checkin: "15:00 后", checkout: "07:30–11:00", map: M("Hotel Fiescherblick Grindelwald") },
+  { id: "h-vsp", grp: "eu", booked: true, city: "Visp（不是 Zermatt）", cityPt: "Visp (não Zermatt)", name: "Baxter Hotel", toStation: "酒店步行到 Visp 火车站约 2 分钟", in: "2026-12-28", out: "2026-12-30", checkin: "14:00 后", checkout: "07:00–11:00", map: M("Baxter Hotel Visp") },
+  { id: "h-zrh", grp: "eu", booked: true, city: "苏黎世机场", cityPt: "Aeroporto de Zurique", name: "Hyatt Place Zurich Airport the Circle", toStation: "酒店步行到 Zürich Flughafen 火车站约 6 分钟", in: "2026-12-30", out: "2026-12-31", checkin: "15:00 后", checkout: "12:00 前", map: M("Hyatt Place Zurich Airport the Circle") },
+  { id: "h-hkg", grp: "cn", booked: false, city: "香港", cityPt: "Hong Kong", name: "", address: "", in: "2026-12-11", out: "2026-12-13", checkin: "", checkout: "", map: "" },
+  { id: "h-szx", grp: "cn", booked: false, city: "深圳", cityPt: "Shenzhen", name: "", address: "", in: "2026-12-13", out: "2026-12-15", checkin: "", checkout: "", map: "" },
+  { id: "h-ptn", grp: "cn", booked: false, noBook: true, city: "平潭", cityPt: "Pingtan", name: "亲戚家", namePt: "Casa de parentes", address: "", in: "2026-12-15", out: "2026-12-16", checkin: "", checkout: "", map: "", note: "住亲戚家，无需预订。" }
 ];
 
-const TRANSPORT = [
-  { id: "t-mu249", date: "2026-12-19", purpose: "上海 → 巴塞罗那", purposePt: "Xangai → Barcelona", no: "MU249",
+const TRANSPORT = [   // grp: eu / cn；booked: 默认购票状态（有凭证的才为 true）；legs: 同一趟中转行程的各段；sortKey: 日期未定时用来排序
+  { id: "t-mu249", grp: "eu", booked: true, date: "2026-12-19", purpose: "上海 → 巴塞罗那", purposePt: "Xangai → Barcelona", no: "MU249",
     from: "上海浦东 PVG", to: "巴塞罗那 BCN", dep: "01:20", arr: "07:40" },
-  { id: "t-to4751", date: "2026-12-22", purpose: "巴塞罗那 → 巴黎", purposePt: "Barcelona → Paris", no: "TO4751",
+  { id: "t-to4751", grp: "eu", booked: true, date: "2026-12-22", purpose: "巴塞罗那 → 巴黎", purposePt: "Barcelona → Paris", no: "TO4751",
     from: "Barcelona BCN T2", to: "Paris Orly ORY T3", dep: "09:25", arr: "11:25",
     note: "每人含一件 25kg 托运行李；免费随身物品有限制，以机票凭证为准。" },
-  { id: "t-tgv9211", date: "2026-12-24", purpose: "巴黎 → 巴塞尔", purposePt: "Paris → Basileia", no: "TGV Lyria 9211",
+  { id: "t-tgv9211", grp: "eu", booked: true, date: "2026-12-24", purpose: "巴黎 → 巴塞尔", purposePt: "Paris → Basileia", no: "TGV Lyria 9211",
     from: "Paris Gare de Lyon", to: "Basel SBB", dep: "10:22", arr: "13:24" },
-  { id: "t-stp", date: "2026-12-24", dateEnd: "2026-12-31", purpose: "瑞士境内交通（8 天通票）", purposePt: "Transporte na Suíça (passe de 8 dias)", no: "Swiss Travel Pass",
+  { id: "t-stp", grp: "eu", booked: true, date: "2026-12-24", dateEnd: "2026-12-31", purpose: "瑞士境内交通（8 天通票）", purposePt: "Transporte na Suíça (passe de 8 dias)", no: "Swiss Travel Pass",
     from: "瑞士全境", to: "", dep: "", arr: "", note: "有效期 2026/12/24–12/31。普通铁路由通票覆盖；山区缆车 / 登山铁路另付费，在对应景点卡片里勾选是否已购票。" },
-  { id: "t-mu256", date: "2026-12-31", purpose: "苏黎世 → 上海", purposePt: "Zurique → Xangai", no: "MU256",
-    from: "Zurich ZRH", to: "上海浦东 PVG", dep: "13:50", arr: "次日 08:00" }
+  { id: "t-mu256", grp: "eu", booked: true, date: "2026-12-31", purpose: "苏黎世 → 上海", purposePt: "Zurique → Xangai", no: "MU256",
+    from: "Zurich ZRH", to: "上海浦东 PVG", dep: "13:50", arr: "次日 08:00" },
+  { id: "t-qr-gru-hkg", grp: "cn", booked: true, date: "2026-12-10", purpose: "圣保罗 → 香港（经多哈转机）", purposePt: "São Paulo → Hong Kong (via Doha)", no: "QR786 + QR816",
+    from: "São Paulo GRU", to: "Hong Kong HKG", dep: "11:00", arr: "12/11 21:40", tz: "-03:00", tzArr: "+08:00", home: true,
+    legs: [
+      { date: "2026-12-10", no: "QR786", from: "São Paulo GRU", to: "Doha DOH", dep: "11:00", arr: "12/11 06:30" },
+      { date: "2026-12-11", no: "QR816", from: "Doha DOH", to: "Hong Kong HKG", dep: "09:10", arr: "21:40" }] },
+  { id: "t-hk-sz", grp: "cn", booked: false, date: "2026-12-13", purpose: "香港 → 深圳", purposePt: "Hong Kong → Shenzhen", mode: "待确定", no: "", from: "", to: "", dep: "", arr: "", pending: "待安排 / 待购票" },
+  { id: "t-sz-pt", grp: "cn", booked: false, date: "2026-12-15", purpose: "深圳 → 平潭", purposePt: "Shenzhen → Pingtan", mode: "预计火车，具体待确定", no: "", from: "", to: "", dep: "", arr: "" },
+  { id: "t-mu5600", grp: "cn", booked: true, date: "2026-12-18", purpose: "福州 → 上海", purposePt: "Fuzhou → Xangai", no: "MU5600",
+    from: "福州长乐 FOC T1", to: "上海浦东 PVG T1", dep: "13:25", arr: "14:50" },
+  { id: "t-sh-pt", grp: "cn", booked: false, date: "", sortKey: "2027-01", purpose: "上海 → 平潭", purposePt: "Xangai → Pingtan", mode: "预计火车，具体待确定", no: "", from: "", to: "", dep: "", arr: "",
+    note: "日期待确定（预计 2027 年 1 月，从欧洲回到上海之后）。" },
+  { id: "t-qr-pvg-gru", grp: "cn", booked: true, date: "2027-02-14", purpose: "上海 → 圣保罗（经多哈转机）· 返回巴西", purposePt: "Xangai → São Paulo (via Doha) · volta ao Brasil", no: "QR871 + QR773",
+    from: "上海浦东 PVG", to: "São Paulo GRU", dep: "23:35", arr: "2/15 16:55",
+    note: "这是之后返回巴西的机票，和 12/31 从苏黎世回上海的 MU256 不是同一程。",
+    legs: [
+      { date: "2027-02-14", no: "QR871", from: "上海浦东 PVG", to: "Doha DOH", dep: "23:35", arr: "2/15 05:05" },
+      { date: "2027-02-15", no: "QR773", from: "Doha DOH", to: "São Paulo GRU", dep: "07:50", arr: "16:55" }] }
 ];
 
 const REGIONS = [
-  { id: "bcn", flag: "🇪🇸", name: "巴塞罗那", namePt: "Barcelona", en: "Barcelona", cover: "bcn-sagrada", dates: "12/19 – 12/22" },
-  { id: "par", flag: "🇫🇷", name: "巴黎", namePt: "Paris", en: "Paris", cover: "par-eiffel", dates: "12/22 – 12/24" },
-  { id: "ch", flag: "🇨🇭", name: "瑞士", namePt: "Suíça", en: "Switzerland", cover: "cover-ch", dates: "12/24 – 12/31" }
+  { id: "bcn", flag: "🇪🇸", name: "巴塞罗那", namePt: "Barcelona", en: "Barcelona", cover: "bcn-sagrada", dates: "12/19 – 12/22", hotel: "h-bcn" },
+  { id: "par", flag: "🇫🇷", name: "巴黎", namePt: "Paris", en: "Paris", cover: "par-eiffel", dates: "12/22 – 12/24", hotel: "h-par" },
+  { id: "ch", flag: "🇨🇭", name: "瑞士", namePt: "Suíça", en: "Switzerland", cover: "cover-ch", dates: "12/24 – 12/31",
+    subs: [
+      { id: "grw", name: "格林德瓦", namePt: "Grindelwald", en: "Grindelwald", cover: "ch-grindelwald", dates: "12/24 – 12/28", hotel: "h-grw",
+        covers: "格林德瓦 · 少女峰地区 · 劳特布伦嫩 · 文根", coversPt: "Grindelwald · Jungfrau · Lauterbrunnen · Wengen" },
+      { id: "zer", name: "采尔马特 / Visp", namePt: "Zermatt / Visp", en: "Zermatt / Visp", cover: "ch-zermatt", dates: "12/28 – 12/30", hotel: "h-vsp",
+        covers: "采尔马特 · 马特洪峰 · Visp 周边 · 顺路的 Kandersteg 厄希嫩湖", coversPt: "Zermatt · Matterhorn · Visp · Oeschinensee (no caminho)" },
+      { id: "zrh", name: "苏黎世", namePt: "Zurique", en: "Zürich", cover: "ch-zurichold", dates: "12/30 – 12/31", hotel: "h-zrh",
+        covers: "苏黎世 · 卢塞恩等周边", coversPt: "Zurique · Lucerna e arredores" }] }
 ];
 
-return { dataRev: 4, title: "欧洲之旅 2026", titlePt: "Viagem à Europa 2026", regions: REGIONS, attractions: A, hotels: HOTELS, transport: TRANSPORT };
+
+// ---------------- 第五版新增备选景点（默认未选择；只写确定的信息，其余「待确认」）----------------
+const NOTE5 = "（第五版新增；营业时间与票价未逐项核实）";
+A.push(
+  { id: "bcn-santpau", region: "bcn", area: "巴塞罗那", name: "圣保罗医院现代主义建筑群", namePt: "Recinto Modernista de Sant Pau", local: "Recinte Modernista de Sant Pau",
+    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Recinte Modernista de Sant Pau Barcelona"), web: "https://www.santpaubarcelona.org/en",
+    notes: "离酒店最近的景点之一，可和圣家堂同日安排（两者之间是 Gaudí 大道）。" + NOTE5 },
+  { id: "bcn-palau", region: "bcn", area: "巴塞罗那 · 老城", name: "加泰罗尼亚音乐宫", namePt: "Palau de la Música Catalana", local: "Palau de la Música Catalana",
+    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Palau de la Música Catalana Barcelona"), web: "https://www.palaumusica.cat/en",
+    notes: "内部需购票参观（参观方式和时段待确认），也可以买演出票进入。" + NOTE5 },
+  { id: "bcn-mnac", region: "bcn", area: "巴塞罗那 · 蒙特惠奇山", name: "加泰罗尼亚国家艺术博物馆", namePt: "MNAC", local: "Museu Nacional d'Art de Catalunya",
+    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Museu Nacional d'Art de Catalunya Barcelona"), web: "https://www.museunacional.cat/en",
+    notes: "在蒙特惠奇山，可以和 12/20 的蒙特惠奇行程合并；门前台阶可看城市全景（免费）。" + NOTE5 },
+  { id: "par-alexandre", region: "par", area: "巴黎 · 7 / 8 区", name: "亚历山大三世桥", namePt: "Ponte Alexandre III", local: "Pont Alexandre III",
+    sel: false, hours: "全天", price: "免费", last: "", map: M("Pont Alexandre III Paris"),
+    notes: "在荣军院和大皇宫之间，可以和香榭丽舍、塞纳河散步连在一起。" },
+  { id: "par-cruise", region: "par", area: "巴黎 · 塞纳河", name: "塞纳河游船", namePt: "Cruzeiro no Sena", local: "Croisière sur la Seine",
+    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Port de la Bourdonnais Paris"),
+    notes: "多家公司运营（如 Bateaux Parisiens、Bateaux Mouches），码头、班次和票价以所选公司为准。导航到离酒店较近的铁塔脚下码头 Port de la Bourdonnais。" },
+  // 格林德瓦地区
+  { id: "ch-maennlichen", region: "ch", area: "Grindelwald / Wengen 之间", name: "曼利申", namePt: "Männlichen", local: "Männlichen",
+    sel: false, hours: "冬季缆车运营日期与时段" + TBC, price: TBC, last: "末班下山" + TBC, map: M("Grindelwald Terminal"), summit: M("Männlichen Bergstation"), web: "https://maennlichen.ch/en",
+    notes: "从 Grindelwald Terminal 乘缆车约 20 分钟（SBB 12 月时刻表有班次）。冬季是滑雪区；去 Kleine Scheidegg 的冬季步道是否开放以当日公告为准。" },
+  { id: "ch-muerren", region: "ch", area: "Lauterbrunnen 山谷", name: "米伦", namePt: "Mürren", local: "Mürren",
+    sel: false, hours: "全天（无车小镇）", price: "镇区免费；缆车和火车费用" + TBC, last: "回程末班" + TBC, map: M("Luftseilbahn Lauterbrunnen Grütschalp"),
+    notes: "从 Lauterbrunnen 乘缆车到 Grütschalp，再换小火车到 Mürren（SBB 12 月时刻表有班次）。也是去雪朗峰的中途站。" },
+  { id: "ch-staubbach", region: "ch", area: "Lauterbrunnen", name: "施陶河瀑布", namePt: "Cachoeira Staubbach", local: "Staubbachfall",
+    sel: false, hours: "在 Lauterbrunnen 镇上全年可远观", price: "免费", last: "", map: M("Staubbachfall Lauterbrunnen"),
+    warn: "瀑布后面的步道通常只在夏季开放，冬季一般只能在镇上远观。",
+    notes: "可以和劳特布伦嫩山谷同一天安排。步道开放时间以当地公告为准。" },
+  { id: "ch-eigergletscher", region: "ch", area: "Grindelwald · 少女峰路线中途", name: "艾格冰川站", namePt: "Eigergletscher", local: "Eigergletscher",
+    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Grindelwald Terminal"), summit: M("Eigergletscher station"),
+    notes: "艾格快线缆车的山上站，也是去少女峰的换乘站（Grindelwald Terminal 出发约 18 分钟）。去少女峰时可以顺路停留，一般不用单独安排。" },
+  // 采尔马特 / Visp 地区
+  { id: "ch-sunnegga", region: "ch", area: "Zermatt", name: "苏内加观景台", namePt: "Sunnegga", local: "Sunnegga",
+    sel: false, hours: TBC, price: TBC, last: "末班下山" + TBC, map: M("Sunnegga Express Talstation Zermatt"), summit: M("Sunnegga Zermatt"), web: "https://www.matterhornparadise.ch/en",
+    notes: "从 Zermatt 镇上乘地下缆索铁路约 5 分钟上山（SBB 12 月时刻表有班次）。冬季是滑雪区，看马特洪峰的角度和戈尔内格拉特不同。" },
+  { id: "ch-schwarzsee", region: "ch", area: "Zermatt", name: "黑湖", namePt: "Schwarzsee (Zermatt)", local: "Schwarzsee",
+    sel: false, hours: TBC, price: TBC, last: "末班下山" + TBC, map: M("Matterhorn Express Talstation Zermatt"), summit: M("Schwarzsee Zermatt"), web: "https://www.matterhornparadise.ch/en",
+    warn: "冬季湖面结冰积雪，周围是滑雪区；能否走到湖边小教堂以现场情况为准。",
+    notes: "乘 Matterhorn Express 缆车经 Furi 到 Schwarzsee（SBB 12 月时刻表有班次）。" },
+  { id: "ch-riffelsee", region: "ch", area: "Zermatt · Rotenboden 站", name: "利菲尔湖", namePt: "Riffelsee", local: "Riffelsee",
+    sel: false, hours: TBC, price: "戈尔内格拉特铁路车票（到 Rotenboden 站）", last: TBC, map: M("Rotenboden Zermatt"), summit: M("Riffelsee"),
+    warn: "冬季湖面结冰积雪，看不到马特洪峰倒影；从 Rotenboden 站到湖边的冬季步道是否开放待确认。",
+    notes: "在戈尔内格拉特铁路 Rotenboden 站附近，可以和戈尔内格拉特同一天。" },
+  { id: "ch-blausee", region: "ch", area: "Kandergrund（12/28 换酒店途中）", name: "蓝湖", namePt: "Lago Azul (Blausee)", local: "Blausee",
+    sel: false, hours: "冬季开放情况" + TBC, price: TBC, last: TBC, map: M("Blausee Kandergrund"),
+    notes: "在 Frutigen 和 Kandersteg 之间（230 路公交），和厄希嫩湖在同一条线上，适合 12/28 去 Visp 途中顺路。" },
+  // 苏黎世及周边
+  { id: "ch-zurichold", region: "ch", area: "Zürich", name: "苏黎世老城", namePt: "Centro antigo de Zurique", local: "Altstadt Zürich",
+    sel: false, hours: "街区全天开放", price: "免费", last: "", map: M("Grossmünster Zürich"),
+    notes: "大教堂、圣母大教堂、利马特河两岸；从 Zürich HB 步行可到。" },
+  { id: "ch-lindenhof", region: "ch", area: "Zürich · 老城", name: "林登霍夫", namePt: "Lindenhof", local: "Lindenhof",
+    sel: false, hours: "全天", price: "免费", last: "", map: M("Lindenhof Zürich"),
+    notes: "老城里的小山丘，俯瞰利马特河和老城，离 Zürich HB 步行很近。" },
+  { id: "ch-uetliberg", region: "ch", area: "Zürich", name: "于特利山", namePt: "Uetliberg", local: "Uetliberg",
+    sel: false, hours: "全天", price: "观景免费；S10 车费" + TBC, last: "回程末班" + TBC, map: M("Bahnhof Uetliberg"),
+    notes: "从 Zürich HB 乘 S10 约 20 分钟到山上车站（SBB 12 月时刻表有班次），再步行到观景塔。冬季山上可能有雪、路面结冰。" },
+  { id: "ch-lakezurich", region: "ch", area: "Zürich", name: "苏黎世湖", namePt: "Lago de Zurique", local: "Zürichsee",
+    sel: false, hours: "湖边全天", price: "散步免费；游船" + TBC, last: "", map: M("Bürkliplatz Zürich"),
+    notes: "Bürkliplatz 一带湖边散步；冬季游船班次" + TBC + "。" },
+  { id: "ch-lindt", region: "ch", area: "Kilchberg", name: "瑞士莲巧克力之家", namePt: "Lindt Home of Chocolate", local: "Lindt Home of Chocolate",
+    sel: false, hours: TBC, price: TBC, last: TBC, map: M("Lindt Home of Chocolate Kilchberg"),
+    warn: "圣诞和新年前后的开放时间待确认。",
+    notes: "苏黎世湖边 Kilchberg，从机场乘 S24 直达约 29 分钟。建议提前在官网预约时段。" + NOTE5 },
+  { id: "ch-rhinefalls", region: "ch", area: "Neuhausen am Rheinfall", name: "莱茵瀑布", namePt: "Cataratas do Reno", local: "Rheinfall",
+    sel: false, hours: TBC, price: TBC, last: "", map: M("Rheinfall Neuhausen"),
+    warn: "冬季去瀑布中间岩石的游船通常停航，以官方公告为准。",
+    notes: "从机场乘火车约 48 分钟（SBB 12 月时刻表）。北岸 Neuhausen 一侧可以沿河观看；劳芬城堡一侧观景步道收费（价格待确认）。" }
+);
+// 瑞士三个地区（按住宿基地和交通分，不是行政区划）
+const SUB = {
+  grw: ["ch-grindelwald", "ch-lauterbrunnen", "ch-wengen", "ch-kleinescheidegg", "ch-first", "ch-jungfraujoch", "ch-schilthorn", "ch-maennlichen", "ch-muerren", "ch-staubbach", "ch-eigergletscher"],
+  zer: ["ch-oeschinensee", "ch-blausee", "ch-gornergrat", "ch-zermatt", "ch-mgp", "ch-sunnegga", "ch-schwarzsee", "ch-riffelsee"],
+  zrh: ["ch-kapellbruecke", "ch-lakeluzern", "ch-pilatus", "ch-rigi", "ch-zurichold", "ch-lindenhof", "ch-uetliberg", "ch-lakezurich", "ch-lindt", "ch-rhinefalls"]
+};
+for (const [k, ids] of Object.entries(SUB)) for (const id of ids) { const a = A.find(x => x.id === id); if (a) a.sub = k; }
+// 时间冲突检查只用已核实的时间（上面 hours / last 里有官方来源的条目）
+// hours: def 默认 [开, 关]；dow 按星期（0=周日）；dates 指定日期；closed 闭馆日期；closedDow 闭馆星期。lastDown: 已确认的末班下山
+const CHK = {
+  "bcn-sagrada": { hours: { def: ["09:00", "18:00"], dow: { 0: ["10:30", "18:00"] }, dates: { "2026-12-25": ["09:00", "14:00"], "2026-12-26": ["09:00", "14:00"] } } },
+  "bcn-guell": { hours: { def: ["09:30", null] } },
+  "bcn-batllo": { hours: { def: ["09:00", null] } },
+  "bcn-montjuic": { hours: { def: ["10:00", "18:00"] } },
+  "bcn-bunkers": { hours: { def: ["09:00", "17:30"] } },
+  "par-notredame": { hours: { dow: { 3: ["07:50", "19:00"] } } },
+  "par-louvre": { hours: { dow: { 3: ["09:00", "21:00"] }, closedDow: [2], closed: ["2026-12-25"] } },
+  "par-tuileries": { hours: { def: ["07:30", "19:30"] } },
+  "par-arc": { hours: { def: ["10:00", "22:30"] } },
+  "ch-oeschinensee": { hours: { def: ["09:00", "17:00"] }, lastDown: "17:00" },
+  "ch-gornergrat": { hours: { def: ["08:24", null] } },
+  "ch-mgp": { hours: { def: ["09:00", "16:00"] }, lastDown: "16:15" }
+};
+for (const [id, c] of Object.entries(CHK)) { const a = A.find(x => x.id === id); if (a) a.chk = c; }
+
+return { dataRev: 5, title: "欧洲之旅 2026", titlePt: "Viagem à Europa 2026", regions: REGIONS, attractions: A, hotels: HOTELS, transport: TRANSPORT };
 })();
 
 </script>
@@ -695,76 +864,258 @@ window.TRIP_PHOTOS = {
   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
   "page": "https://commons.wikimedia.org/wiki/File:Matterhorn_from_Domh%C3%BCtte_-_2.jpg",
   "file": "Matterhorn_from_Domhütte_-_2.jpg"
+ },
+ "bcn-santpau": {
+  "src": "img/bcn-santpau.jpg",
+  "author": "Thomas Ledl",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Hospital_Sant_Pau,_main_facade.jpg",
+  "file": "Hospital_Sant_Pau,_main_facade.jpg"
+ },
+ "bcn-mnac": {
+  "src": "img/bcn-mnac.jpg",
+  "author": "Jvhertum",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Museu_nacional_d%27art_de_catalunya_2.jpg",
+  "file": "Museu_nacional_d'art_de_catalunya_2.jpg"
+ },
+ "par-alexandre": {
+  "src": "img/par-alexandre.jpg",
+  "author": "Jebulon",
+  "license": "CC0",
+  "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "page": "https://commons.wikimedia.org/wiki/File:Pont_Alexandre_III_depuis_pont_de_la_Concorde_Paris.jpg",
+  "file": "Pont_Alexandre_III_depuis_pont_de_la_Concorde_Paris.jpg"
+ },
+ "ch-maennlichen": {
+  "src": "img/ch-maennlichen.jpg",
+  "author": "Jpatokal",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Mannlichn_Royal_Walk_Winter.jpg",
+  "file": "Mannlichn Royal Walk Winter.jpg"
+ },
+ "ch-muerren": {
+  "src": "img/ch-muerren.jpg",
+  "author": "Chensiyuan",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:1_M%C3%BCrren_2022.jpg",
+  "file": "1_Mürren_2022.jpg"
+ },
+ "ch-staubbach": {
+  "src": "img/ch-staubbach.jpg",
+  "author": "Adrian Michael",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Lauterbrunnen_Staubbach.jpg",
+  "file": "Lauterbrunnen_Staubbach.jpg"
+ },
+ "ch-eigergletscher": {
+  "src": "img/ch-eigergletscher.jpg",
+  "author": "Andrewrabbott (talk)",
+  "license": "Public domain",
+  "licenseUrl": "",
+  "page": "https://commons.wikimedia.org/wiki/File:Eigergletscher_Railway_Station.JPG",
+  "file": "Eigergletscher_Railway_Station.JPG"
+ },
+ "ch-schwarzsee": {
+  "src": "img/ch-schwarzsee.jpg",
+  "author": "Maksym Kozlenko",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:2008-07-23_Schwarzsee_(Zermatt)_-_4.jpg",
+  "file": "2008-07-23 Schwarzsee (Zermatt) - 4.jpg"
+ },
+ "ch-riffelsee": {
+  "src": "img/ch-riffelsee.jpg",
+  "author": "Jeffrey Pang",
+  "license": "CC BY 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Riffelsee_1.jpg",
+  "file": "Riffelsee_1.jpg"
+ },
+ "ch-blausee": {
+  "src": "img/ch-blausee.jpg",
+  "author": "MartyRus",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Blausee_Lake_Boat_2015.jpg",
+  "file": "Blausee Lake Boat 2015.jpg"
+ },
+ "ch-zurichold": {
+  "src": "img/ch-zurichold.jpg",
+  "author": "Daniel Kraft",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Z%C3%BCrich_view_Quaibr%C3%BCcke_20200702.jpg",
+  "file": "Zürich view Quaibrücke 20200702.jpg"
+ },
+ "ch-lindenhof": {
+  "src": "img/ch-lindenhof.jpg",
+  "author": "Jakub Hałun",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:View_from_the_Lindenhof_Hill_in_Zurich,_20250330_1225_7911.jpg",
+  "file": "View from the Lindenhof Hill in Zurich, 20250330 1225 7911.jpg"
+ },
+ "ch-uetliberg": {
+  "src": "img/ch-uetliberg.jpg",
+  "author": "roland zh",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Uetliberg_-_Wollishofen_-_Z%C3%BCrichhorn_2012-09-27_16-15-12.JPG",
+  "file": "Uetliberg_-_Wollishofen_-_Zürichhorn_2012-09-27_16-15-12.JPG"
+ },
+ "ch-lakezurich": {
+  "src": "img/ch-lakezurich.jpg",
+  "author": "Roland zh",
+  "license": "CC BY-SA 3.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Pfannenstiel_-_Z%C3%BCrichsee_-_Sihltal_-_Albis_Baldern_IMG_5316.jpg",
+  "file": "Pfannenstiel_-_Zürichsee_-_Sihltal_-_Albis_Baldern_IMG_5316.jpg"
+ },
+ "ch-lindt": {
+  "src": "img/ch-lindt.jpg",
+  "author": "Brian Shamblen from Danville, CA, USA",
+  "license": "CC BY 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Two_story_chocolate_fountain_in_the_lobby_of_the_Lindt_factory_in_Zurich,_Switzerland_(52167915483).jpg",
+  "file": "Two_story_chocolate_fountain_in_the_lobby_of_the_Lindt_factory_in_Zurich,_Switzerland_(52167915483).jpg"
+ },
+ "ch-rhinefalls": {
+  "src": "img/ch-rhinefalls.jpg",
+  "author": "JoachimKohler-HB",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Schloss_Laufen_am_Rheinfall_(2023).jpg",
+  "file": "Schloss Laufen am Rheinfall (2023).jpg"
+ },
+ "bcn-palau": {
+  "src": "img/bcn-palau.jpg",
+  "author": "Francesco Bini",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Palau_de_la_M%C3%BAsica_Catalana,_terrazza,_pennacchi_con_mosaici_sulla_flora_catalana_di_Llu%C3%ADs_Bru,_1909_ca.,_01.jpg",
+  "file": "Palau de la Música Catalana, terrazza, pennacchi con mosaici sulla flora catalana di Lluís Bru, 1909 ca., 01.jpg"
+ },
+ "par-cruise": {
+  "src": "img/par-cruise.jpg",
+  "author": "Daniel Stockman",
+  "license": "CC BY-SA 2.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+  "page": "https://commons.wikimedia.org/wiki/File:Bateaux_Mouches_Paris_2011.jpg",
+  "file": "Bateaux Mouches Paris 2011.jpg"
+ },
+ "ch-sunnegga": {
+  "src": "img/ch-sunnegga.jpg",
+  "author": "Roy Egloff NOTE: This image is a panorama consisting of multiple frames that wer",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+  "page": "https://commons.wikimedia.org/wiki/File:CH.VS.Zermatt_Sunnegga_Grindjisee_Matterhorn_9034_16x9-R_16K.jpg",
+  "file": "CH.VS.Zermatt Sunnegga Grindjisee Matterhorn 9034 16x9-R 16K.jpg"
  }
 };
 
 </script>
 <script>
+// 坐标与从酒店出发的参考路线（自动生成：_tools/make-routes.mjs；来源见该文件）
+window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.30131],"h-grw":[46.62528,8.04599],"h-vsp":[46.29303,7.88145],"h-zrh":[47.45146,8.56577],"st-vsp":[46.29402,7.88149],"st-zrh":[47.44936,8.56263],"bcn-sagrada":[41.4035,2.17443],"bcn-gotic":[41.3873,2.16878],"bcn-gracia":[41.38809,2.17018],"bcn-guell":[41.41423,2.15246],"bcn-batllo":[41.39154,2.1647],"bcn-montjuic":[41.36765,2.16723],"bcn-tibidabo":[41.41647,2.13106],"bcn-bunkers":[41.41926,2.16154],"bcn-pedrera":[41.3954,2.16176],"bcn-boqueria":[41.38174,2.17155],"bcn-santpau":[41.41252,2.17573],"bcn-palau":[41.38758,2.17523],"bcn-mnac":[41.3686,2.15346],"par-eiffel":[48.85826,2.2945],"par-trocadero":[48.86208,2.28854],"par-seine":[48.85573,2.28755],"par-notredame":[48.85294,2.35005],"par-louvre":[48.86099,2.33584],"par-tuileries":[48.86357,2.32696],"par-champs":[48.86833,2.31215],"par-arc":[48.87378,2.29504],"par-orsay":[48.85992,2.32658],"par-sacrecoeur":[48.88681,2.34302],"par-saintechapelle":[48.85539,2.34499],"par-alexandre":[48.86347,2.31352],"par-cruise":[48.8605,2.29399],"ch-grindelwald":[46.62444,8.03404],"ch-lauterbrunnen":[46.59834,7.90787],"ch-wengen":[46.60501,7.92087],"ch-kleinescheidegg":[46.58525,7.96131],"ch-first":[46.62416,8.04224],"ch-jungfraujoch":[46.62397,8.02088],"ch-oeschinensee":[46.4985,7.6866],"ch-gornergrat":[46.02398,7.74857],"ch-zermatt":[46.02457,7.74813],"ch-kapellbruecke":[47.05183,8.30771],"ch-lakeluzern":[47.04958,8.31113],"ch-pilatus":[47.03055,8.27732],"ch-rigi":[47.0491,8.548],"ch-mgp":[46.00816,7.73731],"ch-schilthorn":[46.55545,7.90141],"ch-maennlichen":[46.62397,8.02088],"ch-muerren":[46.5985,7.9092],"ch-staubbach":[46.58978,7.90543],"ch-eigergletscher":[46.62397,8.02088],"ch-sunnegga":[46.0222,7.7498],"ch-schwarzsee":[46.00816,7.73731],"ch-riffelsee":[45.98451,7.76524],"ch-blausee":[46.53242,7.66485],"ch-zurichold":[47.37012,8.54391],"ch-lindenhof":[47.37292,8.54018],"ch-uetliberg":[47.35187,8.48742],"ch-lakezurich":[47.36638,8.54119],"ch-lindt":[47.31847,8.5509],"ch-rhinefalls":[47.67836,8.61487]},"r":{"bcn-sagrada":{"h-bcn":{"how":"步行（步行路线约 1.6 公里）","dur":"步行约 21 分钟"}},"bcn-gotic":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3.4 公里","dur":"公共交通待确认（步行约 46 分钟）"}},"bcn-gracia":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3.3 公里","dur":"公共交通待确认（步行约 44 分钟）"}},"bcn-guell":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 4.1 公里","dur":"公共交通待确认（步行约 55 分钟）"}},"bcn-batllo":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3.1 公里","dur":"公共交通待确认（步行约 41 分钟）"}},"bcn-montjuic":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 5.9 公里","dur":"公共交通待确认（步行约 79 分钟）"}},"bcn-tibidabo":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 7.1 公里","dur":"公共交通待确认（步行约 93 分钟）"}},"bcn-bunkers":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 2.6 公里","dur":"公共交通待确认（步行约 35 分钟）"}},"bcn-pedrera":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3 公里","dur":"公共交通待确认（步行约 40 分钟）"}},"bcn-boqueria":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3.9 公里","dur":"公共交通待确认（步行约 52 分钟）"}},"bcn-palau":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3 公里","dur":"公共交通待确认（步行约 41 分钟）"}},"bcn-mnac":{"h-bcn":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 6.1 公里","dur":"公共交通待确认（步行约 82 分钟）"}},"bcn-santpau":{"h-bcn":{"how":"步行（步行路线约 1.2 公里）","dur":"步行约 15 分钟"}},"par-eiffel":{"h-par":{"how":"步行（步行路线约 1.5 公里）","dur":"步行约 21 分钟"}},"par-trocadero":{"h-par":{"how":"步行（步行路线约 2.3 公里）","dur":"步行约 31 分钟"}},"par-seine":{"h-par":{"how":"步行（步行路线约 1.5 公里）","dur":"步行约 20 分钟"}},"par-notredame":{"h-par":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 4.2 公里","dur":"公共交通待确认（步行约 56 分钟）"}},"par-louvre":{"h-par":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3.9 公里","dur":"公共交通待确认（步行约 51 分钟）"}},"par-tuileries":{"h-par":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3.2 公里","dur":"公共交通待确认（步行约 43 分钟）"}},"par-champs":{"h-par":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 2.8 公里","dur":"公共交通待确认（步行约 37 分钟）"}},"par-arc":{"h-par":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3.5 公里","dur":"公共交通待确认（步行约 47 分钟）"}},"par-orsay":{"h-par":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3.1 公里","dur":"公共交通待确认（步行约 41 分钟）"}},"par-sacrecoeur":{"h-par":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 6.4 公里","dur":"公共交通待确认（步行约 86 分钟）"}},"par-saintechapelle":{"h-par":{"how":"地铁 / 公交（具体线路点下方谷歌地图查询）；步行路线约 3.8 公里","dur":"公共交通待确认（步行约 51 分钟）"}},"par-alexandre":{"h-par":{"how":"步行（步行路线约 2.3 公里）","dur":"步行约 30 分钟"}},"par-cruise":{"h-par":{"how":"步行（步行路线约 2 公里）","dur":"步行约 27 分钟"}},"ch-grindelwald":{"h-grw":{"how":"步行到 Grindelwald 火车站（步行路线约 1.2 公里）","dur":"步行约 16 分钟"}},"ch-first":{"h-grw":{"how":"步行到 Firstbahn 山下站（步行路线约 0.3 公里），再乘 First 缆车上山","dur":"步行约 5 分钟 + 缆车约 25 分钟"}},"ch-lauterbrunnen":{"h-grw":{"how":"Grindelwald → Zweilütschinen → Lauterbrunnen（火车，换乘 1 次）","dur":"约 39 分钟","sbb":true}},"ch-staubbach":{"h-grw":{"how":"Grindelwald → Zweilütschinen → Lauterbrunnen（火车，换乘 1 次），再步行到瀑布","dur":"火车约 39 分钟 + 步行","sbb":true}},"ch-wengen":{"h-grw":{"how":"Grindelwald → Grindelwald Terminal → Männlichen（缆车）→ Wengen（缆车）；也可乘火车经 Lauterbrunnen","dur":"约 50 分钟（缆车路线）","sbb":true}},"ch-kleinescheidegg":{"h-grw":{"how":"Grindelwald → Kleine Scheidegg（登山铁路，直达）","dur":"约 32 分钟","sbb":true}},"ch-jungfraujoch":{"h-grw":{"how":"Grindelwald → Grindelwald Terminal → Eigergletscher（艾格快线缆车）→ Jungfraujoch（少女峰铁路）","dur":"约 1 小时 14 分钟","sbb":true}},"ch-eigergletscher":{"h-grw":{"how":"Grindelwald → Grindelwald Terminal → Eigergletscher（艾格快线缆车）","dur":"约 37 分钟","sbb":true}},"ch-maennlichen":{"h-grw":{"how":"Grindelwald → Grindelwald Terminal → Männlichen（缆车）","dur":"约 39 分钟","sbb":true}},"ch-muerren":{"h-grw":{"how":"Grindelwald → Lauterbrunnen（火车）→ Grütschalp（缆车）→ Mürren（火车）","dur":"约 1 小时 7 分钟","sbb":true}},"ch-schilthorn":{"h-grw":{"how":"Grindelwald → Lauterbrunnen（火车）→ Stechelberg（公交）→ Mürren → Birg → Schilthorn（缆车）","dur":"约 1 小时 28 分钟","sbb":true}},"ch-oeschinensee":{"h-grw":{"how":"Grindelwald → Interlaken Ost → Spiez → Kandersteg（火车，换乘 2 次），再步行到缆车山下站","dur":"火车约 1 小时 54 分钟","sbb":true},"h-vsp":{"how":"Visp → Brig → Kandersteg（火车，换乘 1 次），再步行到缆车山下站","dur":"火车约 49 分钟","sbb":true}},"ch-blausee":{"h-grw":{"how":"Grindelwald → Interlaken Ost → Spiez → Frutigen（火车）→ Blausee（230 路公交）","dur":"约 1 小时 54 分钟","sbb":true},"h-vsp":{"how":"Visp → Spiez → Frutigen（火车）→ Blausee（230 路公交）","dur":"约 1 小时 14 分钟","sbb":true}},"ch-zermatt":{"h-vsp":{"how":"Visp → Zermatt（火车，直达）","dur":"约 1 小时 11 分钟","sbb":true}},"ch-gornergrat":{"h-vsp":{"how":"Visp → Zermatt（火车）→ Gornergrat（登山铁路）","dur":"约 1 小时 48 分钟","sbb":true}},"ch-sunnegga":{"h-vsp":{"how":"Visp → Zermatt（火车）→ 步行到 Sunnegga 山下站 → Sunnegga（地下缆索铁路）","dur":"约 1 小时 21 分钟","sbb":true}},"ch-mgp":{"h-vsp":{"how":"Visp → Zermatt（火车）→ Matterhorn Express 山下站（公交 / 步行）→ Furi → Trockener Steg → Matterhorn Glacier Paradise（缆车）","dur":"约 2 小时 10 分钟","sbb":true}},"ch-schwarzsee":{"h-vsp":{"how":"Visp → Zermatt（火车）→ Matterhorn Express 山下站（公交 / 步行）→ Furi → Schwarzsee（缆车）","dur":"约 1 小时 46 分钟","sbb":true}},"ch-riffelsee":{"h-vsp":{"how":"Visp → Zermatt（火车）→ Rotenboden（戈尔内格拉特铁路），再步行到湖边","dur":"约 2 小时（到 Rotenboden 站）","sbb":true}},"ch-kapellbruecke":{"h-vsp":{"how":"Visp → Olten → Luzern（火车，换乘 1 次），再步行到廊桥","dur":"约 2 小时 28 分钟","sbb":true},"h-zrh":{"how":"Zürich Flughafen → Luzern（火车，直达），再步行到廊桥","dur":"约 1 小时 10 分钟","sbb":true}},"ch-lakeluzern":{"h-vsp":{"how":"Visp → Olten → Luzern（火车，换乘 1 次）","dur":"约 2 小时 28 分钟","sbb":true},"h-zrh":{"how":"Zürich Flughafen → Luzern（火车，直达）","dur":"约 1 小时 10 分钟","sbb":true}},"ch-pilatus":{"h-vsp":{"how":"Visp → Olten → Emmenbrücke（火车）→ Kriens（公交）→ Fräkmüntegg → Pilatus Kulm（缆车）","dur":"约 3 小时 37 分钟","sbb":true},"h-zrh":{"how":"Zürich Flughafen → Luzern（火车）→ Kriens（1 路公交）→ Fräkmüntegg → Pilatus Kulm（缆车）","dur":"约 2 小时 19 分钟","sbb":true}},"ch-rigi":{"h-vsp":{"how":"Visp → Olten → Arth-Goldau（火车）→ Rigi Kulm（登山铁路）","dur":"约 4 小时 7 分钟","sbb":true},"h-zrh":{"how":"Zürich Flughafen → Zürich HB → Arth-Goldau（火车）→ Rigi Kulm（登山铁路）","dur":"约 1 小时 45 分钟","sbb":true}},"ch-zurichold":{"h-zrh":{"how":"Zürich Flughafen → Zürich HB（火车，直达），再步行进老城","dur":"火车约 12 分钟","sbb":true}},"ch-lindenhof":{"h-zrh":{"how":"Zürich Flughafen → Zürich HB（火车，直达），再步行上林登霍夫","dur":"火车约 12 分钟","sbb":true}},"ch-uetliberg":{"h-zrh":{"how":"Zürich Flughafen → Zürich HB → Uetliberg（S10）","dur":"约 40 分钟","sbb":true}},"ch-lakezurich":{"h-zrh":{"how":"Zürich Flughafen → Zürich Stadelhofen（火车），再步行到 Bürkliplatz 湖边","dur":"约 25 分钟","sbb":true}},"ch-lindt":{"h-zrh":{"how":"Zürich Flughafen → Kilchberg ZH（S24，直达）","dur":"约 29 分钟","sbb":true}},"ch-rhinefalls":{"h-zrh":{"how":"Zürich Flughafen → Glattbrugg（10 路电车）→ Neuhausen Rheinfall（S9）","dur":"约 48 分钟","sbb":true}}}};
+
+</script>
+<script>
 (() => {
   "use strict";
-  const KEY = "europa-trip-2026-v4";                 // 第四版数据
+  const KEY = "europa-trip-2026-v4";                 // 数据（格式 v4，第五版只新增字段，不改已有 id）
   const KEY_OLD = "europa-trip-2026-v2";             // 旧版（时间线）数据，原样保留不删除
   const KEY_BACKUP = "europa-trip-2026-backup-before-v4";
   const KEY_BACKUP_IMPORT = "europa-trip-2026-backup-before-import";
+  const KEY_BACKUP_REV = "europa-trip-2026-backup-rev";   // + 旧 dataRev：每次数据升级前的备份
   const LANG_KEY = "europa-trip-2026-lang";
-  const T = window.TRIP_DATA, PH = window.TRIP_PHOTOS || {};
+  const T = window.TRIP_DATA, PH = window.TRIP_PHOTOS || {}, RT = window.TRIP_ROUTES || { pts: {}, r: {} };
   const ATT = new Map(T.attractions.map(a => [a.id, a]));
   const HOT = new Map(T.hotels.map(h => [h.id, h]));
   const TRA = new Map(T.transport.map(t => [t.id, t]));
   const REG = new Map(T.regions.map(r => [r.id, r]));
-  const ATT_FIELDS = ["name", "local", "area", "hours", "price", "last", "map", "summit", "ticket", "web", "warn", "notes"];
-  const HOT_FIELDS = ["name", "city", "in", "out", "checkin", "checkout", "map", "note"];
-  const TRA_FIELDS = ["date", "dateEnd", "purpose", "no", "from", "to", "dep", "arr", "note"];
+  const CH = REG.get("ch"), SUBS = new Map((CH.subs || []).map(s => [s.id, s]));
+  const ATT_FIELDS = ["name", "local", "area", "sub", "hours", "price", "last", "map", "summit", "ticket", "web", "warn", "how", "dur", "notes"];
+  const HOT_FIELDS = ["name", "city", "address", "in", "out", "checkin", "checkout", "map", "note"];
+  const TRA_FIELDS = ["date", "dateEnd", "purpose", "mode", "no", "from", "to", "dep", "arr", "note", "legs"];
+  const LEG_FIELDS = ["date", "no", "from", "to", "dep", "arr"];
 
   // ---------- 文字 ----------
   const I18N = {
     zh: {
-      sub: "12.19 – 12.31 · 巴塞罗那 · 巴黎 · 瑞士", daysLeft: "天后出发", onTrip: "旅途中",
-      hotels: "酒店", transport: "交通", hotelsSub: "5 家酒店及预订状态", transportSub: "机票、火车票、交通通票",
-      home: "← 首页", selected: "已选择的景点", unselected: "未选择的景点", noneSel: "还没有选择景点，在下方勾选「选择该景点」。", noneUnsel: "没有备选景点了。",
-      f_hours: "营业", f_price: "票价", f_last: "末班 / 最后入场", mapOpen: "点击此处打开谷歌地图", mapNone: "导航链接待添加",
-      planDate: "计划日期", planTime: "计划时间", booked: "已预约 / 购票", sel: "选择该景点", bookedBadge: "已购票",
-      more: "更多：购票链接、注意事项", ticket: "官方购票", web: "官网", summit: "山顶位置（谷歌地图）", src: "资料来源", photo: "照片",
+      sub: "12.19 – 12.31 · 巴塞罗那 · 巴黎 · 瑞士", daysLeft: "天后出发", onTrip: "旅途中", euLeft: "欧洲之旅 · <b>{n}</b> 天后出发（12/19）",
+      cdTitle: "✈️ 回国倒计时", cdFlight: "{no} · {d} {t} {from} 起飞 → {ad} 抵达 {to}", cdD: "天", cdH: "时", cdM: "分", cdS: "秒", cdOnWay: "回国途中，预计 {ad} 抵达 {to}", cdHome: "已回国 🎉",
+      hotels: "酒店", transport: "交通",
+      home: "← 首页", backCh: "← 瑞士", tabSel: "已选择", tabAlt: "备选景点", allDays: "全部", noDate: "未定日期",
+      noneSel: "还没有选择景点，去「备选景点」里挑选。", noneUnsel: "没有备选景点了。", noneDay: "这一天没有已选景点。",
+      altHint: "勾选「选择该景点」，景点会移到「已选择」；照片、时间等资料都会保留。",
+      chHint: "按住宿基地和交通便利分区，不是行政区划。", subStay: "住 {h}",
+      f_hours: "营业时间", f_price: "门票价格", f_last: "最后入场 / 末班", mapOpen: "点击此处打开谷歌地图", mapNone: "导航链接待添加",
+      planDate: "计划日期", planTime: "计划时间", booked: "已预约 / 购票", sel: "选择该景点", bookedBadge: "已购票", details: "详情",
+      fromHotel: "从酒店出发", r_from: "出发", r_dist: "距离", r_how: "交通", r_dur: "预计耗时",
+      r_straight: "直线距离约 {km} 公里（酒店 → 游客入口 / 山下站）", r_byDate: "按计划日期 {d}", r_change: "按计划日期 {d}（换酒店当天，从上一家酒店出发）", r_noDate: "未填计划日期，按本地区住宿",
+      r_sbbNote: "耗时为 SBB 2026 年 12 月时刻表的参考班次（从火车站起算，含换乘等候），出发前请再查询。", sbbLink: "SBB 官方时刻查询",
+      cfHours: "计划时间可能超出营业时间", cfClosed: "计划时间可能超出营业时间（当天闭馆）", cfLast: "可能无法赶上末班交通",
+      moreInfo: "注意事项、来源、编辑", ticket: "官方购票", web: "官网", summit: "山顶位置（谷歌地图）", src: "资料来源", photo: "照片",
       edit: "编辑资料", del: "删除", save: "保存", cancel: "取消", close: "关闭", resetItem: "恢复默认资料",
-      tbc: "待确认", moved1: "已移到「已选择」", moved0: "已移到「未选择」", saved: "已保存", deleted: "已删除", undo: "撤销",
+      tbc: "待确认", tbf: "待填写", moved1: "已移到「已选择」", moved0: "已移到「备选景点」", resorted: "已按时间排序：{d} {t}", saved: "已保存", deleted: "已删除", undo: "撤销",
       addAtt: "＋ 添加景点", newAtt: "添加景点", editAtt: "编辑景点",
-      fl_name: "名称（中文）", fl_local: "当地名称", fl_area: "所在地区", fl_hours: "营业时间", fl_price: "门票价格及货币", fl_last: "最后入场 / 末班交通",
-      fl_map: "Google Maps 链接（游客入口 / 下站）", fl_summit: "山顶位置链接（可选）", fl_ticket: "官方购票链接", fl_web: "官网", fl_warn: "简短提醒", fl_notes: "注意事项",
-      fl_city: "城市", fl_in: "入住日期", fl_out: "退房日期", fl_checkin: "入住时间", fl_checkout: "退房时间", fl_note: "备注",
-      fl_date: "日期", fl_dateEnd: "结束日期（可选）", fl_purpose: "用途", fl_no: "航班号 / 车次", fl_from: "起点", fl_to: "终点", fl_dep: "出发", fl_arr: "到达",
-      nameRequired: "请填写名称", checkin: "入住", checkout: "退房", nights: "{n} 晚", hotelBooked: "已预订", hotelNot: "未预订",
-      traBooked: "已购票", traNot: "未购票", hotelsTitle: "酒店", transportTitle: "交通",
+      fl_name: "名称（中文）", fl_local: "当地名称", fl_area: "所在地区（显示用）", fl_sub: "瑞士板块", fl_hours: "营业时间", fl_price: "门票价格及货币", fl_last: "最后入场 / 末班交通",
+      fl_map: "Google Maps 链接（游客入口 / 下站）", fl_summit: "山顶位置链接（可选）", fl_ticket: "官方购票链接", fl_web: "官网", fl_warn: "简短提醒",
+      fl_how: "从酒店出发的交通（可选，填写后替换默认）", fl_dur: "预计耗时（可选）", fl_notes: "注意事项",
+      fl_city: "城市", fl_address: "地址", fl_in: "入住日期", fl_out: "退房日期", fl_checkin: "入住时间", fl_checkout: "退房时间", fl_note: "备注",
+      fl_date: "日期", fl_dateEnd: "结束日期（可选）", fl_purpose: "行程", fl_mode: "交通方式", fl_no: "航班号 / 车次", fl_from: "出发地点", fl_to: "到达地点", fl_dep: "出发时间", fl_arr: "抵达时间",
+      legN: "第 {n} 段", nameRequired: "请填写名称", checkin: "入住", checkout: "退房", nights: "{n} 晚",
+      hotelBooked: "已预订", hotelNot: "未预订", hotelNA: "无需预订", hotelName: "酒店名称：待填写", addrTbf: "地址：待填写",
+      traBooked: "已购票", traNot: "未购票", dateTbd: "日期待确定", modeL: "交通方式", depL: "出发", arrL: "抵达",
+      grpEu: "欧洲行程", grpCn: "中国行程", hotelsTitle: "酒店", transportTitle: "交通",
       export: "导出备份（JSON）", import: "导入备份", resetAll: "全部恢复默认", more2: "更多",
-      askReset: "全部恢复为默认？", askResetMsg: "景点选择、计划时间、预约状态、编辑的资料都会恢复默认，5 秒内可以撤销。建议先导出备份。", resetBtn: "恢复",
+      askReset: "全部恢复为默认？", askResetMsg: "景点选择、计划时间、预约状态、酒店和交通资料都会恢复默认，5 秒内可以撤销。建议先导出备份。", resetBtn: "恢复",
       askImport: "导入这份备份？", askImportMsg: "会覆盖当前内容；导入前的数据会自动备份在本机，5 秒内可撤销。", importBtn: "导入",
       askDel: "删除这个自添景点？", ok: "确定", imported: "导入成功", importFail: "导入失败：这不是本网站导出的备份文件", restored: "已恢复",
       exportSaved: "备份已保存", exportFail: "这里暂时不能保存文件", storageFail: "保存失败：浏览器禁止了本地存储",
       selCount: "已选 {a} / 共 {b}", bookedCount: "已购票 {n}", migrated: "已从旧版数据迁移（旧数据仍保留在本机备份中）",
-      langBtn: "中文 · PT"
+      langBtn: "中文 · PT", subGrw: "格林德瓦", subZer: "采尔马特 / Visp", subZrh: "苏黎世"
     },
     pt: {
-      sub: "19–31 dez · Barcelona · Paris · Suíça", daysLeft: "dias para a partida", onTrip: "Em viagem",
-      hotels: "Hotéis", transport: "Transporte", hotelsSub: "5 hotéis e status da reserva", transportSub: "Voos, trens e passe",
-      home: "← Início", selected: "Atrações escolhidas", unselected: "Outras atrações", noneSel: "Nenhuma atração escolhida ainda.", noneUnsel: "Sem outras atrações.",
+      sub: "19–31 dez · Barcelona · Paris · Suíça", daysLeft: "dias para a partida", onTrip: "Em viagem", euLeft: "Europa · faltam <b>{n}</b> dias (19/12)",
+      cdTitle: "✈️ Contagem para voltar à China", cdFlight: "{no} · {d} {t} sai de {from} → chega {ad} em {to}", cdD: "d", cdH: "h", cdM: "min", cdS: "s", cdOnWay: "A caminho — chegada {ad} em {to}", cdHome: "Já na China 🎉",
+      hotels: "Hotéis", transport: "Transporte",
+      home: "← Início", backCh: "← Suíça", tabSel: "Escolhidas", tabAlt: "Alternativas", allDays: "Todas", noDate: "Sem data",
+      noneSel: "Nenhuma atração escolhida. Veja as alternativas.", noneUnsel: "Sem alternativas.", noneDay: "Nada escolhido para este dia.",
+      altHint: "Marque “Escolher” para mover a atração para as escolhidas; foto e horários são mantidos.",
+      chHint: "Divisão por base de hospedagem e transporte, não por limites administrativos.", subStay: "Hotel: {h}",
       f_hours: "Horário", f_price: "Preço", f_last: "Última entrada / último transporte", mapOpen: "Clique aqui para abrir no Google Maps", mapNone: "Link de navegação a adicionar",
-      planDate: "Data", planTime: "Horário", booked: "Reservado / comprado", sel: "Escolher", bookedBadge: "Comprado",
-      more: "Mais: ingressos e avisos", ticket: "Ingressos oficiais", web: "Site oficial", summit: "Local do topo (mapa)", src: "Fontes", photo: "Foto",
+      planDate: "Data", planTime: "Horário", booked: "Reservado / comprado", sel: "Escolher", bookedBadge: "Comprado", details: "Detalhes",
+      fromHotel: "Saindo do hotel", r_from: "Origem", r_dist: "Distância", r_how: "Como ir", r_dur: "Tempo estimado",
+      r_straight: "Linha reta ≈ {km} km (hotel → entrada / estação)", r_byDate: "Pela data {d}", r_change: "Pela data {d} (troca de hotel; saindo do hotel anterior)", r_noDate: "Sem data: hotel desta região",
+      r_sbbNote: "Tempo pelo horário SBB de dez/2026 (a partir da estação, com conexões). Confira antes de sair.", sbbLink: "Horários oficiais SBB",
+      cfHours: "Horário planejado pode estar fora do funcionamento", cfClosed: "Horário fora do funcionamento (fechado neste dia)", cfLast: "Pode perder o último transporte",
+      moreInfo: "Observações, fontes, editar", ticket: "Ingressos oficiais", web: "Site oficial", summit: "Local do topo (mapa)", src: "Fontes", photo: "Foto",
       edit: "Editar", del: "Excluir", save: "Salvar", cancel: "Cancelar", close: "Fechar", resetItem: "Restaurar dados padrão",
-      tbc: "A confirmar", moved1: "Movida para “escolhidas”", moved0: "Movida para “outras”", saved: "Salvo", deleted: "Excluído", undo: "Desfazer",
+      tbc: "A confirmar", tbf: "A preencher", moved1: "Movida para “escolhidas”", moved0: "Movida para “alternativas”", resorted: "Reordenado: {d} {t}", saved: "Salvo", deleted: "Excluído", undo: "Desfazer",
       addAtt: "＋ Adicionar atração", newAtt: "Nova atração", editAtt: "Editar atração",
-      fl_name: "Nome (chinês)", fl_local: "Nome local", fl_area: "Região", fl_hours: "Horário", fl_price: "Preço e moeda", fl_last: "Última entrada / último transporte",
-      fl_map: "Link do Google Maps (entrada / estação)", fl_summit: "Link do topo (opcional)", fl_ticket: "Link de ingressos", fl_web: "Site oficial", fl_warn: "Aviso curto", fl_notes: "Observações",
-      fl_city: "Cidade", fl_in: "Entrada", fl_out: "Saída", fl_checkin: "Check-in", fl_checkout: "Check-out", fl_note: "Nota",
-      fl_date: "Data", fl_dateEnd: "Data final (opcional)", fl_purpose: "Trajeto", fl_no: "Voo / trem", fl_from: "Origem", fl_to: "Destino", fl_dep: "Partida", fl_arr: "Chegada",
-      nameRequired: "Preencha o nome", checkin: "Entrada", checkout: "Saída", nights: "{n} noites", hotelBooked: "Reservado", hotelNot: "Não reservado",
-      traBooked: "Comprado", traNot: "Não comprado", hotelsTitle: "Hotéis", transportTitle: "Transporte",
+      fl_name: "Nome (chinês)", fl_local: "Nome local", fl_area: "Região (exibição)", fl_sub: "Região da Suíça", fl_hours: "Horário", fl_price: "Preço e moeda", fl_last: "Última entrada / último transporte",
+      fl_map: "Link do Google Maps (entrada / estação)", fl_summit: "Link do topo (opcional)", fl_ticket: "Link de ingressos", fl_web: "Site oficial", fl_warn: "Aviso curto",
+      fl_how: "Como ir do hotel (opcional, substitui o padrão)", fl_dur: "Tempo estimado (opcional)", fl_notes: "Observações",
+      fl_city: "Cidade", fl_address: "Endereço", fl_in: "Entrada", fl_out: "Saída", fl_checkin: "Check-in", fl_checkout: "Check-out", fl_note: "Nota",
+      fl_date: "Data", fl_dateEnd: "Data final (opcional)", fl_purpose: "Trajeto", fl_mode: "Meio de transporte", fl_no: "Voo / trem", fl_from: "Origem", fl_to: "Destino", fl_dep: "Partida", fl_arr: "Chegada",
+      legN: "Trecho {n}", nameRequired: "Preencha o nome", checkin: "Entrada", checkout: "Saída", nights: "{n} noites",
+      hotelBooked: "Reservado", hotelNot: "Não reservado", hotelNA: "Sem reserva", hotelName: "Hotel: a preencher", addrTbf: "Endereço: a preencher",
+      traBooked: "Comprado", traNot: "Não comprado", dateTbd: "Data a definir", modeL: "Meio", depL: "Partida", arrL: "Chegada",
+      grpEu: "Europa", grpCn: "China", hotelsTitle: "Hotéis", transportTitle: "Transporte",
       export: "Exportar backup (JSON)", import: "Importar backup", resetAll: "Restaurar tudo", more2: "Mais",
-      askReset: "Restaurar tudo?", askResetMsg: "Escolhas, horários, reservas e edições voltam ao padrão. Dá para desfazer por 5 s.", resetBtn: "Restaurar",
+      askReset: "Restaurar tudo?", askResetMsg: "Escolhas, horários, reservas, hotéis e transporte voltam ao padrão. Dá para desfazer por 5 s.", resetBtn: "Restaurar",
       askImport: "Importar este backup?", askImportMsg: "Substitui o conteúdo atual; os dados anteriores ficam salvos neste navegador.", importBtn: "Importar",
       askDel: "Excluir esta atração?", ok: "OK", imported: "Importado", importFail: "Falha: arquivo não é um backup deste site", restored: "Restaurado",
       exportSaved: "Backup salvo", exportFail: "Não é possível salvar aqui", storageFail: "Falha ao salvar: armazenamento bloqueado",
       selCount: "{a} de {b} escolhidas", bookedCount: "{n} compradas", migrated: "Dados da versão anterior migrados",
-      langBtn: "PT · 中文"
+      langBtn: "PT · 中文", subGrw: "Grindelwald", subZer: "Zermatt / Visp", subZrh: "Zurique"
     }
   };
   let lang = "zh";
@@ -779,28 +1130,40 @@ window.TRIP_PHOTOS = {
   const safeUrl = u => { u = String(u || "").trim(); return /^https?:\/\/\S+$/i.test(u) ? u : ""; };
   const linkify = text => esc(text).replace(/https?:\/\/[^\s<>"'（）]+/g, u => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`);
   const normUrl = u => { u = String(u || "").trim(); if (!u) return ""; if (/^https?:\/\//i.test(u)) return u; if (/^[\w-]+(\.[\w-]+)+(\/|$)/.test(u)) return "https://" + u; return u; };
+  const ext = (u, label) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>` : "";
+  const mapsSearch = q => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+  const qOf = u => { try { return new URL(u).searchParams.get("query") || ""; } catch (e) { return ""; } };
 
   // ---------- 数据 ----------
-  // state = { version:4, att:{id:{sel,date,time,booked,edits}}, custom:[自添景点], hotels:{id:{booked,edits}}, transport:{id:{booked,edits}}, budget?, legacy? }
+  // state = { version:4, dataRev, att:{id:{sel,date,time,booked,edits}}, custom:[自添景点], hotels:{id:{booked,edits}}, transport:{id:{booked,edits}}, budget?, legacy? }
   function freshAtt(a) { return { sel: !!a.sel, date: a.date || "", time: a.time || "", booked: false, edits: {} }; }
   function buildDefault() {
     return {
       version: 4, dataRev: T.dataRev,
       att: Object.fromEntries(T.attractions.map(a => [a.id, freshAtt(a)])),
       custom: [],
-      hotels: Object.fromEntries(T.hotels.map(h => [h.id, { booked: true, edits: {} }])),      // 用户凭证已确认预订
-      transport: Object.fromEntries(T.transport.map(t => [t.id, { booked: true, edits: {} }]))  // 用户凭证已确认购票
+      hotels: Object.fromEntries(T.hotels.map(h => [h.id, { booked: !!h.booked, edits: {} }])),      // 默认状态来自凭证（没有凭证的为未预订）
+      transport: Object.fromEntries(T.transport.map(t => [t.id, { booked: !!t.booked, edits: {} }]))
     };
   }
   const S = v => String(v ?? "");
-  function cleanEdits(e, fields) { const o = {}; if (e && typeof e === "object") for (const f of fields) if (f in e) o[f] = S(e[f]); return o; }
-  // 补齐 / 清理 v4 数据（新增的默认景点自动加入，不改已有选择）
+  function cleanEdits(e, fields) {
+    const o = {}; if (!e || typeof e !== "object") return o;
+    for (const f of fields) if (f in e) {
+      if (f === "legs") { if (Array.isArray(e.legs)) o.legs = e.legs.map(l => Object.fromEntries(LEG_FIELDS.map(k => [k, S(l && l[k])]))); }
+      else o[f] = S(e[f]);
+    }
+    return o;
+  }
+  // 补齐 / 清理（新增的默认景点、酒店、交通自动加入，不改已有选择和状态）
   function normV4(s) {
     const out = buildDefault();
     for (const [id, v] of Object.entries(s.att || {})) if (ATT.has(id) && v) out.att[id] = { sel: !!v.sel, date: S(v.date), time: S(v.time), booked: !!v.booked, edits: cleanEdits(v.edits, ATT_FIELDS) };
     out.custom = (Array.isArray(s.custom) ? s.custom : []).filter(c => c && c.name).map(c => {
       const o = { id: S(c.id) || uid(), region: REG.has(c.region) ? c.region : "bcn", sel: !!c.sel, date: S(c.date), time: S(c.time), booked: !!c.booked };
-      for (const f of ATT_FIELDS) o[f] = S(c[f]); return o;
+      for (const f of ATT_FIELDS) o[f] = S(c[f]);
+      if (o.region === "ch" && !SUBS.has(o.sub)) o.sub = "grw";      // 第四版自添的瑞士景点没有地区 → 先放格林德瓦，可在编辑里改
+      return o;
     });
     for (const [id, v] of Object.entries(s.hotels || {})) if (HOT.has(id) && v) out.hotels[id] = { booked: !!v.booked, edits: cleanEdits(v.edits, HOT_FIELDS) };
     for (const [id, v] of Object.entries(s.transport || {})) if (TRA.has(id) && v) out.transport[id] = { booked: !!v.booked, edits: cleanEdits(v.edits, TRA_FIELDS) };
@@ -808,7 +1171,7 @@ window.TRIP_PHOTOS = {
     if (s.legacy) out.legacy = s.legacy;
     return out;
   }
-  // 旧版（时间线，v1/v2/v3）→ v4：按旧条目 id 对应景点；保留计划时间、已预订状态；旧数据整份放进 legacy
+  // 旧版（时间线，v1/v2/v3）→ 当前格式：按旧条目 id 对应景点；保留计划时间、已预订状态；旧数据整份放进 legacy
   function migrateOld(old) {
     const out = buildDefault();
     const items = new Map();
@@ -818,7 +1181,7 @@ window.TRIP_PHOTOS = {
       if (!a.from) continue;
       const found = a.from.map(id => items.get(id)).filter(Boolean);
       const st = out.att[a.id];
-      if (hasIds && !found.length) st.sel = false;                 // 旧版里删掉了 → 归入未选择
+      if (hasIds && !found.length) st.sel = false;                 // 旧版里删掉了 → 归入备选
       const main = found[0];
       if (main) {
         const m = String(main.time || "").match(/(\d{1,2})[:：](\d{2})/);
@@ -836,11 +1199,20 @@ window.TRIP_PHOTOS = {
     if (Array.isArray(s.days)) return migrateOld(s);
     return null;
   }
-  let migratedNow = false;
+  let migratedNow = false, upgradedNow = false;
   function load() {
-    try { const s = toV4(JSON.parse(lsGet(KEY) || "null")); if (s) return s; } catch (e) {}
-    const raw = lsGet(KEY_OLD);
-    if (raw) { try { const s = toV4(JSON.parse(raw)); if (s) { lsSet(KEY_BACKUP, raw); lsSet(KEY, JSON.stringify(s)); migratedNow = true; return s; } } catch (e) {} }
+    const raw = lsGet(KEY);
+    try {
+      const parsed = JSON.parse(raw || "null"); const s = toV4(parsed);
+      if (s) {
+        if ((parsed.dataRev || 0) < T.dataRev) {      // 数据升级前先备份原样数据
+          const bk = KEY_BACKUP_REV + (parsed.dataRev || 0); if (!lsGet(bk)) lsSet(bk, raw); upgradedNow = true;
+        }
+        return s;
+      }
+    } catch (e) {}
+    const old = lsGet(KEY_OLD);
+    if (old) { try { const s = toV4(JSON.parse(old)); if (s) { lsSet(KEY_BACKUP, old); lsSet(KEY, JSON.stringify(s)); migratedNow = true; return s; } } catch (e) {} }
     return buildDefault();
   }
   let state = load();
@@ -849,22 +1221,113 @@ window.TRIP_PHOTOS = {
   // 合并默认资料与用户编辑
   function att(id) {
     const c = state.custom.find(x => x.id === id);
-    if (c) return Object.assign({ custom: true, photo: null }, c);
+    if (c) return Object.assign({ custom: true, photo: null, _ed: {} }, c);
     const d = ATT.get(id); if (!d) return null;
     const st = state.att[id];
-    return Object.assign({}, d, st.edits, { id, sel: st.sel, date: st.date, time: st.time, booked: st.booked, photo: PH[id] || null });
+    return Object.assign({}, d, st.edits, { id, sel: st.sel, date: st.date, time: st.time, booked: st.booked, photo: PH[id] || null, _ed: st.edits });
   }
   const attState = id => state.custom.find(x => x.id === id) || state.att[id];
-  const hotel = id => Object.assign({}, HOT.get(id), state.hotels[id].edits, { booked: state.hotels[id].booked });
-  const trans = id => Object.assign({}, TRA.get(id), state.transport[id].edits, { booked: state.transport[id].booked });
-  const regionAtts = r => [...T.attractions.filter(a => a.region === r).map(a => a.id), ...state.custom.filter(c => c.region === r).map(c => c.id)].map(att);
+  const hotel = id => Object.assign({}, HOT.get(id), state.hotels[id].edits, { booked: state.hotels[id].booked, _ed: state.hotels[id].edits });
+  const trans = id => Object.assign({}, TRA.get(id), state.transport[id].edits, { booked: state.transport[id].booked, _ed: state.transport[id].edits });
   const L = (zh, pt) => (lang === "pt" && pt) ? pt : (zh || "");
   const val = v => { v = String(v ?? "").trim(); return v ? (/^待确认/.test(v) ? `<span class="tbc">${esc(v)}</span>` : esc(v)) : `<span class="tbc">${esc(tr("tbc"))}</span>`; };
 
+  // 页面：bcn / par / ch-grw / ch-zer / ch-zrh
+  const PAGES = ["bcn", "par", ...[...SUBS.keys()].map(k => "ch-" + k)];
+  const pageOf = a => a.region === "ch" ? "ch-" + (SUBS.has(a.sub) ? a.sub : "grw") : a.region;
+  const pageInfo = pk => {
+    const [r, sub] = pk.split("-"); const reg = REG.get(r), sb = sub ? SUBS.get(sub) : null;
+    return { pk, region: r, sub: sub || "", reg, sb, hotel: (sb || reg).hotel, name: sb ? `${L(reg.name, reg.namePt)} · ${L(sb.name, sb.namePt)}` : L(reg.name, reg.namePt) };
+  };
+  const pageAtts = pk => [...T.attractions.map(a => a.id), ...state.custom.map(c => c.id)].map(att).filter(a => pageOf(a) === pk);
+  const regionAtts = r => [...T.attractions.map(a => a.id), ...state.custom.map(c => c.id)].map(att).filter(a => a.region === r);
+
+  // 排序：先按计划日期，再按时间；没有日期的放最后；同一天没有时间的放在当天最后
+  const sortKey = a => (a.date || "9999-99-99") + " " + (a.time || "99:99");
+  const sortSel = list => list.map((a, i) => [a, i]).sort((x, y) => sortKey(x[0]).localeCompare(sortKey(y[0])) || x[1] - y[1]).map(x => x[0]);
+  const fmtDay = d => { if (!d) return tr("noDate"); const [, m, dd] = d.split("-"); return lang === "pt" ? `${dd}/${m}` : `${+m}月${+dd}日`; };
+  const fmtShort = d => { if (!d) return ""; const [, m, dd] = d.split("-"); return lang === "pt" ? `${dd}/${m}` : `${+m}/${+dd}`; };
+
+  // ---------- 时间冲突（只用已核实的时间） ----------
+  const hm = t => { const m = /^(\d{1,2}):(\d{2})/.exec(t || ""); return m ? +m[1] * 60 + +m[2] : null; };
+  function conflicts(a) {
+    const out = []; const t = hm(a.time); const c = a.chk; if (t === null || !c) return out;
+    const ed = a._ed || {};
+    if (c.hours && !("hours" in ed)) {
+      const h = c.hours; let span = null, closed = false;
+      if (a.date) {
+        const dow = new Date(a.date + "T12:00:00").getDay();
+        if ((h.closed || []).includes(a.date) || (h.closedDow || []).includes(dow)) closed = true;
+        else span = (h.dates || {})[a.date] || (h.dow || {})[dow] || h.def || null;
+      } else span = h.def || null;
+      if (closed) out.push(tr("cfClosed"));
+      else if (span && ((span[0] && t < hm(span[0])) || (span[1] && t >= hm(span[1])))) out.push(tr("cfHours"));
+    }
+    if (c.lastDown && !("last" in ed) && t >= hm(c.lastDown)) out.push(tr("cfLast"));
+    return out;
+  }
+  const cfHtml = a => conflicts(a).map(m => `<p class="cf">⚠ ${esc(m)}</p>`).join("");
+
+  // ---------- 从酒店出发 ----------
+  const EU_H = T.hotels.filter(h => h.grp === "eu");
+  const hotelRegion = id => { for (const r of T.regions) { if (r.hotel === id) return r.id; for (const s of r.subs || []) if (s.hotel === id) return r.id; } return ""; };
+  function originHotel(a) {
+    const info = pageInfo(pageOf(a)); const base = info.hotel;
+    if (!a.date) return { id: base, why: tr("r_noDate") };
+    const d = a.date;
+    const night = EU_H.find(h => h.in <= d && d < h.out), morning = EU_H.find(h => h.in < d && d <= h.out);
+    if (morning && night && morning.id !== night.id) {    // 换酒店当天：同一国家内从上一家出发（顺路），跨国（飞机 / 火车）则按新酒店
+      return hotelRegion(morning.id) === a.region ? { id: morning.id, why: tr("r_change", { d: fmtShort(d) }) } : { id: night.id, why: tr("r_byDate", { d: fmtShort(d) }) };
+    }
+    const h = night || morning; return h ? { id: h.id, why: tr("r_byDate", { d: fmtShort(d) }) } : { id: base, why: tr("r_noDate") };
+  }
+  function haversine(p, q) {
+    const R = 6371, rad = x => x * Math.PI / 180;
+    const dLat = rad(q[0] - p[0]), dLon = rad(q[1] - p[1]);
+    const s = Math.sin(dLat / 2) ** 2 + Math.cos(rad(p[0])) * Math.cos(rad(q[0])) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(s));
+  }
+  const kmText = km => km < 10 ? km.toFixed(1) : String(Math.round(km));
+  const STATION = { "h-grw": "Grindelwald", "h-vsp": "Visp", "h-zrh": "Zürich Flughafen" };
+  const SBB_DEST = { "ch-lauterbrunnen": "Lauterbrunnen", "ch-staubbach": "Lauterbrunnen", "ch-wengen": "Wengen", "ch-kleinescheidegg": "Kleine Scheidegg", "ch-jungfraujoch": "Jungfraujoch",
+    "ch-eigergletscher": "Eigergletscher", "ch-maennlichen": "Männlichen", "ch-muerren": "Mürren", "ch-schilthorn": "Schilthorn", "ch-oeschinensee": "Kandersteg", "ch-blausee": "Blausee BE",
+    "ch-zermatt": "Zermatt", "ch-gornergrat": "Gornergrat", "ch-sunnegga": "Sunnegga", "ch-mgp": "Klein Matterhorn", "ch-schwarzsee": "Zermatt Schwarzsee", "ch-riffelsee": "Rotenboden",
+    "ch-kapellbruecke": "Luzern", "ch-lakeluzern": "Luzern", "ch-pilatus": "Pilatus Kulm", "ch-rigi": "Rigi Kulm", "ch-zurichold": "Zürich HB", "ch-lindenhof": "Zürich HB",
+    "ch-uetliberg": "Uetliberg", "ch-lakezurich": "Zürich, Bürkliplatz", "ch-lindt": "Kilchberg ZH", "ch-rhinefalls": "Neuhausen Rheinfall", "ch-first": "Grindelwald, Firstbahn" };
+  function routeHtml(a) {
+    const o = originHotel(a), h = hotel(o.id);
+    const hp = RT.pts[o.id], ap = RT.pts[a.id];
+    const r = (RT.r[a.id] || {})[o.id] || null;
+    const how = a._ed && a._ed.how ? a.how : (a.custom && a.how ? a.how : (r ? r.how : ""));
+    const dur = a._ed && a._ed.dur ? a.dur : (a.custom && a.dur ? a.dur : (r ? r.dur : ""));
+    const dist = hp && ap ? tr("r_straight", { km: kmText(haversine(hp, ap)) }) : "";
+    const dest = qOf(a.map) || a.local || a.name, orig = qOf(h.map) || `${h.name} ${h.city || ""}`;
+    const gm = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(orig)}&destination=${encodeURIComponent(dest)}&travelmode=transit`;
+    const sbbTo = SBB_DEST[a.id], sbb = a.region === "ch" && STATION[o.id] && sbbTo ? `https://www.sbb.ch/en?von=${encodeURIComponent(STATION[o.id])}&nach=${encodeURIComponent(sbbTo)}` : "";
+    return `<section class="route"><h4>🚶 ${esc(tr("fromHotel"))}</h4>
+      <dl class="facts">
+        <dt>${esc(tr("r_from"))}</dt><dd>${esc(h.name)}<div class="small">${esc(o.why)}</div></dd>
+        <dt>${esc(tr("r_dist"))}</dt><dd>${dist ? esc(dist) : val("")}</dd>
+        <dt>${esc(tr("r_how"))}</dt><dd>${how ? esc(how) : val("")}${r && r.sbb && h.toStation && !(a._ed && a._ed.how) ? `<div class="small">${esc(h.toStation)}</div>` : ""}</dd>
+        <dt>${esc(tr("r_dur"))}</dt><dd>${val(dur)}</dd>
+      </dl>
+      <a class="map" href="${esc(gm)}" target="_blank" rel="noopener noreferrer">📍 ${esc(tr("mapOpen"))}</a>
+      ${sbb ? `<div class="linkrow">${ext(sbb, tr("sbbLink"))}</div>` : ""}
+      ${r && r.sbb && !(a._ed && a._ed.dur) ? `<div class="small">${esc(tr("r_sbbNote"))}</div>` : ""}
+    </section>`;
+  }
+
   // ---------- 视图 ----------
   const app = $("#app");
-  let rendered = null;
-  const route = () => { const h = location.hash.replace(/^#/, ""); return ["bcn", "par", "ch", "hotels", "transport"].includes(h) ? h : "home"; };
+  let rendered = null, cdTimer = null;
+  const dayF = {};   // 每个页面的日期筛选（只在本次打开时有效）
+  function route() {
+    const h = decodeURIComponent(location.hash.replace(/^#/, ""));
+    if (["hotels", "transport", "ch"].includes(h)) return { v: h, key: h };
+    const m = h.match(/^([a-z-]+?)(\/alt)?$/);
+    if (m && PAGES.includes(m[1])) return { v: "page", pk: m[1], alt: !!m[2], key: h };
+    return { v: "home", key: "home" };
+  }
   const go = v => { location.hash = v === "home" ? "" : v; };
 
   function topBar() {
@@ -888,9 +1351,9 @@ window.TRIP_PHOTOS = {
     const items = [["home", tr("home").replace("← ", "")], ...T.regions.map(r => [r.id, `${r.flag} ${L(r.name, r.namePt)}`]), ["hotels", "🏨 " + tr("hotels")], ["transport", "🚆 " + tr("transport")]];
     return `<nav class="nav">${items.map(([id, label]) => `<button class="chip ${cur === id ? "on" : ""}" data-go="${id}">${esc(label)}</button>`).join("")}</nav>`;
   }
-  function imgHtml(photo, alt, cls) {
+  function imgHtml(photo, alt) {
     if (!photo) return `<div class="fallback">${esc(alt)}</div>`;
-    return `<img src="${esc(photo.src)}" alt="${esc(alt)}" loading="lazy" decoding="async" ${cls ? `class="${cls}"` : ""}>`;
+    return `<img src="${esc(photo.src)}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
   }
   function wireImages(root) {   // 加载失败 → 占位图
     root.querySelectorAll("img").forEach(img => {
@@ -899,135 +1362,216 @@ window.TRIP_PHOTOS = {
     });
   }
 
+  // 回国倒计时（QR786 圣保罗起飞，按当地时区计算）
+  function homeTrip() {
+    const t0 = T.transport.find(t => t.home); if (!t0) return null;
+    const t = trans(t0.id), legs = t.legs && t.legs.length ? t.legs : [{ date: t.date, no: t.no, from: t.from, to: t.to, dep: t.dep, arr: t.arr }];
+    const first = legs[0], last = legs[legs.length - 1];
+    const dep = Date.parse(`${first.date}T${(first.dep || "").slice(0, 5)}:00${t0.tz || "Z"}`);
+    const at = (String(last.arr).match(/(\d{1,2}):(\d{2})/) || []);
+    const arr = at.length ? Date.parse(`${last.date}T${at[1].padStart(2, "0")}:${at[2]}:00${t0.tzArr || "Z"}`) : NaN;
+    if (isNaN(dep)) return null;
+    return { dep, arr, no: first.no, d: fmtShort(first.date), t: first.dep, from: first.from, to: last.to, ad: `${fmtShort(last.date)} ${at.length ? at[1] + ":" + at[2] : ""}` };
+  }
+  function cdHtml() {
+    const h = homeTrip(); if (!h) return "";
+    return `<section class="cd" id="cd"><div><span class="cd-k">${esc(tr("cdTitle"))}</span>
+      <span class="cd-f">${esc(tr("cdFlight", { no: h.no, d: h.d, t: h.t, from: h.from, ad: h.ad, to: h.to }))}</span></div><div id="cdBody"></div></section>`;
+  }
+  function tickCd() {
+    const el = $("#cdBody"); const h = homeTrip(); if (!el || !h) return;
+    const now = Date.now(), p2 = n => String(n).padStart(2, "0");
+    if (now < h.dep) {
+      let s = Math.floor((h.dep - now) / 1000); const d = Math.floor(s / 86400); s -= d * 86400; const hh = Math.floor(s / 3600); s -= hh * 3600; const mm = Math.floor(s / 60); s -= mm * 60;
+      el.innerHTML = `<div class="cd-n"><span><b>${d}</b><i>${esc(tr("cdD"))}</i></span><span><b>${p2(hh)}</b><i>${esc(tr("cdH"))}</i></span><span><b>${p2(mm)}</b><i>${esc(tr("cdM"))}</i></span><span><b>${p2(s)}</b><i>${esc(tr("cdS"))}</i></span></div>`;
+    } else if (!isNaN(h.arr) && now < h.arr) el.innerHTML = `<div class="cd-msg">${esc(tr("cdOnWay", { ad: h.ad, to: h.to }))}</div>`;
+    else el.innerHTML = `<div class="cd-msg">${esc(tr("cdHome"))}</div>`;
+  }
+
   function renderHome() {
     document.title = L(T.title, T.titlePt);
     const start = new Date(2026, 11, 19), now = new Date(); now.setHours(0, 0, 0, 0);
     const diff = Math.round((start - now) / 86400000);
-    const banner = diff > 0 ? `<p class="banner"><b>${diff}</b> ${esc(tr("daysLeft"))}</p>` : (diff > -13 ? `<p class="banner"><b>${esc(tr("onTrip"))}</b></p>` : "");
+    const banner = diff > 0 ? `<p class="banner">${tr("euLeft", { n: diff })}</p>` : (diff > -13 ? `<p class="banner"><b>${esc(tr("onTrip"))}</b></p>` : "");
     const cards = T.regions.map(r => {
       const list = regionAtts(r.id), sel = list.filter(a => a.sel).length;
       return `<button class="dest" data-go="${r.id}">${imgHtml(PH[r.cover], r.en)}<span class="shade"></span>
         <span class="txt"><span class="flag">${r.flag}</span><div class="nm">${esc(L(r.name, r.namePt))}</div><div class="en">${esc(r.en)} · ${esc(r.dates)}</div>
         <div class="meta">${esc(tr("selCount", { a: sel, b: list.length }))}</div></span></button>`;
     }).join("");
-    const hb = Object.values(state.hotels).filter(h => h.booked).length, tb = Object.values(state.transport).filter(t => t.booked).length;
-    app.innerHTML = `${topBar()}${banner}
+    const needH = T.hotels.filter(h => !h.noBook), hb = needH.filter(h => state.hotels[h.id].booked).length, tb = Object.values(state.transport).filter(t => t.booked).length;
+    app.innerHTML = `${topBar()}${cdHtml()}${banner}
       <div class="dest-grid">${cards}</div>
       <div class="links">
-        <button class="link-card" data-go="hotels"><span class="ic">🏨</span><span><b>${esc(tr("hotels"))}</b><span>${esc(tr("hotelBooked"))} ${hb} / ${T.hotels.length}</span></span></button>
+        <button class="link-card" data-go="hotels"><span class="ic">🏨</span><span><b>${esc(tr("hotels"))}</b><span>${esc(tr("hotelBooked"))} ${hb} / ${needH.length}</span></span></button>
         <button class="link-card" data-go="transport"><span class="ic">🚆</span><span><b>${esc(tr("transport"))}</b><span>${esc(tr("traBooked"))} ${tb} / ${T.transport.length}</span></span></button>
       </div>
       ${migratedNow ? `<p class="banner" style="margin-top:14px">${esc(tr("migrated"))}</p>` : ""}`;
+    tickCd(); cdTimer = setInterval(tickCd, 1000);
+  }
+
+  function renderCh() {
+    document.title = `${L(CH.name, CH.namePt)} · ${L(T.title, T.titlePt)}`;
+    const cards = CH.subs.map(s => {
+      const list = pageAtts("ch-" + s.id), sel = list.filter(a => a.sel).length;
+      return `<button class="dest" data-go="ch-${s.id}">${imgHtml(PH[s.cover], s.en)}<span class="shade"></span>
+        <span class="txt"><div class="nm">${esc(L(s.name, s.namePt))}</div><div class="en">${esc(s.en)} · ${esc(s.dates)}</div>
+        <div class="covers">${esc(L(s.covers, s.coversPt))}</div>
+        <div class="meta">${esc(tr("selCount", { a: sel, b: list.length }))}</div></span></button>`;
+    }).join("");
+    app.innerHTML = `${topBar()}${navBar("ch")}
+      <div class="rhead"><h2>${CH.flag} ${esc(L(CH.name, CH.namePt))}</h2><span class="d">${esc(CH.en)} · ${esc(CH.dates)}</span></div>
+      <p class="rcovers">${esc(tr("chHint"))}</p>
+      <div class="dest-grid">${cards}</div>`;
   }
 
   function cardHtml(a) {
     const name = L(a.name, a.namePt);
-    const map = safeUrl(a.map), summit = safeUrl(a.summit), ticket = safeUrl(a.ticket), web = safeUrl(a.web);
-    const p = a.photo;
-    const moreBits = [
-      ticket ? `<a href="${esc(ticket)}" target="_blank" rel="noopener noreferrer">${esc(tr("ticket"))} ↗</a>` : "",
-      web ? `<a href="${esc(web)}" target="_blank" rel="noopener noreferrer">${esc(tr("web"))} ↗</a>` : "",
-      summit ? `<a href="${esc(summit)}" target="_blank" rel="noopener noreferrer">${esc(tr("summit"))} ↗</a>` : ""
-    ].filter(Boolean).join(" · ");
     return `
-      <article class="att ${a.sel ? "" : "unsel"}" data-id="${esc(a.id)}">
-        <div class="ph">${imgHtml(p, name)}<span class="area">${esc(a.area || "")}</span>${a.booked ? `<span class="bk">✓ ${esc(tr("bookedBadge"))}</span>` : ""}</div>
+      <article class="att" data-id="${esc(a.id)}">
+        <button class="ph" data-open aria-label="${esc(tr("details"))}：${esc(name)}">${imgHtml(a.photo, name)}<span class="area">${esc(a.area || "")}</span>${a.booked ? `<span class="bk">✓ ${esc(tr("bookedBadge"))}</span>` : ""}</button>
         <div class="body">
-          <h3>${esc(name)}</h3>
-          ${a.local ? `<div class="local">${esc(a.local)}</div>` : ""}
-          <dl class="facts">
-            <dt>${esc(tr("f_hours"))}</dt><dd>${val(a.hours)}</dd>
-            <dt>${esc(tr("f_price"))}</dt><dd>${val(a.price)}</dd>
-            ${a.last ? `<dt>${esc(tr("f_last"))}</dt><dd>${val(a.last)}</dd>` : ""}
-          </dl>
-          ${a.warn ? `<p class="warn">⚠ ${esc(a.warn)}</p>` : ""}
-          ${map ? `<a class="map" href="${esc(map)}" target="_blank" rel="noopener noreferrer">📍 ${esc(tr("mapOpen"))}</a>` : `<span class="map none">${esc(tr("mapNone"))}</span>`}
+          <h3><button class="tl" data-open>${esc(name)} <span class="go">${esc(tr("details"))} ›</span></button></h3>
+          <div class="cfs">${cfHtml(a)}</div>
           <div class="plan">
-            <label>${esc(tr("planDate"))}<input type="date" data-f="date" value="${esc(a.date)}" min="2026-12-19" max="2026-12-31" id="d-${esc(a.id)}"></label>
-            <label>${esc(tr("planTime"))}<input type="time" data-f="time" value="${esc(a.time)}" id="t-${esc(a.id)}"></label>
+            <label>${esc(tr("planDate"))}<input type="date" data-f="date" value="${esc(a.date)}" min="2026-12-19" max="2026-12-31"></label>
+            <label>${esc(tr("planTime"))}<input type="time" data-f="time" value="${esc(a.time)}"></label>
           </div>
           <div class="toggles">
             <label class="tg ${a.booked ? "on" : ""}"><input type="checkbox" data-f="booked" ${a.booked ? "checked" : ""}>${esc(tr("booked"))}</label>
             <label class="tg ${a.sel ? "on" : ""}"><input type="checkbox" data-f="sel" ${a.sel ? "checked" : ""}>${esc(tr("sel"))}</label>
           </div>
-          <details class="more"><summary>${esc(tr("more"))}</summary><div class="in">
-            ${moreBits ? `<p>${moreBits}</p>` : ""}
-            ${a.notes ? `<p>${linkify(a.notes)}</p>` : ""}
-            ${a.src ? `<p class="credit">${esc(tr("src"))}：${linkify(a.src)}</p>` : ""}
-            ${p ? `<p class="credit">${esc(tr("photo"))}：<a href="${esc(p.page)}" target="_blank" rel="noopener noreferrer">${esc(p.author)}</a> · ${esc(p.license)} · Wikimedia Commons</p>` : ""}
-            <div class="row-btns"><button class="btn" data-edit>${esc(tr("edit"))}</button>${a.custom ? `<button class="btn ghost-danger" data-delc>${esc(tr("del"))}</button>` : ""}</div>
-          </div></details>
         </div>
       </article>`;
   }
 
-  function renderRegion(r) {
-    const reg = REG.get(r);
-    document.title = `${L(reg.name, reg.namePt)} · ${L(T.title, T.titlePt)}`;
-    const list = regionAtts(r);
-    const sel = list.filter(a => a.sel), uns = list.filter(a => !a.sel);
+  function renderPage(pk, alt) {
+    const info = pageInfo(pk);
+    document.title = `${info.name} · ${L(T.title, T.titlePt)}`;
+    const list = pageAtts(pk);
+    const sel = sortSel(list.filter(a => a.sel)), uns = list.filter(a => !a.sel);
     const booked = list.filter(a => a.booked).length;
-    app.innerHTML = `${topBar()}${navBar(r)}
-      <div class="rhead"><h2>${reg.flag} ${esc(L(reg.name, reg.namePt))}</h2><span class="d">${esc(reg.en)} · ${esc(reg.dates)} · ${esc(tr("selCount", { a: sel.length, b: list.length }))} · ${esc(tr("bookedCount", { n: booked }))}</span></div>
-      <h3 class="sec-title">✅ ${esc(tr("selected"))} <span class="n">${sel.length}</span></h3>
-      <div class="cards" id="selCards">${sel.map(cardHtml).join("") || `<div class="empty">${esc(tr("noneSel"))}</div>`}</div>
-      <h3 class="sec-title">☐ ${esc(tr("unselected"))} <span class="n">${uns.length}</span></h3>
-      <div class="cards" id="unsCards">${uns.map(cardHtml).join("") || `<div class="empty">${esc(tr("noneUnsel"))}</div>`}</div>
+    const hName = HOT.get(info.hotel) ? HOT.get(info.hotel).name : "";
+    const head = info.sb
+      ? `<button class="chip back" data-go="ch">${esc(tr("backCh"))}</button>
+         <div class="rhead"><h2>${info.reg.flag} ${esc(info.name)}</h2><span class="d">${esc(info.sb.en)} · ${esc(info.sb.dates)} · ${esc(tr("subStay", { h: hName }))}</span></div>
+         <p class="rcovers">${esc(L(info.sb.covers, info.sb.coversPt))}</p>`
+      : `<div class="rhead"><h2>${info.reg.flag} ${esc(info.name)}</h2><span class="d">${esc(info.reg.en)} · ${esc(info.reg.dates)} · ${esc(tr("subStay", { h: hName }))}</span></div>`;
+    const tabs = `<div class="tabs" role="tablist">
+        <button role="tab" aria-selected="${!alt}" class="${alt ? "" : "on"}" data-go="${pk}">✅ ${esc(tr("tabSel"))}<span class="n">${sel.length}</span></button>
+        <button role="tab" aria-selected="${alt}" class="${alt ? "on" : ""}" data-go="${pk}/alt">☐ ${esc(tr("tabAlt"))}<span class="n">${uns.length}</span></button></div>`;
+    let body;
+    if (!alt) {
+      const days = [...new Set(sel.map(a => a.date || ""))];
+      let f = dayF[pk]; if (f !== undefined && !days.includes(f)) f = dayF[pk] = undefined;
+      const chips = days.length > 1 ? `<div class="days" role="group">${[[undefined, tr("allDays")], ...days.map(d => [d, d ? fmtShort(d) : tr("noDate")])]
+        .map(([d, label]) => `<button class="chip ${f === d ? "on" : ""}" data-day="${d === undefined ? "*" : d}">${esc(label)}</button>`).join("")}</div>` : "";
+      const shown = f === undefined ? sel : sel.filter(a => (a.date || "") === f);
+      const groups = []; for (const a of shown) { const g = groups[groups.length - 1]; if (g && g.d === (a.date || "")) g.items.push(a); else groups.push({ d: a.date || "", items: [a] }); }
+      body = sel.length ? chips + (groups.map(g => `<h3 class="day-h">📅 ${esc(fmtDay(g.d))} <span class="n">${g.items.length}</span></h3><div class="cards">${g.items.map(cardHtml).join("")}</div>`).join("")
+        || `<div class="empty">${esc(tr("noneDay"))}</div>`) : `<div class="empty">${esc(tr("noneSel"))}</div>`;
+    } else {
+      body = `<p class="hint">${esc(tr("altHint"))}</p><div class="cards">${uns.map(cardHtml).join("") || `<div class="empty">${esc(tr("noneUnsel"))}</div>`}</div>`;
+    }
+    app.innerHTML = `${topBar()}${navBar(info.region)}${head}
+      <div class="d" style="color:var(--muted);font-size:13px">${esc(tr("selCount", { a: sel.length, b: list.length }))} · ${esc(tr("bookedCount", { n: booked }))}</div>
+      ${tabs}${body}
       <button class="add-btn" id="addAtt">${esc(tr("addAtt"))}</button>`;
-    wireImages(app);
-    $("#addAtt").onclick = () => openAttForm(null, r);
+    $("#addAtt").onclick = () => openAttForm(null, info);
   }
 
+  function hotelCard(h0) {
+    const h = hotel(h0.id), n = h.in && h.out ? Math.round((new Date(h.out) - new Date(h.in)) / 86400000) : 0;
+    const name = h._ed.name !== undefined ? h.name : L(h.name, h.namePt);
+    const cls = h.noBook ? "na" : (h.booked ? "ok" : "no");
+    const badge = h.noBook ? tr("hotelNA") : (h.booked ? tr("hotelBooked") : tr("hotelNot"));
+    const map = safeUrl(h.map) || (h.address ? mapsSearch(h.address) : "");
+    const city = h._ed.city !== undefined ? h.city : L(h.city, h.cityPt);
+    return `<div class="item ${cls}" data-hid="${esc(h.id)}">
+      <div class="hd"><div><h3>${name ? esc(name) : `<span class="tbc">${esc(tr("hotelName"))}</span>`}</h3><div class="city">${esc(city)}</div></div>
+        <span class="badge ${cls}">${esc(badge)}</span></div>
+      <div class="when">${esc(tr("checkin"))} <b>${esc(h.in || tr("tbf"))}</b>${h.checkin ? `（${esc(h.checkin)}）` : ""} → ${esc(tr("checkout"))} <b>${esc(h.out || tr("tbf"))}</b>${h.checkout ? `（${esc(h.checkout)}）` : ""}${n > 0 ? ` · ${esc(tr("nights", { n }))}` : ""}</div>
+      ${h.address ? `<div class="times">${esc(h.address)}</div>` : (h.grp === "cn" && !h.noBook ? `<div class="times tbc">${esc(tr("addrTbf"))}</div>` : "")}
+      ${h.note ? `<div class="note">${linkify(h.note)}</div>` : ""}
+      ${map ? `<a class="map" href="${esc(map)}" target="_blank" rel="noopener noreferrer">📍 ${esc(tr("mapOpen"))}</a>` : ""}
+      <div class="toggles">${h.noBook ? "<span></span>" : `<label class="tg ${h.booked ? "on" : ""}"><input type="checkbox" data-hb ${h.booked ? "checked" : ""}>${esc(tr("hotelBooked"))}</label>`}
+        <button class="btn" data-hedit>${esc(tr("edit"))}</button></div>
+    </div>`;
+  }
   function renderHotels() {
     document.title = tr("hotelsTitle");
-    const nights = (a, b) => Math.round((new Date(b) - new Date(a)) / 86400000);
+    const grp = g => T.hotels.filter(h => h.grp === g).map(h => hotel(h.id)).sort((a, b) => (a.in || "9999").localeCompare(b.in || "9999"));
     app.innerHTML = `${topBar()}${navBar("hotels")}<div class="rhead"><h2>🏨 ${esc(tr("hotelsTitle"))}</h2></div>
-      <div class="list">${T.hotels.map(h0 => {
-        const h = hotel(h0.id), map = safeUrl(h.map), n = h.in && h.out ? nights(h.in, h.out) : 0;
-        return `<div class="item" data-hid="${esc(h.id)}">
-          <div class="hd"><div><h3>${esc(h.name)}</h3><div class="city">${esc(lang === "pt" && !state.hotels[h.id].edits.city ? (h.cityPt || h.city) : h.city)}</div></div>
-            <span class="badge ${h.booked ? "ok" : "no"}">${esc(h.booked ? tr("hotelBooked") : tr("hotelNot"))}</span></div>
-          <div class="when">${esc(tr("checkin"))} <b>${esc(h.in)}</b>（${esc(h.checkin || tr("tbc"))}）→ ${esc(tr("checkout"))} <b>${esc(h.out)}</b>（${esc(h.checkout || tr("tbc"))}）${n > 0 ? ` · ${esc(tr("nights", { n }))}` : ""}</div>
-          ${h.note ? `<div class="note">${linkify(h.note)}</div>` : ""}
-          ${map ? `<a class="map" href="${esc(map)}" target="_blank" rel="noopener noreferrer">📍 ${esc(tr("mapOpen"))}</a>` : `<span class="map none">${esc(tr("mapNone"))}</span>`}
-          <div class="toggles"><label class="tg ${h.booked ? "on" : ""}"><input type="checkbox" data-hb ${h.booked ? "checked" : ""}>${esc(tr("hotelBooked"))}</label>
-            <button class="btn" data-hedit>${esc(tr("edit"))}</button></div>
-        </div>`; }).join("")}</div>`;
+      ${[["eu", tr("grpEu")], ["cn", tr("grpCn")]].map(([g, t]) => `<h3 class="grp-title">${esc(t)}</h3><div class="list">${grp(g).map(hotelCard).join("")}</div>`).join("")}`;
   }
 
+  function transCard(t) {
+    const purpose = t._ed.purpose !== undefined ? t.purpose : L(t.purpose, t.purposePt);
+    const cls = t.booked ? "ok" : "no";
+    const badge = t.booked ? tr("traBooked") : (t.pending && lang === "zh" ? t.pending : tr("traNot"));
+    const legs = t.legs && t.legs.length ? t.legs : null;
+    const tm = (a, b) => (a || b) ? `<div class="times">${esc(tr("depL"))} ${esc(a || tr("tbf"))} · ${esc(tr("arrL"))} ${esc(b || tr("tbf"))}</div>` : "";
+    return `<div class="item ${cls}" data-tid="${esc(t.id)}">
+      <div class="hd"><div><div class="datebox">${t.date ? esc(t.date) : esc(tr("dateTbd"))}${t.dateEnd ? ` – ${esc(t.dateEnd)}` : ""}</div><h3>${esc(purpose)}</h3></div>
+        <span class="badge ${cls}">${esc(badge)}</span></div>
+      ${t.mode ? `<div class="times">${esc(tr("modeL"))}：${esc(t.mode)}</div>` : ""}
+      ${legs ? `<div class="legs">${legs.map(l => `<div class="leg"><b>${esc(l.no || tr("tbf"))}</b> ${esc(l.date)} · ${esc(l.from)} ${esc(l.dep)} → ${esc(l.to)} ${esc(l.arr)}</div>`).join("")}</div>`
+        : `${t.no ? `<div class="route2">${esc(t.no)}</div>` : ""}
+           ${t.from || t.to ? `<div class="times">${esc(t.from || tr("tbf"))}${t.to ? ` → ${esc(t.to)}` : (t.grp === "cn" ? ` → ${esc(tr("tbf"))}` : "")}</div>` : (t.grp === "cn" ? `<div class="times tbc">${esc(tr("fl_from"))} → ${esc(tr("fl_to"))}：${esc(tr("tbf"))}</div>` : "")}
+           ${tm(t.dep, t.arr)}`}
+      ${t.note ? `<div class="note">${linkify(t.note)}</div>` : ""}
+      <div class="toggles"><label class="tg ${t.booked ? "on" : ""}"><input type="checkbox" data-tb ${t.booked ? "checked" : ""}>${esc(tr("traBooked"))}</label>
+        <button class="btn" data-tedit>${esc(tr("edit"))}</button></div>
+    </div>`;
+  }
   function renderTransport() {
     document.title = tr("transportTitle");
-    const rows = T.transport.map(t => trans(t.id)).sort((a, b) => (a.date || "").localeCompare(b.date || ""));
+    const grp = g => T.transport.filter(t => t.grp === g).map(t => trans(t.id)).sort((a, b) => (a.date || a.sortKey || "9999").localeCompare(b.date || b.sortKey || "9999"));
     app.innerHTML = `${topBar()}${navBar("transport")}<div class="rhead"><h2>🚆 ${esc(tr("transportTitle"))}</h2></div>
-      <div class="list">${rows.map(t => {
-        const purpose = state.transport[t.id].edits.purpose ? t.purpose : L(t.purpose, t.purposePt);
-        return `<div class="item" data-tid="${esc(t.id)}">
-          <div class="hd"><div><div class="datebox">${esc(t.date)}${t.dateEnd ? ` – ${esc(t.dateEnd)}` : ""}</div><h3>${esc(purpose)}</h3></div>
-            <span class="badge ${t.booked ? "ok" : "no"}">${esc(t.booked ? tr("traBooked") : tr("traNot"))}</span></div>
-          ${t.no ? `<div class="route">${esc(t.no)}</div>` : ""}
-          ${t.from || t.to ? `<div class="times">${esc(t.from)}${t.to ? ` → ${esc(t.to)}` : ""}</div>` : ""}
-          ${t.dep || t.arr ? `<div class="times">${esc(tr("fl_dep"))} ${esc(t.dep || tr("tbc"))} · ${esc(tr("fl_arr"))} ${esc(t.arr || tr("tbc"))}</div>` : ""}
-          ${t.note ? `<div class="note">${linkify(t.note)}</div>` : ""}
-          <div class="toggles"><label class="tg ${t.booked ? "on" : ""}"><input type="checkbox" data-tb ${t.booked ? "checked" : ""}>${esc(tr("traBooked"))}</label>
-            <button class="btn" data-tedit>${esc(tr("edit"))}</button></div>
-        </div>`; }).join("")}</div>`;
+      ${[["eu", tr("grpEu")], ["cn", tr("grpCn")]].map(([g, t]) => `<h3 class="grp-title">${esc(t)}</h3><div class="list">${grp(g).map(transCard).join("")}</div>`).join("")}`;
   }
 
   function render(force) {
-    const v = route();
-    if (!force && v === rendered) return;
-    const changed = v !== rendered; rendered = v;
-    if (v === "home") renderHome(); else if (v === "hotels") renderHotels(); else if (v === "transport") renderTransport(); else renderRegion(v);
+    const r = route();
+    if (!force && r.key === rendered) return;
+    const changed = r.key !== rendered; rendered = r.key;
+    clearInterval(cdTimer); cdTimer = null;
+    if (r.v === "home") renderHome(); else if (r.v === "hotels") renderHotels(); else if (r.v === "transport") renderTransport();
+    else if (r.v === "ch") renderCh(); else renderPage(r.pk, r.alt);
     wireImages(app); bindTop();
     if (changed) window.scrollTo(0, 0);
   }
+  const rerender = () => { const y = window.scrollY; render(true); window.scrollTo(0, y); };
+  function flashCard(id) {
+    const c = app.querySelector(`.att[data-id="${CSS.escape(id)}"]`); if (!c) return;
+    c.classList.add("flash"); setTimeout(() => c.classList.remove("flash"), 1700);
+    const b = c.getBoundingClientRect(); if (b.top < 0 || b.bottom > window.innerHeight) c.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+
+  // ---------- 修改日期 / 时间后自动排序（输入途中不重绘，失焦或确认后再排） ----------
+  let pendingResort = null, typed = false, resortTmr = null;
+  const isPlan = el => el && el.matches && el.matches('.att input[data-f="date"], .att input[data-f="time"]');
+  function doResort() {
+    clearTimeout(resortTmr); if (!pendingResort) return;
+    const id = pendingResort; pendingResort = null; typed = false;
+    const r = route(); if (r.v !== "page" || r.alt) return;
+    rerender(); flashCard(id);
+    const a = att(id); if (a) toast(tr("resorted", { d: a.date ? fmtShort(a.date) : tr("noDate"), t: a.time || "" }));
+  }
+  app.addEventListener("keydown", e => { if (isPlan(e.target)) { typed = true; if (e.key === "Enter") e.target.blur(); } });
+  app.addEventListener("focusout", e => {
+    if (isPlan(e.target) && !pendingResort) typed = false;
+    if (!pendingResort || !isPlan(e.target)) return;
+    setTimeout(() => { const ae = document.activeElement; if (isPlan(ae) && ae.closest(".att").dataset.id === pendingResort) return; doResort(); }, 0);
+  });
 
   // ---------- 交互（委托到 #app，只注册一次） ----------
   app.addEventListener("click", e => {
     const g = e.target.closest("[data-go]"); if (g) { go(g.dataset.go); return; }
+    const dy = e.target.closest("[data-day]");
+    if (dy) { const r = route(); dayF[r.pk] = dy.dataset.day === "*" ? undefined : dy.dataset.day; rerender(); return; }
     const card = e.target.closest(".att");
-    if (card && e.target.closest("[data-edit]")) { openAttForm(card.dataset.id); return; }
-    if (card && e.target.closest("[data-delc]")) { delCustom(card.dataset.id); return; }
+    if (card && e.target.closest("[data-open]")) { openDetail(card.dataset.id); return; }
     const hi = e.target.closest("[data-hid]"); if (hi && e.target.closest("[data-hedit]")) { openSimpleForm("hotel", hi.dataset.hid); return; }
     const ti = e.target.closest("[data-tid]"); if (ti && e.target.closest("[data-tedit]")) { openSimpleForm("transport", ti.dataset.tid); return; }
   });
@@ -1035,24 +1579,29 @@ window.TRIP_PHOTOS = {
     const el = e.target;
     const card = el.closest(".att");
     if (card && el.dataset.f) {
-      const st = attState(card.dataset.id); if (!st) return;
+      const id = card.dataset.id, st = attState(id); if (!st) return;
       const f = el.dataset.f;
-      if (f === "sel" || f === "booked") {
-        st[f] = el.checked; save();
-        if (f === "sel") {   // 只移动，不清除计划时间和预约状态
-          const y = window.scrollY; render(true); window.scrollTo(0, y);
-          toast(el.checked ? tr("moved1") : tr("moved0"), () => { st.sel = !el.checked; save(); render(true); });
-        } else { el.closest(".tg").classList.toggle("on", el.checked); const ph = card.querySelector(".ph"); const b = ph.querySelector(".bk");
-          if (el.checked && !b) ph.insertAdjacentHTML("beforeend", `<span class="bk">✓ ${esc(tr("bookedBadge"))}</span>`); else if (!el.checked && b) b.remove(); }
-      } else { st[f] = el.value; save(); }
+      if (f === "sel") {   // 只移动，不清除计划时间和预约状态
+        st.sel = el.checked; save(); rerender();
+        toast(el.checked ? tr("moved1") : tr("moved0"), () => { st.sel = !el.checked; save(); rerender(); });
+      } else if (f === "booked") {
+        st.booked = el.checked; save();
+        el.closest(".tg").classList.toggle("on", el.checked); const ph = card.querySelector(".ph"); const b = ph.querySelector(".bk");
+        if (el.checked && !b) ph.insertAdjacentHTML("beforeend", `<span class="bk">✓ ${esc(tr("bookedBadge"))}</span>`); else if (!el.checked && b) b.remove();
+      } else {
+        st[f] = el.value; save();
+        card.querySelector(".cfs").innerHTML = cfHtml(att(id));
+        const r = route();
+        if (r.v === "page" && !r.alt) { pendingResort = id; clearTimeout(resortTmr); if (!typed) resortTmr = setTimeout(doResort, 600); }
+      }
       return;
     }
-    if (el.matches("[data-hb]")) { const id = el.closest("[data-hid]").dataset.hid; state.hotels[id].booked = el.checked; save(); render(true); return; }
-    if (el.matches("[data-tb]")) { const id = el.closest("[data-tid]").dataset.tid; state.transport[id].booked = el.checked; save(); render(true); return; }
+    if (el.matches("[data-hb]")) { const id = el.closest("[data-hid]").dataset.hid; state.hotels[id].booked = el.checked; save(); rerender(); return; }
+    if (el.matches("[data-tb]")) { const id = el.closest("[data-tid]").dataset.tid; state.transport[id].booked = el.checked; save(); rerender(); return; }
   });
 
   function bindTop() {
-    $("#langBtn").onclick = () => { lang = lang === "zh" ? "pt" : "zh"; lsSet(LANG_KEY, lang); document.documentElement.lang = lang === "pt" ? "pt-BR" : "zh-CN"; render(true); };
+    $("#langBtn").onclick = () => { lang = lang === "zh" ? "pt" : "zh"; lsSet(LANG_KEY, lang); document.documentElement.lang = lang === "pt" ? "pt-BR" : "zh-CN"; rerender(); };
     const pop = $("#menuPop");
     $("#menuBtn").onclick = e => { e.stopPropagation(); pop.hidden = !pop.hidden; };
     pop.onclick = async e => {
@@ -1069,67 +1618,139 @@ window.TRIP_PHOTOS = {
   }
   document.addEventListener("click", () => { const p = $("#menuPop"); if (p) p.hidden = true; });
 
-  // ---------- 编辑面板 ----------
+  // ---------- 面板 ----------
   const sheetBg = $("#sheetBg"), sheetEl = $("#sheet");
-  function openSheet(html) { sheetEl.innerHTML = html; sheetBg.hidden = false; document.documentElement.style.overflow = "hidden"; sheetEl.scrollTop = 0; }
-  function closeSheet() { sheetBg.hidden = true; document.documentElement.style.overflow = ""; sheetEl.innerHTML = ""; }
+  let onSheetClose = null;
+  function openSheet(html, onClose) { sheetEl.innerHTML = html; sheetBg.hidden = false; document.documentElement.style.overflow = "hidden"; sheetEl.scrollTop = 0; onSheetClose = onClose || null; }
+  function closeSheet() { sheetBg.hidden = true; document.documentElement.style.overflow = ""; sheetEl.innerHTML = ""; const f = onSheetClose; onSheetClose = null; if (f) f(); }
   sheetBg.addEventListener("mousedown", e => { if (e.target === sheetBg) closeSheet(); });
+
+  // 景点详情：只放实用信息
+  function openDetail(id) {
+    const a = att(id); if (!a) return;
+    const name = L(a.name, a.namePt), p = a.photo;
+    const before = JSON.stringify([a.sel, a.date, a.time, a.booked]);
+    openSheet(`
+      <div class="sheet-head"><b>${esc(name)}</b><button class="close-btn" id="shClose" aria-label="${esc(tr("close"))}">×</button></div>
+      <div class="dt" data-id="${esc(a.id)}">
+        <div class="ph">${imgHtml(p, name)}<span class="area">${esc(a.area || "")}</span></div>
+        ${a.local ? `<div class="local">${esc(a.local)}</div>` : ""}
+        <div class="dcf">${cfHtml(a)}</div>
+        <dl class="facts">
+          <dt>${esc(tr("f_hours"))}</dt><dd>${val(a.hours)}</dd>
+          <dt>${esc(tr("f_price"))}</dt><dd>${val(a.price)}</dd>
+          <dt>${esc(tr("f_last"))}</dt><dd>${a.last ? val(a.last) : "—"}</dd>
+        </dl>
+        ${a.warn ? `<p class="warn">⚠ ${esc(a.warn)}</p>` : ""}
+        ${routeHtml(a)}
+        <div class="linkrow">${[ext(safeUrl(a.ticket), tr("ticket")), ext(safeUrl(a.web), tr("web")), ext(safeUrl(a.summit), tr("summit"))].filter(Boolean).join("")}</div>
+        <div class="plan">
+          <label>${esc(tr("planDate"))}<input type="date" data-sf="date" value="${esc(a.date)}" min="2026-12-19" max="2026-12-31"></label>
+          <label>${esc(tr("planTime"))}<input type="time" data-sf="time" value="${esc(a.time)}"></label>
+        </div>
+        <div class="toggles">
+          <label class="tg ${a.booked ? "on" : ""}"><input type="checkbox" data-sf="booked" ${a.booked ? "checked" : ""}>${esc(tr("booked"))}</label>
+          <label class="tg ${a.sel ? "on" : ""}"><input type="checkbox" data-sf="sel" ${a.sel ? "checked" : ""}>${esc(tr("sel"))}</label>
+        </div>
+        <details class="more"><summary>${esc(tr("moreInfo"))}</summary><div class="in">
+          ${a.notes ? `<p>${linkify(a.notes)}</p>` : ""}
+          ${a.src ? `<p class="credit">${esc(tr("src"))}：${linkify(a.src)}</p>` : ""}
+          ${p ? `<p class="credit">${esc(tr("photo"))}：<a href="${esc(p.page)}" target="_blank" rel="noopener noreferrer">${esc(p.author)}</a> · ${esc(p.license)} · Wikimedia Commons</p>` : ""}
+          <div class="row-btns"><button class="btn" id="dEdit">${esc(tr("edit"))}</button>${a.custom ? `<button class="btn ghost-danger" id="dDel">${esc(tr("del"))}</button>` : ""}</div>
+        </div></details>
+      </div>`, () => {
+        const b = attState(id); if (!b) return rerender();
+        const now = JSON.stringify([b.sel, b.date, b.time, b.booked]);
+        if (now !== before) { rerender(); flashCard(id); } });
+    wireImages(sheetEl);
+    $("#shClose").onclick = closeSheet;
+    $("#dEdit").onclick = () => { closeSheet(); openAttForm(id); };
+    if ($("#dDel")) $("#dDel").onclick = () => { closeSheet(); delCustom(id); };
+    sheetEl.querySelectorAll("[data-sf]").forEach(el => el.addEventListener("change", () => {
+      const st = attState(id); if (!st) return; const f = el.dataset.sf;
+      if (f === "sel" || f === "booked") { st[f] = el.checked; el.closest(".tg").classList.toggle("on", el.checked); } else st[f] = el.value;
+      save(); const na = att(id); $(".dcf", sheetEl).innerHTML = cfHtml(na);
+      const rt = $(".route", sheetEl); if (rt) rt.outerHTML = routeHtml(na);
+    }));
+  }
+
   const field = (id, label, value, type) => `<div><label for="${id}">${esc(label)}</label>${type === "long"
     ? `<textarea id="${id}">${esc(value)}</textarea>` : `<input type="${type || "text"}" id="${id}" value="${esc(value)}" ${type === "url" ? 'inputmode="url" autocapitalize="off"' : ""}>`}</div>`;
-  const ATT_FORM = [["name", ""], ["local", ""], ["area", ""], ["hours", "long"], ["price", ""], ["last", ""], ["map", "url"], ["summit", "url"], ["ticket", "url"], ["web", "url"], ["warn", ""], ["notes", "long"]];
+  const ATT_FORM = [["name", ""], ["local", ""], ["area", ""], ["hours", "long"], ["price", ""], ["last", ""], ["map", "url"], ["summit", "url"], ["ticket", "url"], ["web", "url"], ["warn", ""], ["how", ""], ["dur", ""], ["notes", "long"]];
 
-  function openAttForm(id, region) {
-    const isNew = !id, a = isNew ? { region } : att(id);
+  function openAttForm(id, info) {
+    const isNew = !id, a = isNew ? { region: info.region, sub: info.sub } : att(id);
+    const subSel = a.region === "ch" ? `<div><label for="af-sub">${esc(tr("fl_sub"))}</label><select id="af-sub">${[...SUBS.values()].map(s =>
+      `<option value="${s.id}" ${(a.sub || "grw") === s.id ? "selected" : ""}>${esc(L(s.name, s.namePt))}</option>`).join("")}</select></div>` : "";
     openSheet(`
       <div class="sheet-head"><b>${esc(isNew ? tr("newAtt") : tr("editAtt"))}</b><button class="close-btn" id="shClose" aria-label="${esc(tr("close"))}">×</button></div>
       <form class="form" id="shForm" novalidate>
-        ${ATT_FORM.map(([f, type]) => field("af-" + f, tr("fl_" + f), isNew ? "" : (a[f] || ""), type)).join("")}
+        ${ATT_FORM.slice(0, 3).map(([f, type]) => field("af-" + f, tr("fl_" + f), isNew ? "" : (a[f] || ""), type)).join("")}
+        ${subSel}
+        ${ATT_FORM.slice(3).map(([f, type]) => field("af-" + f, tr("fl_" + f), isNew ? "" : (a[f] || ""), type)).join("")}
         <div class="form-actions">
           <div>${!isNew && !a.custom ? `<button type="button" class="btn" id="shReset">${esc(tr("resetItem"))}</button>` : ""}</div>
           <div class="row-btns"><button type="button" class="btn" id="shCancel">${esc(tr("cancel"))}</button><button type="submit" class="btn primary">${esc(tr("save"))}</button></div>
         </div>
       </form>`);
     $("#shClose").onclick = closeSheet; $("#shCancel").onclick = closeSheet;
-    if ($("#shReset")) $("#shReset").onclick = () => { state.att[id].edits = {}; save(); closeSheet(); render(true); toast(tr("restored")); };
+    if ($("#shReset")) $("#shReset").onclick = () => { state.att[id].edits = {}; save(); closeSheet(); rerender(); toast(tr("restored")); };
     $("#shForm").onsubmit = e => {
       e.preventDefault();
       const vals = {}; for (const [f, type] of ATT_FORM) { let v = $("#af-" + f).value.trim(); if (type === "url") v = normUrl(v); vals[f] = v; }
+      if ($("#af-sub")) vals.sub = $("#af-sub").value;
       if (!vals.name) { const n = $("#af-name"); n.setCustomValidity(tr("nameRequired")); n.reportValidity(); n.oninput = () => n.setCustomValidity(""); return; }
-      if (isNew) state.custom.push(Object.assign({ id: uid(), region, sel: true, date: "", time: "", booked: false }, vals));
+      if (isNew) state.custom.push(Object.assign({ id: uid(), region: info.region, sub: info.sub || "", sel: true, date: "", time: "", booked: false }, vals));
       else if (a.custom) Object.assign(state.custom.find(x => x.id === id), vals);
       else {   // 只保存和默认资料不同的字段
         const d = ATT.get(id), edits = {};
-        for (const f of ATT_FIELDS) if ((vals[f] ?? "") !== (d[f] ?? "")) edits[f] = vals[f] ?? "";
+        for (const f of ATT_FIELDS) if (f in vals && (vals[f] ?? "") !== (d[f] ?? "")) edits[f] = vals[f] ?? "";
         state.att[id].edits = edits;
       }
-      save(); closeSheet(); render(true); toast(tr("saved"));
+      save(); closeSheet();
+      const moved = !isNew && a.region === "ch" && vals.sub && vals.sub !== (a.sub || "grw");
+      if (moved) go("ch-" + vals.sub); else rerender();
+      toast(tr("saved"));
     };
   }
   async function delCustom(id) {
     if (!await ask(tr("askDel"), "", tr("del"))) return;
     const i = state.custom.findIndex(x => x.id === id); if (i < 0) return;
-    const [gone] = state.custom.splice(i, 1); save(); render(true);
-    toast(tr("deleted"), () => { state.custom.splice(i, 0, gone); save(); render(true); });
+    const [gone] = state.custom.splice(i, 1); save(); rerender();
+    toast(tr("deleted"), () => { state.custom.splice(i, 0, gone); save(); rerender(); });
   }
   function openSimpleForm(kind, id) {
     const isH = kind === "hotel";
-    const fields = isH ? [["name", ""], ["city", ""], ["in", "date"], ["out", "date"], ["checkin", ""], ["checkout", ""], ["map", "url"], ["note", "long"]]
-                       : [["date", "date"], ["dateEnd", "date"], ["purpose", ""], ["no", ""], ["from", ""], ["to", ""], ["dep", ""], ["arr", ""], ["note", "long"]];
+    const fields = isH ? [["name", ""], ["city", ""], ["address", ""], ["in", "date"], ["out", "date"], ["checkin", ""], ["checkout", ""], ["map", "url"], ["note", "long"]]
+                       : [["date", "date"], ["dateEnd", "date"], ["purpose", ""], ["mode", ""], ["no", ""], ["from", ""], ["to", ""], ["dep", ""], ["arr", ""], ["note", "long"]];
     const cur = isH ? hotel(id) : trans(id), base = isH ? HOT.get(id) : TRA.get(id), st = isH ? state.hotels[id] : state.transport[id];
+    const legs = !isH && cur.legs && cur.legs.length ? cur.legs : null;
+    const disp = f => (cur._ed[f] !== undefined ? cur[f] : (f === "purpose" ? L(cur.purpose, cur.purposePt) : f === "city" ? L(cur.city, cur.cityPt) : f === "name" ? L(cur.name, cur.namePt) : cur[f])) || "";
     openSheet(`
       <div class="sheet-head"><b>${esc(tr("edit"))}</b><button class="close-btn" id="shClose" aria-label="${esc(tr("close"))}">×</button></div>
       <form class="form" id="shForm" novalidate>
-        ${fields.map(([f, type]) => field("sf-" + f, tr("fl_" + f), cur[f] || "", type)).join("")}
+        ${fields.filter(([f]) => !(legs && ["no", "from", "to", "dep", "arr"].includes(f))).map(([f, type]) => field("sf-" + f, tr("fl_" + f), disp(f), type)).join("")}
+        ${legs ? legs.map((l, i) => `<div class="legbox"><b>${esc(tr("legN", { n: i + 1 }))}</b>${LEG_FIELDS.map(f => field(`lg-${i}-${f}`, tr("fl_" + f), l[f] || "", f === "date" ? "date" : "")).join("")}</div>`).join("") : ""}
         <div class="form-actions"><button type="button" class="btn" id="shReset">${esc(tr("resetItem"))}</button>
           <div class="row-btns"><button type="button" class="btn" id="shCancel">${esc(tr("cancel"))}</button><button type="submit" class="btn primary">${esc(tr("save"))}</button></div></div>
       </form>`);
     $("#shClose").onclick = closeSheet; $("#shCancel").onclick = closeSheet;
-    $("#shReset").onclick = () => { st.edits = {}; save(); closeSheet(); render(true); toast(tr("restored")); };
+    $("#shReset").onclick = () => { st.edits = {}; save(); closeSheet(); rerender(); toast(tr("restored")); };
     $("#shForm").onsubmit = e => {
       e.preventDefault();
       const edits = {};
-      for (const [f, type] of fields) { let v = $("#sf-" + f).value.trim(); if (type === "url") v = normUrl(v); if (v !== (base[f] ?? "")) edits[f] = v; }
-      st.edits = edits; save(); closeSheet(); render(true); toast(tr("saved"));
+      for (const [f, type] of fields) {
+        const el = $("#sf-" + f); if (!el) continue;
+        let v = el.value.trim(); if (type === "url") v = normUrl(v);
+        const def = f === "purpose" ? L(base.purpose, base.purposePt) : f === "city" ? L(base.city, base.cityPt) : f === "name" ? L(base.name, base.namePt) : (base[f] ?? "");
+        if (v !== def) edits[f] = v;
+        else if (st.edits[f] !== undefined && v !== (base[f] ?? "")) edits[f] = v;
+      }
+      if (legs) {
+        const nl = legs.map((l, i) => Object.fromEntries(LEG_FIELDS.map(f => [f, $(`#lg-${i}-${f}`).value.trim()])));
+        if (JSON.stringify(nl) !== JSON.stringify((base.legs || []).map(l => Object.fromEntries(LEG_FIELDS.map(f => [f, l[f] || ""]))))) edits.legs = nl;
+      }
+      st.edits = edits; save(); closeSheet(); rerender(); toast(tr("saved"));
     };
   }
 
@@ -1156,7 +1777,7 @@ window.TRIP_PHOTOS = {
 
   // ---------- 导入 / 导出（只在本机，不会自动上传） ----------
   async function exportJSON() {
-    const json = JSON.stringify({ app: "europa-trip-2026", version: 4, exportedAt: new Date().toISOString(), state }, null, 2);
+    const json = JSON.stringify({ app: "europa-trip-2026", version: 4, dataRev: T.dataRev, exportedAt: new Date().toISOString(), state }, null, 2);
     const filename = `欧洲行程备份_${new Date().toISOString().slice(0, 10)}.json`;
     let dl = null;
     if (window.claude && typeof window.claude.use === "function") { try { dl = await window.claude.use("downloads"); } catch (e) {} }
@@ -1175,10 +1796,10 @@ window.TRIP_PHOTOS = {
   }
   $("#importFile").addEventListener("change", async e => { const f = e.target.files[0]; e.target.value = ""; if (f) await importText(await f.text()); });
 
-  window.__trip = { get state() { return state; }, importText, toV4 };   // 测试用
+  window.__trip = { get state() { return state; }, importText, toV4, conflicts: id => conflicts(att(id)), origin: id => originHotel(att(id)) };   // 测试用
   window.addEventListener("hashchange", () => render(false));
   document.documentElement.lang = lang === "pt" ? "pt-BR" : "zh-CN";
-  if (!lsGet(KEY)) save();   // 首次（或刚迁移）就把 v4 存下来
+  if (!lsGet(KEY) || upgradedNow) save();   // 首次、刚迁移或刚升级 → 存下来（升级前的原数据已另存备份）
   render(true);
 })();
 </script>
