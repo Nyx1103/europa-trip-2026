@@ -191,6 +191,8 @@
   .form label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
   .form .legbox { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .form .legbox b { grid-column: 1 / -1; font-size: 13px; }
+  .del-link { align-self: center; background: none; border: 0; color: var(--faint); font-size: 13px; padding: 10px 14px; margin-top: 4px; text-decoration: underline; min-height: 40px; }
+  .del-link:hover { color: var(--muted); }
   .form-actions { display: flex; gap: 8px; justify-content: space-between; position: sticky; bottom: 0; background: var(--surface); padding: 10px 0 2px; flex-wrap: wrap; }
 
   .modal-bg { position: fixed; inset: 0; background: var(--scrim); z-index: 70; display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -419,8 +421,7 @@ const HOTELS = [   // grp: eu 欧洲 / cn 中国；booked: 默认预订状态（
   { id: "h-vsp", grp: "eu", booked: true, city: "Visp（不是 Zermatt）", cityPt: "Visp (não Zermatt)", name: "Baxter Hotel", toStation: "酒店步行到 Visp 火车站约 2 分钟", in: "2026-12-28", out: "2026-12-30", checkin: "14:00 后", checkout: "07:00–11:00", map: M("Baxter Hotel Visp") },
   { id: "h-zrh", grp: "eu", booked: true, city: "苏黎世机场", cityPt: "Aeroporto de Zurique", name: "Hyatt Place Zurich Airport the Circle", toStation: "酒店步行到 Zürich Flughafen 火车站约 6 分钟", in: "2026-12-30", out: "2026-12-31", checkin: "15:00 后", checkout: "12:00 前", map: M("Hyatt Place Zurich Airport the Circle") },
   { id: "h-hkg", grp: "cn", booked: false, city: "香港", cityPt: "Hong Kong", name: "", address: "", in: "2026-12-11", out: "2026-12-13", checkin: "", checkout: "", map: "" },
-  { id: "h-szx", grp: "cn", booked: false, city: "深圳", cityPt: "Shenzhen", name: "", address: "", in: "2026-12-13", out: "2026-12-15", checkin: "", checkout: "", map: "" },
-  { id: "h-ptn", grp: "cn", booked: false, noBook: true, city: "平潭", cityPt: "Pingtan", name: "亲戚家", namePt: "Casa de parentes", address: "", in: "2026-12-15", out: "2026-12-16", checkin: "", checkout: "", map: "", note: "住亲戚家，无需预订。" }
+  { id: "h-szx", grp: "cn", booked: false, city: "深圳", cityPt: "Shenzhen", name: "", address: "", in: "2026-12-13", out: "2026-12-15", checkin: "", checkout: "", map: "" }
 ];
 
 const TRANSPORT = [   // grp: eu / cn；booked: 默认购票状态（有凭证的才为 true）；legs: 同一趟中转行程的各段；sortKey: 日期未定时用来排序
@@ -1077,7 +1078,7 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
       export: "导出备份（JSON）", import: "导入备份", resetAll: "全部恢复默认", more2: "更多",
       askReset: "全部恢复为默认？", askResetMsg: "景点选择、计划时间、预约状态、酒店和交通资料都会恢复默认，5 秒内可以撤销。建议先导出备份。", resetBtn: "恢复",
       askImport: "导入这份备份？", askImportMsg: "会覆盖当前内容；导入前的数据会自动备份在本机，5 秒内可撤销。", importBtn: "导入",
-      askDel: "删除这个自添景点？", ok: "确定", imported: "导入成功", importFail: "导入失败：这不是本网站导出的备份文件", restored: "已恢复",
+      askDel: "删除这个自添景点？", askDelItem: "确定删除此项目吗？", ok: "确定", imported: "导入成功", importFail: "导入失败：这不是本网站导出的备份文件", restored: "已恢复",
       exportSaved: "备份已保存", exportFail: "这里暂时不能保存文件", storageFail: "保存失败：浏览器禁止了本地存储",
       selCount: "已选 {a} / 共 {b}", bookedCount: "已购票 {n}", migrated: "已从旧版数据迁移（旧数据仍保留在本机备份中）",
       langBtn: "中文 · PT", subGrw: "格林德瓦", subZer: "采尔马特 / Visp", subZrh: "苏黎世"
@@ -1112,7 +1113,7 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
       export: "Exportar backup (JSON)", import: "Importar backup", resetAll: "Restaurar tudo", more2: "Mais",
       askReset: "Restaurar tudo?", askResetMsg: "Escolhas, horários, reservas, hotéis e transporte voltam ao padrão. Dá para desfazer por 5 s.", resetBtn: "Restaurar",
       askImport: "Importar este backup?", askImportMsg: "Substitui o conteúdo atual; os dados anteriores ficam salvos neste navegador.", importBtn: "Importar",
-      askDel: "Excluir esta atração?", ok: "OK", imported: "Importado", importFail: "Falha: arquivo não é um backup deste site", restored: "Restaurado",
+      askDel: "Excluir esta atração?", askDelItem: "Excluir este item?", ok: "OK", imported: "Importado", importFail: "Falha: arquivo não é um backup deste site", restored: "Restaurado",
       exportSaved: "Backup salvo", exportFail: "Não é possível salvar aqui", storageFail: "Falha ao salvar: armazenamento bloqueado",
       selCount: "{a} de {b} escolhidas", bookedCount: "{n} compradas", migrated: "Dados da versão anterior migrados",
       langBtn: "PT · 中文", subGrw: "Grindelwald", subZer: "Zermatt / Visp", subZrh: "Zurique"
@@ -1143,7 +1144,8 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
       att: Object.fromEntries(T.attractions.map(a => [a.id, freshAtt(a)])),
       custom: [],
       hotels: Object.fromEntries(T.hotels.map(h => [h.id, { booked: !!h.booked, edits: {} }])),      // 默认状态来自凭证（没有凭证的为未预订）
-      transport: Object.fromEntries(T.transport.map(t => [t.id, { booked: !!t.booked, edits: {} }]))
+      transport: Object.fromEntries(T.transport.map(t => [t.id, { booked: !!t.booked, edits: {} }])),
+      deleted: { hotels: [], transport: [] }      // 用户删除的酒店 / 交通 id（刷新、导入导出都保留）
     };
   }
   const S = v => String(v ?? "");
@@ -1167,6 +1169,8 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
     });
     for (const [id, v] of Object.entries(s.hotels || {})) if (HOT.has(id) && v) out.hotels[id] = { booked: !!v.booked, edits: cleanEdits(v.edits, HOT_FIELDS) };
     for (const [id, v] of Object.entries(s.transport || {})) if (TRA.has(id) && v) out.transport[id] = { booked: !!v.booked, edits: cleanEdits(v.edits, TRA_FIELDS) };
+    const dl = s.deleted || {};
+    out.deleted = { hotels: (Array.isArray(dl.hotels) ? dl.hotels : []).filter(id => HOT.has(id)), transport: (Array.isArray(dl.transport) ? dl.transport : []).filter(id => TRA.has(id)) };
     if (s.budget) out.budget = s.budget;
     if (s.legacy) out.legacy = s.legacy;
     return out;
@@ -1229,6 +1233,9 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
   const attState = id => state.custom.find(x => x.id === id) || state.att[id];
   const hotel = id => Object.assign({}, HOT.get(id), state.hotels[id].edits, { booked: state.hotels[id].booked, _ed: state.hotels[id].edits });
   const trans = id => Object.assign({}, TRA.get(id), state.transport[id].edits, { booked: state.transport[id].booked, _ed: state.transport[id].edits });
+  const isDel = (k, id) => !!(state.deleted && state.deleted[k].includes(id));
+  const liveHotels = () => T.hotels.filter(h => !isDel("hotels", h.id));
+  const liveTrans = () => T.transport.filter(t => !isDel("transport", t.id));
   const L = (zh, pt) => (lang === "pt" && pt) ? pt : (zh || "");
   const val = v => { v = String(v ?? "").trim(); return v ? (/^待确认/.test(v) ? `<span class="tbc">${esc(v)}</span>` : esc(v)) : `<span class="tbc">${esc(tr("tbc"))}</span>`; };
 
@@ -1364,7 +1371,7 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
 
   // 回国倒计时（QR786 圣保罗起飞，按当地时区计算）
   function homeTrip() {
-    const t0 = T.transport.find(t => t.home); if (!t0) return null;
+    const t0 = liveTrans().find(t => t.home); if (!t0) return null;
     const t = trans(t0.id), legs = t.legs && t.legs.length ? t.legs : [{ date: t.date, no: t.no, from: t.from, to: t.to, dep: t.dep, arr: t.arr }];
     const first = legs[0], last = legs[legs.length - 1];
     const dep = Date.parse(`${first.date}T${(first.dep || "").slice(0, 5)}:00${t0.tz || "Z"}`);
@@ -1399,12 +1406,13 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
         <span class="txt"><span class="flag">${r.flag}</span><div class="nm">${esc(L(r.name, r.namePt))}</div><div class="en">${esc(r.en)} · ${esc(r.dates)}</div>
         <div class="meta">${esc(tr("selCount", { a: sel, b: list.length }))}</div></span></button>`;
     }).join("");
-    const needH = T.hotels.filter(h => !h.noBook), hb = needH.filter(h => state.hotels[h.id].booked).length, tb = Object.values(state.transport).filter(t => t.booked).length;
+    const needH = liveHotels().filter(h => !h.noBook), hb = needH.filter(h => state.hotels[h.id].booked).length;
+    const allT = liveTrans(), tb = allT.filter(t => state.transport[t.id].booked).length;
     app.innerHTML = `${topBar()}${cdHtml()}${banner}
       <div class="dest-grid">${cards}</div>
       <div class="links">
         <button class="link-card" data-go="hotels"><span class="ic">🏨</span><span><b>${esc(tr("hotels"))}</b><span>${esc(tr("hotelBooked"))} ${hb} / ${needH.length}</span></span></button>
-        <button class="link-card" data-go="transport"><span class="ic">🚆</span><span><b>${esc(tr("transport"))}</b><span>${esc(tr("traBooked"))} ${tb} / ${T.transport.length}</span></span></button>
+        <button class="link-card" data-go="transport"><span class="ic">🚆</span><span><b>${esc(tr("transport"))}</b><span>${esc(tr("traBooked"))} ${tb} / ${allT.length}</span></span></button>
       </div>
       ${migratedNow ? `<p class="banner" style="margin-top:14px">${esc(tr("migrated"))}</p>` : ""}`;
     tickCd(); cdTimer = setInterval(tickCd, 1000);
@@ -1500,7 +1508,7 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
   }
   function renderHotels() {
     document.title = tr("hotelsTitle");
-    const grp = g => T.hotels.filter(h => h.grp === g).map(h => hotel(h.id)).sort((a, b) => (a.in || "9999").localeCompare(b.in || "9999"));
+    const grp = g => liveHotels().filter(h => h.grp === g).map(h => hotel(h.id)).sort((a, b) => (a.in || "9999").localeCompare(b.in || "9999"));
     app.innerHTML = `${topBar()}${navBar("hotels")}<div class="rhead"><h2>🏨 ${esc(tr("hotelsTitle"))}</h2></div>
       ${[["eu", tr("grpEu")], ["cn", tr("grpCn")]].map(([g, t]) => `<h3 class="grp-title">${esc(t)}</h3><div class="list">${grp(g).map(hotelCard).join("")}</div>`).join("")}`;
   }
@@ -1526,7 +1534,7 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
   }
   function renderTransport() {
     document.title = tr("transportTitle");
-    const grp = g => T.transport.filter(t => t.grp === g).map(t => trans(t.id)).sort((a, b) => (a.date || a.sortKey || "9999").localeCompare(b.date || b.sortKey || "9999"));
+    const grp = g => liveTrans().filter(t => t.grp === g).map(t => trans(t.id)).sort((a, b) => (a.date || a.sortKey || "9999").localeCompare(b.date || b.sortKey || "9999"));
     app.innerHTML = `${topBar()}${navBar("transport")}<div class="rhead"><h2>🚆 ${esc(tr("transportTitle"))}</h2></div>
       ${[["eu", tr("grpEu")], ["cn", tr("grpCn")]].map(([g, t]) => `<h3 class="grp-title">${esc(t)}</h3><div class="list">${grp(g).map(transCard).join("")}</div>`).join("")}`;
   }
@@ -1733,9 +1741,18 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
         ${legs ? legs.map((l, i) => `<div class="legbox"><b>${esc(tr("legN", { n: i + 1 }))}</b>${LEG_FIELDS.map(f => field(`lg-${i}-${f}`, tr("fl_" + f), l[f] || "", f === "date" ? "date" : "")).join("")}</div>`).join("") : ""}
         <div class="form-actions"><button type="button" class="btn" id="shReset">${esc(tr("resetItem"))}</button>
           <div class="row-btns"><button type="button" class="btn" id="shCancel">${esc(tr("cancel"))}</button><button type="submit" class="btn primary">${esc(tr("save"))}</button></div></div>
+        <button type="button" class="del-link" id="shDel">🗑 ${esc(tr("del"))}</button>
       </form>`);
     $("#shClose").onclick = closeSheet; $("#shCancel").onclick = closeSheet;
     $("#shReset").onclick = () => { st.edits = {}; save(); closeSheet(); rerender(); toast(tr("restored")); };
+    $("#shDel").onclick = async () => {      // 二次确认后才删除；删除记录存进本地数据（导入导出一并保留）
+      if (!await ask(tr("askDelItem"), "", tr("del"))) return;
+      const k = isH ? "hotels" : "transport";
+      if (!state.deleted.hotels) state.deleted = { hotels: [], transport: [] };
+      if (!state.deleted[k].includes(id)) state.deleted[k].push(id);
+      save(); closeSheet(); rerender();
+      toast(tr("deleted"), () => { state.deleted[k] = state.deleted[k].filter(x => x !== id); save(); rerender(); });
+    };
     $("#shForm").onsubmit = e => {
       e.preventDefault();
       const edits = {};
