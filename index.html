@@ -3,6 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="pwa" content="1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#eef1f2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111517" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="欧洲之旅">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>欧洲之旅 2026</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
@@ -191,6 +201,8 @@
   .form label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
   .form .legbox { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .form .legbox b { grid-column: 1 / -1; font-size: 13px; }
+  .upd { position: fixed; left: 50%; top: calc(10px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 85; border: 0; border-radius: 999px;
+    background: var(--accent); color: var(--on-accent); padding: 10px 18px; font-size: 14px; font-weight: 600; box-shadow: var(--shadow); min-height: 44px; max-width: calc(100% - 32px); }
   .plus-btn { margin-left: auto; align-self: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface);
     color: var(--muted); font-size: 22px; line-height: 1; display: grid; place-items: center; padding: 0 0 2px; }
   .plus-btn:hover { background: var(--surface-2); color: var(--text); }
@@ -1099,6 +1111,7 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
       askReset: "全部恢复为默认？", askResetMsg: "景点选择、计划时间、预约状态、酒店和交通资料都会恢复默认，5 秒内可以撤销。建议先导出备份。", resetBtn: "恢复",
       askImport: "导入这份备份？", askImportMsg: "会覆盖当前内容；导入前的数据会自动备份在本机，5 秒内可撤销。", importBtn: "导入",
       askDel: "删除这个自添景点？", askDelItem: "确定删除此项目吗？", ok: "确定",
+      needNet: "现在没有网络，这个链接需要联网才能打开", offReady: "离线缓存完成：没有网络也能打开本网站", updAvail: "发现新版本，点击更新", updating: "正在更新…",
       addHotel: "添加酒店", addTrans: "添加交通", fl_hname: "酒店名称", fl_tdate: "出发日期", fl_kind: "交通类型", fl_hstatus: "预订状态", fl_tstatus: "购票状态",
       k_plane: "飞机", k_train: "火车", k_bus: "巴士", k_other: "其他", needFromTo: "请至少填写出发地或目的地", timePh: "例如 08:30；跨日写 次日 06:30", plusDay: "+{n}天", imported: "导入成功", importFail: "导入失败：这不是本网站导出的备份文件", restored: "已恢复",
       exportSaved: "备份已保存", exportFail: "这里暂时不能保存文件", storageFail: "保存失败：浏览器禁止了本地存储",
@@ -1136,6 +1149,7 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
       askReset: "Restaurar tudo?", askResetMsg: "Escolhas, horários, reservas, hotéis e transporte voltam ao padrão. Dá para desfazer por 5 s.", resetBtn: "Restaurar",
       askImport: "Importar este backup?", askImportMsg: "Substitui o conteúdo atual; os dados anteriores ficam salvos neste navegador.", importBtn: "Importar",
       askDel: "Excluir esta atração?", askDelItem: "Excluir este item?", ok: "OK",
+      needNet: "Sem internet: este link precisa de conexão", offReady: "Pronto para uso offline", updAvail: "Nova versão disponível — toque para atualizar", updating: "Atualizando…",
       addHotel: "Adicionar hotel", addTrans: "Adicionar transporte", fl_hname: "Nome do hotel", fl_tdate: "Data de partida", fl_kind: "Tipo", fl_hstatus: "Reserva", fl_tstatus: "Passagem",
       k_plane: "Avião", k_train: "Trem", k_bus: "Ônibus", k_other: "Outro", needFromTo: "Preencha a origem ou o destino", timePh: "ex.: 08:30; dia seguinte: +1 06:30", plusDay: "+{n} dia", imported: "Importado", importFail: "Falha: arquivo não é um backup deste site", restored: "Restaurado",
       exportSaved: "Backup salvo", exportFail: "Não é possível salvar aqui", storageFail: "Falha ao salvar: armazenamento bloqueado",
@@ -1914,6 +1928,35 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
     return true;
   }
   $("#importFile").addEventListener("change", async e => { const f = e.target.files[0]; e.target.value = ""; if (f) await importText(await f.text()); });
+
+  // ---------- 离线（PWA） ----------
+  // 外部链接（地图、购票）没网时提示需要联网
+  document.addEventListener("click", e => {
+    const a = e.target.closest && e.target.closest('a[href^="http"]');
+    if (a && !navigator.onLine) { e.preventDefault(); toast(tr("needNet")); }
+  }, true);
+  // Service Worker 只在公开网站启用（构建时插入 <meta name="pwa">）；行程数据在 localStorage，更新代码不会清除
+  if ($('meta[name="pwa"]') && "serviceWorker" in navigator && location.protocol !== "file:") {
+    const OFF_KEY = "europa-trip-2026-offline-ready";
+    const hadCtrl = !!navigator.serviceWorker.controller; let reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => { if (!hadCtrl || reloading) return; reloading = true; location.reload(); });
+    navigator.serviceWorker.addEventListener("message", e => { if (e.data === "cached" && !lsGet(OFF_KEY)) { lsSet(OFF_KEY, "1"); toast(tr("offReady")); } });
+    const showUpd = w => {
+      let b = $("#upd"); if (!b) { b = document.createElement("button"); b.id = "upd"; b.className = "upd"; b.type = "button"; document.body.appendChild(b); }
+      b.textContent = tr("updAvail"); b.onclick = () => { b.textContent = tr("updating"); w.postMessage("skipWaiting"); };
+    };
+    window.addEventListener("load", async () => {
+      try {
+        const reg = await navigator.serviceWorker.register("sw.js", { updateViaCache: "none" });
+        if (reg.waiting && navigator.serviceWorker.controller) showUpd(reg.waiting);
+        reg.addEventListener("updatefound", () => { const w = reg.installing; if (w) w.addEventListener("statechange", () => { if (w.state === "installed" && navigator.serviceWorker.controller) showUpd(w); }); });
+        const check = () => { if (navigator.onLine) reg.update().catch(() => {}); };
+        document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
+        window.addEventListener("online", check); setInterval(check, 30 * 60 * 1000);
+        if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+      } catch (e) {}
+    });
+  }
 
   window.__trip = { get state() { return state; }, importText, toV4, conflicts: id => conflicts(att(id)), origin: id => originHotel(att(id)) };   // 测试用
   window.addEventListener("hashchange", () => render(false));
