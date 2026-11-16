@@ -191,6 +191,26 @@
   .form label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
   .form .legbox { border: 1px solid var(--line); border-radius: 12px; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .form .legbox b { grid-column: 1 / -1; font-size: 13px; }
+  .plus-btn { margin-left: auto; align-self: center; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface);
+    color: var(--muted); font-size: 22px; line-height: 1; display: grid; place-items: center; padding: 0 0 2px; }
+  .plus-btn:hover { background: var(--surface-2); color: var(--text); }
+  .tcard { cursor: pointer; }
+  .tcard .datebox { font-size: 16px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .tcard .sub2 { font-size: 13px; color: var(--muted); margin-top: -4px; overflow-wrap: anywhere; }
+  .segs { display: flex; flex-direction: column; }
+  .seg { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: start; gap: 2px 8px; padding: 6px 0; }
+  .seg + .seg { border-top: 1px dashed var(--line); padding-top: 10px; margin-top: 4px; }
+  .seg-l { grid-column: 1 / -1; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .seg .end { display: flex; flex-direction: column; min-width: 0; }
+  .seg .end.r { align-items: flex-end; text-align: right; }
+  .seg .tm { font-size: 28px; font-weight: 700; line-height: 1.15; font-variant-numeric: tabular-nums; letter-spacing: .3px; }
+  .seg .tm.tbf { font-size: 20px; font-weight: 600; color: var(--faint); line-height: 1.6; }
+  .seg .pl { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; line-height: 1.35; }
+  .seg .plus { font-size: 12px; font-weight: 700; color: var(--warn); }
+  .seg .mid { display: flex; flex-direction: column; align-items: center; color: var(--faint); padding-top: 4px; }
+  .seg .mid .ic { font-size: 16px; line-height: 1; }
+  .seg .mid .ar { font-size: 18px; line-height: 1; }
+  @media (max-width: 420px) { .seg .tm { font-size: 26px; } }
   .del-link { align-self: center; background: none; border: 0; color: var(--faint); font-size: 13px; padding: 10px 14px; margin-top: 4px; text-decoration: underline; min-height: 40px; }
   .del-link:hover { color: var(--muted); }
   .form-actions { display: flex; gap: 8px; justify-content: space-between; position: sticky; bottom: 0; background: var(--surface); padding: 10px 0 2px; flex-wrap: wrap; }
@@ -1078,7 +1098,9 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
       export: "导出备份（JSON）", import: "导入备份", resetAll: "全部恢复默认", more2: "更多",
       askReset: "全部恢复为默认？", askResetMsg: "景点选择、计划时间、预约状态、酒店和交通资料都会恢复默认，5 秒内可以撤销。建议先导出备份。", resetBtn: "恢复",
       askImport: "导入这份备份？", askImportMsg: "会覆盖当前内容；导入前的数据会自动备份在本机，5 秒内可撤销。", importBtn: "导入",
-      askDel: "删除这个自添景点？", askDelItem: "确定删除此项目吗？", ok: "确定", imported: "导入成功", importFail: "导入失败：这不是本网站导出的备份文件", restored: "已恢复",
+      askDel: "删除这个自添景点？", askDelItem: "确定删除此项目吗？", ok: "确定",
+      addHotel: "添加酒店", addTrans: "添加交通", fl_hname: "酒店名称", fl_tdate: "出发日期", fl_kind: "交通类型", fl_hstatus: "预订状态", fl_tstatus: "购票状态",
+      k_plane: "飞机", k_train: "火车", k_bus: "巴士", k_other: "其他", needFromTo: "请至少填写出发地或目的地", timePh: "例如 08:30；跨日写 次日 06:30", plusDay: "+{n}天", imported: "导入成功", importFail: "导入失败：这不是本网站导出的备份文件", restored: "已恢复",
       exportSaved: "备份已保存", exportFail: "这里暂时不能保存文件", storageFail: "保存失败：浏览器禁止了本地存储",
       selCount: "已选 {a} / 共 {b}", bookedCount: "已购票 {n}", migrated: "已从旧版数据迁移（旧数据仍保留在本机备份中）",
       langBtn: "中文 · PT", subGrw: "格林德瓦", subZer: "采尔马特 / Visp", subZrh: "苏黎世"
@@ -1113,7 +1135,9 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
       export: "Exportar backup (JSON)", import: "Importar backup", resetAll: "Restaurar tudo", more2: "Mais",
       askReset: "Restaurar tudo?", askResetMsg: "Escolhas, horários, reservas, hotéis e transporte voltam ao padrão. Dá para desfazer por 5 s.", resetBtn: "Restaurar",
       askImport: "Importar este backup?", askImportMsg: "Substitui o conteúdo atual; os dados anteriores ficam salvos neste navegador.", importBtn: "Importar",
-      askDel: "Excluir esta atração?", askDelItem: "Excluir este item?", ok: "OK", imported: "Importado", importFail: "Falha: arquivo não é um backup deste site", restored: "Restaurado",
+      askDel: "Excluir esta atração?", askDelItem: "Excluir este item?", ok: "OK",
+      addHotel: "Adicionar hotel", addTrans: "Adicionar transporte", fl_hname: "Nome do hotel", fl_tdate: "Data de partida", fl_kind: "Tipo", fl_hstatus: "Reserva", fl_tstatus: "Passagem",
+      k_plane: "Avião", k_train: "Trem", k_bus: "Ônibus", k_other: "Outro", needFromTo: "Preencha a origem ou o destino", timePh: "ex.: 08:30; dia seguinte: +1 06:30", plusDay: "+{n} dia", imported: "Importado", importFail: "Falha: arquivo não é um backup deste site", restored: "Restaurado",
       exportSaved: "Backup salvo", exportFail: "Não é possível salvar aqui", storageFail: "Falha ao salvar: armazenamento bloqueado",
       selCount: "{a} de {b} escolhidas", bookedCount: "{n} compradas", migrated: "Dados da versão anterior migrados",
       langBtn: "PT · 中文", subGrw: "Grindelwald", subZer: "Zermatt / Visp", subZrh: "Zurique"
@@ -1145,8 +1169,16 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
       custom: [],
       hotels: Object.fromEntries(T.hotels.map(h => [h.id, { booked: !!h.booked, edits: {} }])),      // 默认状态来自凭证（没有凭证的为未预订）
       transport: Object.fromEntries(T.transport.map(t => [t.id, { booked: !!t.booked, edits: {} }])),
-      deleted: { hotels: [], transport: [] }      // 用户删除的酒店 / 交通 id（刷新、导入导出都保留）
+      deleted: { hotels: [], transport: [] },     // 用户删除的酒店 / 交通 id（刷新、导入导出都保留）
+      userH: [], userT: []                        // 用户手动添加的酒店 / 交通（id 以 uh / ut 开头）
     };
+  }
+  const UH_FIELDS = ["name", "city", "in", "out", "checkin", "checkout", "address", "note", "map"];
+  const UT_FIELDS = ["kind", "date", "from", "to", "dep", "arr", "no", "note"];
+  function cleanUser(list, fields, prefix) {
+    const seen = new Set();
+    return (Array.isArray(list) ? list : []).filter(x => x && x.id && String(x.id).startsWith(prefix) && !seen.has(x.id) && seen.add(x.id))
+      .map(x => Object.assign({ id: S(x.id), booked: !!x.booked }, Object.fromEntries(fields.map(f => [f, S(x[f])]))));
   }
   const S = v => String(v ?? "");
   function cleanEdits(e, fields) {
@@ -1171,6 +1203,7 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
     for (const [id, v] of Object.entries(s.transport || {})) if (TRA.has(id) && v) out.transport[id] = { booked: !!v.booked, edits: cleanEdits(v.edits, TRA_FIELDS) };
     const dl = s.deleted || {};
     out.deleted = { hotels: (Array.isArray(dl.hotels) ? dl.hotels : []).filter(id => HOT.has(id)), transport: (Array.isArray(dl.transport) ? dl.transport : []).filter(id => TRA.has(id)) };
+    out.userH = cleanUser(s.userH, UH_FIELDS, "uh"); out.userT = cleanUser(s.userT, UT_FIELDS, "ut");
     if (s.budget) out.budget = s.budget;
     if (s.legacy) out.legacy = s.legacy;
     return out;
@@ -1231,11 +1264,15 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
     return Object.assign({}, d, st.edits, { id, sel: st.sel, date: st.date, time: st.time, booked: st.booked, photo: PH[id] || null, _ed: st.edits });
   }
   const attState = id => state.custom.find(x => x.id === id) || state.att[id];
-  const hotel = id => Object.assign({}, HOT.get(id), state.hotels[id].edits, { booked: state.hotels[id].booked, _ed: state.hotels[id].edits });
-  const trans = id => Object.assign({}, TRA.get(id), state.transport[id].edits, { booked: state.transport[id].booked, _ed: state.transport[id].edits });
+  const grpOf = d => d && d >= "2026-12-19" && d <= "2026-12-31" ? "eu" : "cn";   // 手动添加的项目按日期归入欧洲 / 中国行程
+  const userH = id => state.userH.find(x => x.id === id), userT = id => state.userT.find(x => x.id === id);
+  const hotel = id => { const u = userH(id); if (u) return Object.assign({ user: true, _ed: {} }, u, { grp: grpOf(u.in) });
+    return Object.assign({}, HOT.get(id), state.hotels[id].edits, { booked: state.hotels[id].booked, _ed: state.hotels[id].edits }); };
+  const trans = id => { const u = userT(id); if (u) return Object.assign({ user: true, _ed: {} }, u, { grp: grpOf(u.date), purpose: [u.from, u.to].filter(Boolean).join(" → ") });
+    return Object.assign({}, TRA.get(id), state.transport[id].edits, { booked: state.transport[id].booked, _ed: state.transport[id].edits }); };
   const isDel = (k, id) => !!(state.deleted && state.deleted[k].includes(id));
-  const liveHotels = () => T.hotels.filter(h => !isDel("hotels", h.id));
-  const liveTrans = () => T.transport.filter(t => !isDel("transport", t.id));
+  const liveHotels = () => [...T.hotels.filter(h => !isDel("hotels", h.id)), ...state.userH.map(u => ({ id: u.id, grp: grpOf(u.in) }))];
+  const liveTrans = () => [...T.transport.filter(t => !isDel("transport", t.id)), ...state.userT.map(u => ({ id: u.id, grp: grpOf(u.date) }))];
   const L = (zh, pt) => (lang === "pt" && pt) ? pt : (zh || "");
   const val = v => { v = String(v ?? "").trim(); return v ? (/^待确认/.test(v) ? `<span class="tbc">${esc(v)}</span>` : esc(v)) : `<span class="tbc">${esc(tr("tbc"))}</span>`; };
 
@@ -1406,8 +1443,8 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
         <span class="txt"><span class="flag">${r.flag}</span><div class="nm">${esc(L(r.name, r.namePt))}</div><div class="en">${esc(r.en)} · ${esc(r.dates)}</div>
         <div class="meta">${esc(tr("selCount", { a: sel, b: list.length }))}</div></span></button>`;
     }).join("");
-    const needH = liveHotels().filter(h => !h.noBook), hb = needH.filter(h => state.hotels[h.id].booked).length;
-    const allT = liveTrans(), tb = allT.filter(t => state.transport[t.id].booked).length;
+    const needH = liveHotels().filter(h => !h.noBook), hb = needH.filter(h => hotel(h.id).booked).length;
+    const allT = liveTrans(), tb = allT.filter(t => trans(t.id).booked).length;
     app.innerHTML = `${topBar()}${cdHtml()}${banner}
       <div class="dest-grid">${cards}</div>
       <div class="links">
@@ -1509,24 +1546,45 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
   function renderHotels() {
     document.title = tr("hotelsTitle");
     const grp = g => liveHotels().filter(h => h.grp === g).map(h => hotel(h.id)).sort((a, b) => (a.in || "9999").localeCompare(b.in || "9999"));
-    app.innerHTML = `${topBar()}${navBar("hotels")}<div class="rhead"><h2>🏨 ${esc(tr("hotelsTitle"))}</h2></div>
+    app.innerHTML = `${topBar()}${navBar("hotels")}<div class="rhead"><h2>🏨 ${esc(tr("hotelsTitle"))}</h2>
+        <button class="plus-btn" data-add="hotel" title="${esc(tr("addHotel"))}" aria-label="${esc(tr("addHotel"))}">+</button></div>
       ${[["eu", tr("grpEu")], ["cn", tr("grpCn")]].map(([g, t]) => `<h3 class="grp-title">${esc(t)}</h3><div class="list">${grp(g).map(hotelCard).join("")}</div>`).join("")}`;
   }
 
+  // 交通卡片：大号出发 / 抵达时间；跨日标「+1天」；中转逐段显示
+  const KIND_IC = { plane: "✈️", train: "🚆", bus: "🚌", other: "➜" };
+  const kindOf = t => t.kind || (/^(MU|QR|TO|CA|CZ|HU)\s?\d/i.test(t.no || "") || (t.legs && t.legs.length) ? "plane" : /TGV|Swiss|火车|列车|高铁|动车/.test((t.no || "") + (t.mode || "")) ? "train" : /巴士|大巴|bus/i.test(t.mode || "") ? "bus" : "other");
+  const timeOf = s => { const m = /(\d{1,2}):(\d{2})/.exec(s || ""); return m ? m[1].padStart(2, "0") + ":" + m[2] : ""; };
+  function dayPlus(date, arr) {
+    if (!date || !arr) return null;
+    const d0 = new Date(date + "T00:00:00"); if (isNaN(d0)) return null;
+    let tg = null; const md = /(\d{1,2})\/(\d{1,2})/.exec(arr);
+    if (md) { tg = new Date(d0.getFullYear(), +md[1] - 1, +md[2]); if (tg - d0 < -180 * 864e5) tg = new Date(d0.getFullYear() + 1, +md[1] - 1, +md[2]); }
+    else if (/次日|\+1/.test(arr)) tg = new Date(d0.getTime() + 864e5);
+    if (!tg) return null; const n = Math.round((tg - d0) / 864e5); if (n <= 0) return null;
+    return { n, md: lang === "pt" ? `${tg.getDate()}/${tg.getMonth() + 1}` : `${tg.getMonth() + 1}/${tg.getDate()}` };
+  }
+  function segHtml(s, icon, showDate) {
+    const dt = timeOf(s.dep), at = timeOf(s.arr), p = dayPlus(s.date, s.arr);
+    return `<div class="seg">${showDate && s.date ? `<div class="seg-l">${esc(s.date)}${s.no ? ` · ${esc(s.no)}` : ""}</div>` : ""}
+      <div class="end"><b class="tm ${dt ? "" : "tbf"}">${esc(dt || tr("tbf"))}</b><span class="pl">${esc(s.from || tr("tbf"))}</span></div>
+      <div class="mid" aria-hidden="true"><span class="ic">${icon}</span><span class="ar">⟶</span></div>
+      <div class="end r"><b class="tm ${at ? "" : "tbf"}">${esc(at || tr("tbf"))}</b>${p ? `<span class="plus">${esc(tr("plusDay", { n: p.n }))} · ${esc(p.md)}</span>` : ""}<span class="pl">${esc(s.to || tr("tbf"))}</span></div>
+    </div>`;
+  }
   function transCard(t) {
     const purpose = t._ed.purpose !== undefined ? t.purpose : L(t.purpose, t.purposePt);
     const cls = t.booked ? "ok" : "no";
     const badge = t.booked ? tr("traBooked") : (t.pending && lang === "zh" ? t.pending : tr("traNot"));
-    const legs = t.legs && t.legs.length ? t.legs : null;
-    const tm = (a, b) => (a || b) ? `<div class="times">${esc(tr("depL"))} ${esc(a || tr("tbf"))} · ${esc(tr("arrL"))} ${esc(b || tr("tbf"))}</div>` : "";
-    return `<div class="item ${cls}" data-tid="${esc(t.id)}">
-      <div class="hd"><div><div class="datebox">${t.date ? esc(t.date) : esc(tr("dateTbd"))}${t.dateEnd ? ` – ${esc(t.dateEnd)}` : ""}</div><h3>${esc(purpose)}</h3></div>
+    const legs = t.legs && t.legs.length ? t.legs : null, icon = KIND_IC[kindOf(t)];
+    const isPass = t.dateEnd && !t.dep && !t.arr;
+    return `<div class="item tcard ${cls}" data-tid="${esc(t.id)}">
+      <div class="hd"><div class="datebox">📅 ${t.date ? esc(t.date) : esc(tr("dateTbd"))}${t.dateEnd ? ` – ${esc(t.dateEnd)}` : ""}</div>
         <span class="badge ${cls}">${esc(badge)}</span></div>
+      <div class="sub2">${esc(purpose)}${t.no ? ` · ${esc(t.no)}` : ""}</div>
+      ${isPass ? `<div class="times">${esc(t.from)}${t.to ? ` → ${esc(t.to)}` : ""}</div>`
+        : (legs ? `<div class="segs">${legs.map(l => segHtml(l, icon, true)).join("")}</div>` : `<div class="segs">${segHtml({ date: t.date, dep: t.dep, arr: t.arr, from: t.from, to: t.to }, icon, false)}</div>`)}
       ${t.mode ? `<div class="times">${esc(tr("modeL"))}：${esc(t.mode)}</div>` : ""}
-      ${legs ? `<div class="legs">${legs.map(l => `<div class="leg"><b>${esc(l.no || tr("tbf"))}</b> ${esc(l.date)} · ${esc(l.from)} ${esc(l.dep)} → ${esc(l.to)} ${esc(l.arr)}</div>`).join("")}</div>`
-        : `${t.no ? `<div class="route2">${esc(t.no)}</div>` : ""}
-           ${t.from || t.to ? `<div class="times">${esc(t.from || tr("tbf"))}${t.to ? ` → ${esc(t.to)}` : (t.grp === "cn" ? ` → ${esc(tr("tbf"))}` : "")}</div>` : (t.grp === "cn" ? `<div class="times tbc">${esc(tr("fl_from"))} → ${esc(tr("fl_to"))}：${esc(tr("tbf"))}</div>` : "")}
-           ${tm(t.dep, t.arr)}`}
       ${t.note ? `<div class="note">${linkify(t.note)}</div>` : ""}
       <div class="toggles"><label class="tg ${t.booked ? "on" : ""}"><input type="checkbox" data-tb ${t.booked ? "checked" : ""}>${esc(tr("traBooked"))}</label>
         <button class="btn" data-tedit>${esc(tr("edit"))}</button></div>
@@ -1535,7 +1593,8 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
   function renderTransport() {
     document.title = tr("transportTitle");
     const grp = g => liveTrans().filter(t => t.grp === g).map(t => trans(t.id)).sort((a, b) => (a.date || a.sortKey || "9999").localeCompare(b.date || b.sortKey || "9999"));
-    app.innerHTML = `${topBar()}${navBar("transport")}<div class="rhead"><h2>🚆 ${esc(tr("transportTitle"))}</h2></div>
+    app.innerHTML = `${topBar()}${navBar("transport")}<div class="rhead"><h2>🚆 ${esc(tr("transportTitle"))}</h2>
+        <button class="plus-btn" data-add="transport" title="${esc(tr("addTrans"))}" aria-label="${esc(tr("addTrans"))}">+</button></div>
       ${[["eu", tr("grpEu")], ["cn", tr("grpCn")]].map(([g, t]) => `<h3 class="grp-title">${esc(t)}</h3><div class="list">${grp(g).map(transCard).join("")}</div>`).join("")}`;
   }
 
@@ -1580,8 +1639,10 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
     if (dy) { const r = route(); dayF[r.pk] = dy.dataset.day === "*" ? undefined : dy.dataset.day; rerender(); return; }
     const card = e.target.closest(".att");
     if (card && e.target.closest("[data-open]")) { openDetail(card.dataset.id); return; }
-    const hi = e.target.closest("[data-hid]"); if (hi && e.target.closest("[data-hedit]")) { openSimpleForm("hotel", hi.dataset.hid); return; }
-    const ti = e.target.closest("[data-tid]"); if (ti && e.target.closest("[data-tedit]")) { openSimpleForm("transport", ti.dataset.tid); return; }
+    const ad = e.target.closest("[data-add]"); if (ad) { openUserForm(ad.dataset.add, null); return; }
+    const hi = e.target.closest("[data-hid]"); if (hi && e.target.closest("[data-hedit]")) { const id = hi.dataset.hid; userH(id) ? openUserForm("hotel", id) : openSimpleForm("hotel", id); return; }
+    const ti = e.target.closest("[data-tid]");   // 交通卡片：点卡片任意空白处或「编辑资料」都打开详情
+    if (ti && (e.target.closest("[data-tedit]") || !e.target.closest("label, a, button, input"))) { const id = ti.dataset.tid; userT(id) ? openUserForm("transport", id) : openSimpleForm("transport", id); return; }
   });
   app.addEventListener("change", e => {
     const el = e.target;
@@ -1604,8 +1665,8 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
       }
       return;
     }
-    if (el.matches("[data-hb]")) { const id = el.closest("[data-hid]").dataset.hid; state.hotels[id].booked = el.checked; save(); rerender(); return; }
-    if (el.matches("[data-tb]")) { const id = el.closest("[data-tid]").dataset.tid; state.transport[id].booked = el.checked; save(); rerender(); return; }
+    if (el.matches("[data-hb]")) { const id = el.closest("[data-hid]").dataset.hid; (userH(id) || state.hotels[id]).booked = el.checked; save(); rerender(); return; }
+    if (el.matches("[data-tb]")) { const id = el.closest("[data-tid]").dataset.tid; (userT(id) || state.transport[id]).booked = el.checked; save(); rerender(); return; }
   });
 
   function bindTop() {
@@ -1726,6 +1787,47 @@ window.TRIP_ROUTES = {"pts":{"h-bcn":[41.41107,2.18654],"h-par":[48.84697,2.3013
     const i = state.custom.findIndex(x => x.id === id); if (i < 0) return;
     const [gone] = state.custom.splice(i, 1); save(); rerender();
     toast(tr("deleted"), () => { state.custom.splice(i, 0, gone); save(); rerender(); });
+  }
+  // 手动添加 / 编辑用户自己的酒店、交通（取消不会产生空白卡片：只有点「保存」才写入）
+  function openUserForm(kind, id) {
+    const isH = kind === "hotel", list = isH ? state.userH : state.userT;
+    const cur = id ? list.find(x => x.id === id) : null, v = cur || { booked: false, kind: "plane" };
+    const ph = tr("timePh");
+    const inp = (f, type, label) => `<div><label for="uf-${f}">${esc(label || tr("fl_" + f))}</label>${type === "long" ? `<textarea id="uf-${f}">${esc(v[f] || "")}</textarea>`
+      : `<input type="${type || "text"}" id="uf-${f}" value="${esc(v[f] || "")}" ${type === "tx" ? `placeholder="${esc(ph)}"` : ""}>`}</div>`.replace('type="tx"', 'type="text"');
+    const status = `<div><label for="uf-booked">${esc(tr(isH ? "fl_hstatus" : "fl_tstatus"))}</label><select id="uf-booked">
+      <option value="1" ${v.booked ? "selected" : ""}>${esc(tr(isH ? "hotelBooked" : "traBooked"))}</option><option value="0" ${v.booked ? "" : "selected"}>${esc(tr(isH ? "hotelNot" : "traNot"))}</option></select></div>`;
+    const kindSel = `<div><label for="uf-kind">${esc(tr("fl_kind"))}</label><select id="uf-kind">${Object.keys(KIND_IC).map(k => `<option value="${k}" ${v.kind === k ? "selected" : ""}>${esc(tr("k_" + k))}</option>`).join("")}</select></div>`;
+    const fieldsH = [["name", ""], ["city", ""], ["in", "date"], ["out", "date"], ["checkin", "time"], ["checkout", "time"], ["address", ""], ["note", "long"]];
+    const fieldsT = [["date", "date"], ["from", ""], ["to", ""], ["dep", "tx"], ["arr", "tx"], ["no", ""], ["note", "long"]];
+    const F = isH ? fieldsH : fieldsT;
+    openSheet(`
+      <div class="sheet-head"><b>${esc(cur ? tr("edit") : tr(isH ? "addHotel" : "addTrans"))}</b><button class="close-btn" id="shClose" aria-label="${esc(tr("close"))}">×</button></div>
+      <form class="form" id="shForm" novalidate>
+        ${isH ? "" : kindSel}
+        ${F.map(([f, type]) => inp(f, type, isH && f === "name" ? tr("fl_hname") : (!isH && f === "date" ? tr("fl_tdate") : ""))).join("")}
+        ${status}
+        <div class="form-actions"><span></span>
+          <div class="row-btns"><button type="button" class="btn" id="shCancel">${esc(tr("cancel"))}</button><button type="submit" class="btn primary">${esc(tr("save"))}</button></div></div>
+        ${cur ? `<button type="button" class="del-link" id="shDel">🗑 ${esc(tr("del"))}</button>` : ""}
+      </form>`);
+    $("#shClose").onclick = closeSheet; $("#shCancel").onclick = closeSheet;
+    $("#shForm").onsubmit = e => {
+      e.preventDefault();
+      const vals = {}; for (const [f] of F) vals[f] = $("#uf-" + f).value.trim();
+      if (!isH) vals.kind = $("#uf-kind").value;
+      vals.booked = $("#uf-booked").value === "1";
+      const bad = isH ? (!vals.name && $("#uf-name")) : (!vals.from && !vals.to && $("#uf-from"));
+      if (bad) { bad.setCustomValidity(tr(isH ? "nameRequired" : "needFromTo")); bad.reportValidity(); bad.oninput = () => bad.setCustomValidity(""); return; }
+      if (cur) Object.assign(cur, vals); else list.push(Object.assign({ id: (isH ? "uh" : "ut") + uid() }, vals));
+      save(); closeSheet(); rerender(); toast(tr("saved"));
+    };
+    if (cur) $("#shDel").onclick = async () => {
+      if (!await ask(tr("askDelItem"), "", tr("del"))) return;
+      const i = list.indexOf(cur); if (i < 0) return; list.splice(i, 1);
+      save(); closeSheet(); rerender();
+      toast(tr("deleted"), () => { list.splice(i, 0, cur); save(); rerender(); });
+    };
   }
   function openSimpleForm(kind, id) {
     const isH = kind === "hotel";
